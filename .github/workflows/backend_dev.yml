@@ -54,6 +54,7 @@ jobs:
           docker run --rm -it -d -p 8081:8080 \
           --name team6_server_dev \
           -e SPRING_PROFILES_ACTIVE=dev \
+          -e spring.config.location=/app/application-dev.properties \
           -v /Users/scienceyds/team6/application-dev.properties:/app/application-dev.properties \
           macmini/team6_server_dev:latest
 
