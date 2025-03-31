@@ -52,8 +52,8 @@ jobs:
       - name: Run new Docker container
         run: |
           docker run --rm -it -d -p 8081:8080 \
-            --name team6_server_dev \
-            -e SPRING_PROFILES_ACTIVE=dev \
-            -v /team6/application-dev.properties:/app/application-dev.properties \
-            macmini/team6_server_dev:latest
+          --name team6_server_dev \
+          -e SPRING_PROFILES_ACTIVE=dev \
+          -v /Users/scienceyds/team6/application-dev.properties:/app/application-dev.properties \
+          macmini/team6_server_dev:latest
 
