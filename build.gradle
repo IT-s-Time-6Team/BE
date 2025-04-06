@@ -55,6 +55,10 @@ tasks.named('asciidoctor') {
 	dependsOn test
 }
 
+asciidoctor {
+	baseDirFollowsSourceFile()
+}
+
 tasks.register('copyApiDocument', Copy) {
     dependsOn asciidoctor
     doFirst {
