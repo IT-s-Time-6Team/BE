@@ -71,4 +71,7 @@ tasks.register('copyApiDocument', Copy) {
 
 bootJar {
     dependsOn copyApiDocument
+	from("src/main/resources/static/docs") {
+		into("static/docs")
+	}
 }
