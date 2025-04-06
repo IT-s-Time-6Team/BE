@@ -1,6 +1,3 @@
-
 = API 문서
 :toc: left
 :sectnums:
-
-include::test.adoc[]
