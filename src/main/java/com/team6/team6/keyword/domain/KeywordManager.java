@@ -8,7 +8,7 @@ import java.util.List;
 @Component
 public class KeywordManager {
 
-    public List<AnalysisResult> addKeyword(String roomId, String keyword) {
+    public List<AnalysisResult> addKeyword(Long roomId, String keyword) {
         return List.of(AnalysisResult.of("Keyword1", List.of("variation1", "variation2")),
                 AnalysisResult.of("Keyword2", List.of("variation3", "variation4")));
     }
