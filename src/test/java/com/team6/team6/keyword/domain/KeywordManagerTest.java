@@ -70,4 +70,26 @@ class KeywordManagerTest {
             softly.assertThat(results.get(0).variations()).containsExactly("AI", "Deep Learning");
         });
     }
+
+    @Test
+    void keyword_manager_빈_그룹_제외_테스트() {
+        // given
+        Long roomId = 1L;
+        String keyword = "AI";
+
+        List<String> keywordsInStore = List.of("AI", "Deep Learning");
+        List<List<String>> expectedResult = List.of(List.of());
+
+        doNothing().when(store).saveKeyword(roomId, keyword);
+        when(store.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
+
+        // when
+        List<AnalysisResult> results = keywordManager.addKeyword(roomId, keyword);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(results).isEmpty();
+        });
+    }
 }
