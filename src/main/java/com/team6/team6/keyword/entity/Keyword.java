@@ -23,11 +23,11 @@ public class Keyword extends BaseEntity {
         this.memberId = memberId;
     }
 
-    public static Keyword of(String keyword, Long roomId, Long memberId) {
+    public Keyword toEntity() {
         return Keyword.builder()
-                .keyword(keyword)
-                .roomId(roomId)
-                .memberId(memberId)
+                .keyword(this.keyword)
+                .roomId(this.roomId)
+                .memberId(this.memberId)
                 .build();
     }
 
