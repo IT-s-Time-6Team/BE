@@ -1,3 +1,63 @@
 = API 문서
 :toc: left
 :sectnums:
+:snippetsDir: ../../../build/generated-snippets
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toclevels: 2
+:sectlinks:
+
+[.lead]
+API 명세서입니다. 각 항목별 예시와 요청/응답 샘플을 제공합니다.
+
+'''
+
+[.section-title]
+== 방 생성
+
+
+====
+방을 생성하는 API입니다.
+====
+
+=== 요청 형식 (HTTP)
+include::{snippetsDir}/room-create/http-request.adoc[]
+include::{snippetsDir}/room-create/request-fields.adoc[]
+
+=== 응답 형식 (HTTP)
+include::{snippetsDir}/room-create/http-response.adoc[]
+include::{snippetsDir}/room-create/response-fields.adoc[]
+
+'''
+
+== 방 조회
+
+====
+방 정보를 조회하는 API입니다. 방 조회는 GET 요청이므로 요청 본문 필드가 없습니다.
+====
+
+=== 요청 형식 (HTTP)
+include::{snippetsDir}/room-get/http-request.adoc[]
+
+=== 응답 형식 (HTTP)
+include::{snippetsDir}/room-get/http-response.adoc[]
+include::{snippetsDir}/room-get/response-fields.adoc[]
+
+'''
+
+== 방 종료
+
+====
+방을 종료하는 API입니다. 방 종료는 PATCH 요청이며, 요청 본문 필드가 없습니다.
+====
+
+=== 요청 형식 (HTTP)
+include::{snippetsDir}/room-close/http-request.adoc[]
+
+=== 응답 형식 (HTTP)
+include::{snippetsDir}/room-close/http-response.adoc[]
+include::{snippetsDir}/room-close/response-fields.adoc[]
+
+'''
+
