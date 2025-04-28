@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -26,10 +25,10 @@ import static org.mockito.BDDMockito.given;
         "spring.task.execution.pool.core-size=4",
         "spring.task.execution.pool.max-size=8"
 })
-class KeywordServiceMockTest {
+class KeywordServiceNonAsyncTest {
 
     @TestConfiguration
-    @EnableAsync
+//    @EnableAsync활성화를 해제한다
     static class TestConfig {
         @Bean
         public KeywordManager keywordManager() {
@@ -63,7 +62,7 @@ class KeywordServiceMockTest {
     private static final Long MEMBER_ID = 100L;
 
     @Test
-    void 키워드_추가_메서드는_즉시_반환된다() {
+    void Async_비활성화시_키워드_추가_메서드는_즉시_반환되지_않는다() {
         // given
         KeywordAddServiceReq req = KeywordAddServiceReq.of(KEYWORD_TEXT, ROOM_ID, MEMBER_ID);
         Keyword savedKeyword = req.toEntity();
@@ -75,7 +74,7 @@ class KeywordServiceMockTest {
         long executionTime = System.currentTimeMillis() - startTime;
 
         // then
-        assertThat(executionTime).isLessThan(500);
+        assertThat(executionTime).isGreaterThan(2000L);
         assertThat(result).isEqualTo(savedKeyword);
     }
 }
