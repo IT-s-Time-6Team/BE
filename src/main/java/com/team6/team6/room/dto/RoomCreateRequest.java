@@ -25,11 +25,17 @@ public record RoomCreateRequest(
         @NotNull(message = "게임 모드를 선택해주세요")
         GameMode gameMode
 ) {
-    // 시간 제한이 null인 경우 기본값 6시간으로 설정하는 생성자 추가
-    public RoomCreateRequest {
-        if (timeLimit == null) {
-            timeLimit = LocalDateTime.now().plusHours(6);
-        }
+
+    public RoomCreateServiceRequest toServiceRequest() {
+        return RoomCreateServiceRequest.builder()
+                .requiredAgreements(requiredAgreements)
+                .maxMember(maxMember)
+                .timeLimit(setDefaultTimeLimit())
+                .gameMode(gameMode)
+                .build();
     }
 
+    private LocalDateTime setDefaultTimeLimit(LocalDateTime timeLimit) {
+        return timeLimit == null ? LocalDateTime.now().plusHours(6) : timeLimit;
+    }
 }
