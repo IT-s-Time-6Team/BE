@@ -8,7 +8,7 @@ import com.team6.team6.room.entity.Room;
 import com.team6.team6.room.repository.RoomRepository;
 import com.team6.team6.room.util.RoomKeyGenerator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class RoomService {
     private final RoomKeyGenerator roomKeyGenerator;
 
 
-    @Retryable(maxAttempts = 3, retryFor = DuplicateKeyException.class)
+    @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
     @Transactional
     public RoomResponse createRoom(RoomCreateServiceRequest request) {
 
