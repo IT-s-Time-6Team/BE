@@ -2,7 +2,12 @@ package com.team6.team6.room.repository;
 
 import com.team6.team6.room.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-interface RoomRepository extends JpaRepository<Room, Long> {
+import java.util.Optional;
 
+@Repository
+public interface RoomRepository extends JpaRepository<Room, Long> {
+
+    Optional<Room> findByRoomKey(String roomKey);
 }
