@@ -18,6 +18,7 @@ public class RoomController {
 
     // 방 생성
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<RoomResponse> createRoom(@Valid @RequestBody RoomCreateRequest request) {
 
         RoomResponse createdRoom = roomService.createRoom(request.toServiceRequest());
