@@ -2,6 +2,8 @@ package com.team6.team6.room.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,12 +27,15 @@ public class Room extends BaseEntity {
     private Integer requiredAgreements;
     private Integer maxMember;
     private LocalDateTime timeLimit;
-    private String gameMode;
+
+    @Enumerated(EnumType.STRING)
+    private GameMode gameMode;
+
     private LocalDateTime closedAt;
 
     @Builder
     private Room(String roomKey, Integer requiredAgreements, Integer maxMember,
-                 LocalDateTime timeLimit, String gameMode) {
+                 LocalDateTime timeLimit, GameMode gameMode) {
         this.roomKey = roomKey;
         this.requiredAgreements = requiredAgreements;
         this.maxMember = maxMember;
