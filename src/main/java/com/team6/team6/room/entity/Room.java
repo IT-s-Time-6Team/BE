@@ -1,12 +1,8 @@
 package com.team6.team6.room.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.team6.team6.room.dto.RoomCreateServiceRequest;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +19,7 @@ public class Room extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String roomKey;
     private Integer requiredAgreements;
     private Integer maxMember;
@@ -45,5 +42,15 @@ public class Room extends BaseEntity {
 
     public void closeRoom() {
         this.closedAt = LocalDateTime.now();
+    }
+
+    public static Room create(String roomKey, RoomCreateServiceRequest request) {
+        return Room.builder()
+                .roomKey(roomKey)
+                .requiredAgreements(request.requiredAgreements())
+                .maxMember(request.maxMember())
+                .timeLimit(request.timeLimit())
+                .gameMode(request.gameMode())
+                .build();
     }
 }
