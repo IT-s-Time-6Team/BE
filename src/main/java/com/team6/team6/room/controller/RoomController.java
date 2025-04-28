@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/rooms")
+@RequestMapping("/rooms")
 public class RoomController {
 
     private final RoomService roomService;
@@ -19,7 +19,8 @@ public class RoomController {
     // 방 생성
     @PostMapping
     public ApiResponse<RoomResponse> createRoom(@Valid @RequestBody RoomCreateRequest request) {
-        RoomResponse createdRoom = roomService.createRoom(request);
+
+        RoomResponse createdRoom = roomService.createRoom(request.toServiceRequest());
         return ApiResponse.of(HttpStatus.CREATED, "방이 생성되었습니다", createdRoom);
     }
 
@@ -37,7 +38,5 @@ public class RoomController {
         roomService.closeRoom(roomKey);
         return ApiResponse.of(HttpStatus.OK, "방이 종료되었습니다", null);
     }
-
-
 
 }
