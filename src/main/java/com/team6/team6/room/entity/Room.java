@@ -23,7 +23,7 @@ public class Room extends BaseEntity {
     private String roomKey;
     private Integer requiredAgreements;
     private Integer maxMember;
-    private LocalDateTime timeLimit;
+    private Integer durationMinutes;
 
     @Enumerated(EnumType.STRING)
     private GameMode gameMode;
@@ -32,11 +32,11 @@ public class Room extends BaseEntity {
 
     @Builder
     private Room(String roomKey, Integer requiredAgreements, Integer maxMember,
-                 LocalDateTime timeLimit, GameMode gameMode) {
+                 Integer durationMinutes, GameMode gameMode) {
         this.roomKey = roomKey;
         this.requiredAgreements = requiredAgreements;
         this.maxMember = maxMember;
-        this.timeLimit = timeLimit;
+        this.durationMinutes = durationMinutes;
         this.gameMode = gameMode;
     }
 
@@ -49,7 +49,7 @@ public class Room extends BaseEntity {
                 .roomKey(roomKey)
                 .requiredAgreements(request.requiredAgreements())
                 .maxMember(request.maxMember())
-                .timeLimit(request.timeLimit())
+                .durationMinutes(request.durationMinutes())
                 .gameMode(request.gameMode())
                 .build();
     }

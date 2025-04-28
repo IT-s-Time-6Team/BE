@@ -12,8 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -32,7 +30,7 @@ class RoomServiceTest {
     void 방_생성_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, LocalDateTime.now().plusMinutes(30), GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL
         );
 
         // when
@@ -54,7 +52,7 @@ class RoomServiceTest {
     void 존재하는_방_조회_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, LocalDateTime.now().plusMinutes(30), GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -85,7 +83,7 @@ class RoomServiceTest {
     void 종료된_방_조회시_예외발생() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, LocalDateTime.now().plusMinutes(30), GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -103,7 +101,7 @@ class RoomServiceTest {
     void 방_종료_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, LocalDateTime.now().plusMinutes(30), GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -131,7 +129,7 @@ class RoomServiceTest {
     void 이미_종료된_방_다시_종료시_예외발생() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, LocalDateTime.now().plusMinutes(30), GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();

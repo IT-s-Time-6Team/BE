@@ -13,8 +13,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -39,7 +37,7 @@ class RoomServiceRetryTest {
     void 룸키_중복시_자동_재시도_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, LocalDateTime.now().plusMinutes(30), GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL
         );
 
         // 테스트를 위한 중복 키 상황 시뮬레이션
@@ -70,7 +68,7 @@ class RoomServiceRetryTest {
     void 룸키_중복_3번_연속_발생시_최종_실패() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, LocalDateTime.now().plusMinutes(30), GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL
         );
 
         // 테스트를 위한 중복 키 설정

@@ -10,7 +10,7 @@ public record RoomResponse(
         String roomKey,
         Integer requiredAgreements,
         Integer maxMember,
-        LocalDateTime timeLimit,
+        Integer durationMinutes,
         GameMode gameMode,
         LocalDateTime createdAt,
         LocalDateTime closedAt,
@@ -24,7 +24,7 @@ public record RoomResponse(
                 .roomKey(room.getRoomKey())
                 .requiredAgreements(room.getRequiredAgreements())
                 .maxMember(room.getMaxMember())
-                .timeLimit(room.getTimeLimit())
+                .durationMinutes(room.getDurationMinutes())
                 .gameMode(room.getGameMode())
                 .createdAt(room.getCreatedAt())
                 .closedAt(room.getClosedAt())

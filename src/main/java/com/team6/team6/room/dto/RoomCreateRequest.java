@@ -4,9 +4,6 @@ import com.team6.team6.room.entity.GameMode;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
 
 public record RoomCreateRequest(
         @NotNull(message = "공감 기준 인원을 입력해주세요")
@@ -19,8 +16,9 @@ public record RoomCreateRequest(
         @Max(value = 20, message = "최대 입장 인원은 최대 20명입니다")
         Integer maxMember,
 
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-        LocalDateTime timeLimit,
+        @Min(value = 5, message = "시간 제한은 최소 5분 이상이어야 합니다")
+        @Max(value = 360, message = "시간 제한은 최대 360분(6시간)입니다")
+        Integer durationMinutes,
 
         @NotNull(message = "게임 모드를 선택해주세요")
         GameMode gameMode
@@ -30,12 +28,12 @@ public record RoomCreateRequest(
         return RoomCreateServiceRequest.builder()
                 .requiredAgreements(requiredAgreements)
                 .maxMember(maxMember)
-                .timeLimit(setDefaultTimeLimit(timeLimit))
+                .durationMinutes(setDefaultDurationMinutes(durationMinutes))
                 .gameMode(gameMode)
                 .build();
     }
 
-    private LocalDateTime setDefaultTimeLimit(LocalDateTime timeLimit) {
-        return timeLimit == null ? LocalDateTime.now().plusHours(6) : timeLimit;
+    private Integer setDefaultDurationMinutes(Integer durationMinutes) {
+        return durationMinutes == null ? 30 : durationMinutes;
     }
 }
