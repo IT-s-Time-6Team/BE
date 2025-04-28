@@ -30,7 +30,7 @@ public record RoomCreateRequest(
         return RoomCreateServiceRequest.builder()
                 .requiredAgreements(requiredAgreements)
                 .maxMember(maxMember)
-                .timeLimit(setDefaultTimeLimit())
+                .timeLimit(setDefaultTimeLimit(timeLimit))
                 .gameMode(gameMode)
                 .build();
     }
