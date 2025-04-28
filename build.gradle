@@ -46,6 +46,9 @@ dependencies {
 	runtimeOnly 'com.h2database:h2'
 	// spring validation 의존성 추가
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// 스프링 재시도 로직 의존성 추가
+	implementation 'org.springframework.retry:spring-retry'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
 }
 
 tasks.named('test') {
