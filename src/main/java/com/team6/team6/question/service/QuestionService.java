@@ -10,6 +10,7 @@ import com.team6.team6.question.entity.Question;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class QuestionService {
     private final QuestionGenerator questionGenerator;
     private final KeywordLockManager lockManager;
 
+    @Transactional
     @Async
     public void generateQuestions(String keyword) {
         if (questionRepository.existsByKeyword(keyword) || !lockManager.tryLock(keyword)) {
