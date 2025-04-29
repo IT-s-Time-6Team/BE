@@ -1,5 +1,6 @@
 package com.team6.team6.room.controller;
 
+import com.team6.team6.global.CustomRestDocsHandler;
 import com.team6.team6.global.RestDocsSupport;
 import com.team6.team6.room.dto.RoomCreateRequest;
 import com.team6.team6.room.dto.RoomResponse;
@@ -16,8 +17,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -56,9 +55,7 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andDo(document("room-create",
-                        preprocessRequest(prettyPrint()),
-                        preprocessResponse(prettyPrint()),
+                .andDo(CustomRestDocsHandler.customDocument("create",
                         requestFields(
                                 fieldWithPath("requiredAgreements").type(JsonFieldType.NUMBER)
                                         .description("공감 기준 인원 (필수, 최소 2명, 최대 20명)"),
@@ -101,54 +98,52 @@ public class RoomControllerDocsTest extends RestDocsSupport {
     @Test
     void getRoom() throws Exception {
         RoomResponse mockResponse = RoomResponse.builder()
-            .roomKey("abc123")
-            .requiredAgreements(3)
-            .maxMember(6)
-            .durationMinutes(30)
-            .gameMode(GameMode.NORMAL)
-            .createdAt(LocalDateTime.now())
-            .closedAt(null)
-            .isClosed(false)
-            .build();
+                .roomKey("abc123")
+                .requiredAgreements(3)
+                .maxMember(6)
+                .durationMinutes(30)
+                .gameMode(GameMode.NORMAL)
+                .createdAt(LocalDateTime.now())
+                .closedAt(null)
+                .isClosed(false)
+                .build();
 
         given(roomService.getRoom("abc123")).willReturn(mockResponse);
 
         mockMvc.perform(get("/rooms/{roomKey}", "abc123")
-                .accept(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andDo(document("room-get",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                pathParameters(
-                    parameterWithName("roomKey").description("방 키")
-                ),
-                responseFields(
-                    fieldWithPath("code").type(JsonFieldType.NUMBER)
-                        .description("결과 코드"),
-                    fieldWithPath("status").type(JsonFieldType.STRING)
-                        .description("HTTP 상태"),
-                    fieldWithPath("message").type(JsonFieldType.STRING)
-                        .description("응답 메시지"),
-                    fieldWithPath("data.roomKey").type(JsonFieldType.STRING)
-                        .description("방 키"),
-                    fieldWithPath("data.requiredAgreements").type(JsonFieldType.NUMBER)
-                        .description("공감 기준 인원"),
-                    fieldWithPath("data.maxMember").type(JsonFieldType.NUMBER)
-                        .description("최대 입장 인원"),
-                    fieldWithPath("data.durationMinutes").type(JsonFieldType.NUMBER)
-                        .description("시간 제한(분)"),
-                    fieldWithPath("data.gameMode").type(JsonFieldType.STRING)
-                        .description("게임 모드"),
-                    fieldWithPath("data.createdAt").type(JsonFieldType.STRING)
-                        .description("생성 시각"),
-                    fieldWithPath("data.closedAt").type(JsonFieldType.STRING)
-                        .optional()
-                        .description("종료 시각"),
-                    fieldWithPath("data.isClosed").type(JsonFieldType.BOOLEAN)
-                        .description("종료 여부")
-                )
-            ));
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(CustomRestDocsHandler.customDocument("get",
+                        pathParameters(
+                                parameterWithName("roomKey").description("방 키")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("결과 코드"),
+                                fieldWithPath("status").type(JsonFieldType.STRING)
+                                        .description("HTTP 상태"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data.roomKey").type(JsonFieldType.STRING)
+                                        .description("방 키"),
+                                fieldWithPath("data.requiredAgreements").type(JsonFieldType.NUMBER)
+                                        .description("공감 기준 인원"),
+                                fieldWithPath("data.maxMember").type(JsonFieldType.NUMBER)
+                                        .description("최대 입장 인원"),
+                                fieldWithPath("data.durationMinutes").type(JsonFieldType.NUMBER)
+                                        .description("시간 제한(분)"),
+                                fieldWithPath("data.gameMode").type(JsonFieldType.STRING)
+                                        .description("게임 모드"),
+                                fieldWithPath("data.createdAt").type(JsonFieldType.STRING)
+                                        .description("생성 시각"),
+                                fieldWithPath("data.closedAt").type(JsonFieldType.STRING)
+                                        .optional()
+                                        .description("종료 시각"),
+                                fieldWithPath("data.isClosed").type(JsonFieldType.BOOLEAN)
+                                        .description("종료 여부")
+                        )
+                ));
     }
 
     @DisplayName("방 종료 API")
@@ -157,24 +152,22 @@ public class RoomControllerDocsTest extends RestDocsSupport {
         willDoNothing().given(roomService).closeRoom("abc123");
 
         mockMvc.perform(patch("/rooms/{roomKey}/close", "abc123"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andDo(document("room-close",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                pathParameters(
-                    parameterWithName("roomKey").description("방 키")
-                ),
-                responseFields(
-                    fieldWithPath("code").type(JsonFieldType.NUMBER)
-                        .description("결과 코드"),
-                    fieldWithPath("status").type(JsonFieldType.STRING)
-                        .description("HTTP 상태"),
-                    fieldWithPath("message").type(JsonFieldType.STRING)
-                        .description("응답 메시지"),
-                    fieldWithPath("data").type(JsonFieldType.NULL)
-                        .description("응답 데이터 없음")
-                )
-            ));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(CustomRestDocsHandler.customDocument("close",
+                        pathParameters(
+                                parameterWithName("roomKey").description("방 키")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("결과 코드"),
+                                fieldWithPath("status").type(JsonFieldType.STRING)
+                                        .description("HTTP 상태"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data").type(JsonFieldType.NULL)
+                                        .description("응답 데이터 없음")
+                        )
+                ));
     }
 }
