@@ -19,10 +19,18 @@ public class OpenAiQuestionGenerator implements QuestionGenerator {
     private final ChatClient chatClient;
 
     private static final PromptTemplate PROMPT_TEMPLATE = new PromptTemplate("""
-                키워드: {keyword}
+            키워드: {keyword}
 
-                이 키워드를 주제로 한, 처음 만난 사람들이 편하게 이야기 나눌 수 있도록 가벼운 질문 20개를 만들어줘.
-                형식은 번호 없이 한 줄에 하나씩, 자연스럽게 구어체로 작성해줘.
+            이 키워드를 주제로, 처음 만난 사람들이 편하게 이야기 나눌 수 있도록 대화형 질문 20개를 만들어줘.
+                        
+            아래 기준을 지켜줘:
+            - 너무 딱딱하거나 교과서적인 말투는 피하고, 자연스럽고 구어체로 작성해
+            - 경험, 취향, 감정을 물을 수 있는 질문이 좋고, '너라면 어때?' 식의 접근도 괜찮아
+            - 질문 하나당 한 줄로 만들어줘
+            - 숫자나 기호 없이 질문 내용만 출력해
+
+            예시:
+            롤에서 맞라인으로 나왔을 때 가장 싫은 챔피언은?
             """
     );
 
