@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -38,12 +38,13 @@ class KeywordServiceDBTest {
         Keyword result = keywordService.addKeyword(req);
 
         // then
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isNotNull();
-        assertThat(result.getKeyword()).isEqualTo(KEYWORD_TEXT);
-        assertThat(result.getRoomId()).isEqualTo(ROOM_ID);
-        assertThat(result.getMemberId()).isEqualTo(MEMBER_ID);
-
+        assertSoftly(softly -> {
+            softly.assertThat(result).isNotNull();
+            softly.assertThat(result.getId()).isNotNull();
+            softly.assertThat(result.getKeyword()).isEqualTo(KEYWORD_TEXT);
+            softly.assertThat(result.getRoomId()).isEqualTo(ROOM_ID);
+            softly.assertThat(result.getMemberId()).isEqualTo(MEMBER_ID);
+        });
     }
 
     @Test
@@ -57,15 +58,14 @@ class KeywordServiceDBTest {
         Keyword duplicateResult = keywordService.addKeyword(duplicateReq);
         List<Keyword> savedKeyword = keywordRepository.findAll();
 
-
         // then
-        assertThat(duplicateResult).isNotNull();
-        assertThat(savedKeyword.size()).isEqualTo(2);
-        assertThat(savedKeyword.get(0).getKeyword()).isEqualTo(savedKeyword.get(1).getKeyword());
-        assertThat(savedKeyword.get(0).getRoomId()).isEqualTo(savedKeyword.get(1).getRoomId());
-        assertThat(savedKeyword.get(0).getMemberId()).isEqualTo(savedKeyword.get(1).getMemberId());
-        
-        
+        assertSoftly(softly -> {
+            softly.assertThat(duplicateResult).isNotNull();
+            softly.assertThat(savedKeyword.size()).isEqualTo(2);
+            softly.assertThat(savedKeyword.get(0).getKeyword()).isEqualTo(savedKeyword.get(1).getKeyword());
+            softly.assertThat(savedKeyword.get(0).getRoomId()).isEqualTo(savedKeyword.get(1).getRoomId());
+            softly.assertThat(savedKeyword.get(0).getMemberId()).isEqualTo(savedKeyword.get(1).getMemberId());
+        });
     }
 }
 
