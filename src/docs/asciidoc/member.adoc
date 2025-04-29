@@ -1,0 +1,33 @@
+= 회원 API
+:snippetsDir: ../../../build/generated-snippets
+
+== 회원 가입/로그인
+
+====
+회원 가입 또는 로그인을 처리하는 API입니다.
+스프링의 세션 기반 인증을 사용하므로, 로그인 이후 요청에는 별도로 인증 정보를 포함할 필요가 없습니다.
+====
+
+=== 요청 형식 (HTTP)
+include::{snippetsDir}/member-controller-docs-test/join-or-login/http-request.adoc[]
+include::{snippetsDir}/member-controller-docs-test/join-or-login/request-fields.adoc[]
+
+=== 응답 형식 (HTTP)
+include::{snippetsDir}/member-controller-docs-test/join-or-login/http-response.adoc[]
+include::{snippetsDir}/member-controller-docs-test/join-or-login/response-fields.adoc[]
+
+'''
+
+== 회원 가입/로그인 유효성 검증 실패
+
+====
+회원 가입 또는 로그인 시 유효성 검증에 실패한 경우의 API 응답입니다.
+====
+
+=== 요청 형식 (HTTP)
+include::{snippetsDir}/member-controller-docs-test/join-or-login-validation-failure/http-request.adoc[]
+include::{snippetsDir}/member-controller-docs-test/join-or-login-validation-failure/request-fields.adoc[]
+
+=== 응답 형식 (HTTP)
+include::{snippetsDir}/member-controller-docs-test/join-or-login-validation-failure/http-response.adoc[]
+include::{snippetsDir}/member-controller-docs-test/join-or-login-validation-failure/response-body.adoc[]

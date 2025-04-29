@@ -12,3 +12,4 @@
 API 명세서입니다. 각 항목별 예시와 요청/응답 샘플을 제공합니다.
 
 include::room.adoc[]
+include::member.adoc[]
