@@ -3,7 +3,7 @@ package com.team6.team6.question.service;
 import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.question.domain.QuestionGenerator;
 import com.team6.team6.question.domain.QuestionRepository;
-import com.team6.team6.question.domain.TestQuestionGenerator;
+import com.team6.team6.question.domain.SimulatedLatencyQuestionGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,7 +38,7 @@ class QuestionServiceAsyncTest {
     static class TestConfig {
         @Bean
         public QuestionGenerator questionGenerator() {
-            return new TestQuestionGenerator();
+            return new SimulatedLatencyQuestionGenerator();
         }
     }
 

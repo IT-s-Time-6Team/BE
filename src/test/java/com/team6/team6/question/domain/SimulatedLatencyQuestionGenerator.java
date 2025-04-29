@@ -2,7 +2,7 @@ package com.team6.team6.question.domain;
 
 import java.util.List;
 
-public class TestQuestionGenerator implements QuestionGenerator {
+public class SimulatedLatencyQuestionGenerator implements QuestionGenerator {
 
     @Override
     public List<String> generateQuestions(String keyword) {
