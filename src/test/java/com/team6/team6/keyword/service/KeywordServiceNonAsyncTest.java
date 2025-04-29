@@ -3,7 +3,6 @@ package com.team6.team6.keyword.service;
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
 import com.team6.team6.keyword.domain.KeywordManager;
 import com.team6.team6.keyword.domain.repository.KeywordRepository;
-import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.dto.KeywordAddServiceReq;
 import com.team6.team6.keyword.entity.Keyword;
 import org.junit.jupiter.api.Test;
@@ -13,8 +12,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,19 +29,7 @@ class KeywordServiceNonAsyncTest {
     static class TestConfig {
         @Bean
         public KeywordManager keywordManager() {
-            return new KeywordManager() {
-                @Override
-                public List<AnalysisResult> addKeyword(Long roomId, String keyword) {
-                    try {
-                        Thread.sleep(2000);
-                        List<String> variations = List.of("분석결과1", "분석결과2");
-                        return List.of(AnalysisResult.of("분석결과", variations));
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("키워드 분석 중 인터럽트 발생", e);
-                    }
-                }
-            };
+            return new SimulatedLatencyKeywordManager(2000);
         }
     }
 
