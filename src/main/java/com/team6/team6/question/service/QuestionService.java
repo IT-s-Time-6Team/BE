@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -28,5 +29,14 @@ public class QuestionService {
                 .toList();
 
         questionRepository.saveAll(questions);
+    }
+
+    public List<Question> getRandomQuestions(String keyword) {
+        List<Question> all = questionRepository.findAllByKeyword(keyword);
+
+        if (all.size() <= 10) return all;
+
+        Collections.shuffle(all);
+        return all.subList(0, 10);
     }
 }
