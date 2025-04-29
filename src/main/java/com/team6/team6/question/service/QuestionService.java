@@ -3,17 +3,20 @@ package com.team6.team6.question.service;
 import com.team6.team6.question.domain.KeywordLockManager;
 import com.team6.team6.question.domain.QuestionGenerator;
 import com.team6.team6.question.domain.QuestionRepository;
+import com.team6.team6.question.domain.Questions;
+import com.team6.team6.question.dto.QuestionResponse;
 import com.team6.team6.question.entity.Question;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class QuestionService {
+
+    private static final int DEFAULT_QUESTION_COUNT = 10;
 
     private final QuestionRepository questionRepository;
     private final QuestionGenerator questionGenerator;
@@ -36,12 +39,10 @@ public class QuestionService {
         }
     }
 
-    public List<Question> getRandomQuestions(String keyword) {
-        List<Question> all = questionRepository.findAllByKeyword(keyword);
-
-        if (all.size() <= 10) return all;
-
-        Collections.shuffle(all);
-        return all.subList(0, 10);
+    public List<QuestionResponse> getRandomQuestions(String keyword) {
+        Questions questions = Questions.of(questionRepository.findAllByKeyword(keyword));
+        return questions.getRandomSubset(DEFAULT_QUESTION_COUNT).stream()
+                .map(QuestionResponse::from)
+                .toList();
     }
 }
