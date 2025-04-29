@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -19,6 +20,7 @@ import static org.mockito.BDDMockito.given;
         "spring.task.execution.pool.core-size=4",
         "spring.task.execution.pool.max-size=8"
 })
+@ActiveProfiles("test")
 public class QuestionServiceNonAsyncTest {
 
     @TestConfiguration
