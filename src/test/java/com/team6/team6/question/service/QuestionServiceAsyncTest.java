@@ -1,5 +1,6 @@
 package com.team6.team6.question.service;
 
+import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.question.domain.QuestionGenerator;
 import com.team6.team6.question.domain.QuestionRepository;
 import com.team6.team6.question.domain.TestQuestionGenerator;
@@ -13,12 +14,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -91,6 +94,18 @@ class QuestionServiceAsyncTest {
         // then
         verify(questionRepository, times(1)).saveAll(anyList());
         executor.shutdown();
+    }
+
+    @Test
+    void Question이_없을_때_예외_처리_테스트() {
+        // given
+        String keyword = "LOL";
+        given(questionRepository.findAllByKeyword(keyword)).willReturn(List.of());
+
+        // when & then
+        assertThatThrownBy(() -> questionService.getRandomQuestions(keyword))
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining("해당 키워드에 대한 질문이 존재하지 않습니다");
     }
 }
 
