@@ -42,6 +42,13 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// H2 데이터베이스 의존성 추가
+	runtimeOnly 'com.h2database:h2'
+	// spring validation 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// 스프링 재시도 로직 의존성 추가
+	implementation 'org.springframework.retry:spring-retry'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
 }
 
 tasks.named('test') {
