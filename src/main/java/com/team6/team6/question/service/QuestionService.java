@@ -1,5 +1,6 @@
 package com.team6.team6.question.service;
 
+import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.question.domain.KeywordLockManager;
 import com.team6.team6.question.domain.QuestionGenerator;
 import com.team6.team6.question.domain.QuestionRepository;
@@ -41,6 +42,9 @@ public class QuestionService {
 
     public List<QuestionResponse> getRandomQuestions(String keyword) {
         Questions questions = Questions.of(questionRepository.findAllByKeyword(keyword));
+        if (questions.isEmpty()) {
+            throw new NotFoundException("해당 키워드에 대한 질문이 존재하지 않습니다: " + keyword);
+        }
         return questions.getRandomSubset(DEFAULT_QUESTION_COUNT).stream()
                 .map(QuestionResponse::from)
                 .toList();
