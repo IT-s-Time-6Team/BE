@@ -2,7 +2,6 @@ package com.team6.team6.keyword.exception;
 
 import com.team6.team6.keyword.exception.exceptions.AiResponseParsingException;
 import com.team6.team6.keyword.exception.exceptions.EmptyKeywordException;
-import com.team6.team6.keyword.exception.exceptions.InvalidAiResponseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,11 +17,6 @@ public class KeywordExceptionHandler {
 
     @ExceptionHandler(AiResponseParsingException.class)
     public ResponseEntity<String> handleAiResponseParsingException(final AiResponseParsingException exception) {
-        return getResponseWithStatus(HttpStatus.INTERNAL_SERVER_ERROR, exception);
-    }
-
-    @ExceptionHandler(InvalidAiResponseException.class)
-    public ResponseEntity<String> handleInvalidAiResponseException(final InvalidAiResponseException exception) {
         return getResponseWithStatus(HttpStatus.INTERNAL_SERVER_ERROR, exception);
     }
 

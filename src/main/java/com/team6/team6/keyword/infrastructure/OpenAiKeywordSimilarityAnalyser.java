@@ -3,7 +3,6 @@ package com.team6.team6.keyword.infrastructure;
 import com.team6.team6.keyword.domain.KeywordSimilarityAnalyser;
 import com.team6.team6.keyword.exception.exceptions.AiResponseParsingException;
 import com.team6.team6.keyword.exception.exceptions.EmptyKeywordException;
-import com.team6.team6.keyword.exception.exceptions.InvalidAiResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -53,9 +52,6 @@ public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyse
                     .call()
                     .entity(new ParameterizedTypeReference<>() {
                     });
-            if (result.isEmpty()) {
-                throw new InvalidAiResponseException();
-            }
             return result;
         } catch (Exception e) {
             throw new AiResponseParsingException(e);
