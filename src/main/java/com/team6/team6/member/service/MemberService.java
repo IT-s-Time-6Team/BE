@@ -16,7 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -68,10 +69,20 @@ public class MemberService {
 
     private void authenticateUser(Member member) {
         UserPrincipal userPrincipal = new UserPrincipal(member);
+        
+        // 권한 목록 생성
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        
+        // 첫 번째 멤버(리더)인 경우 추가 권한 부여
+        if (member.isLeader()) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_LEADER"));
+        }
+        
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 userPrincipal,
                 null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+                authorities
         );
 
         // SecurityContext에 인증 객체 저장
