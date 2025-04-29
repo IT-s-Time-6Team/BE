@@ -44,8 +44,10 @@ dependencies {
 	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// Spring AI
-	implementation 'org.springframework.ai:spring-ai-starter-model-openai:1.0.0-M7'
+    // H2 데이터베이스 의존성 추가
+    runtimeOnly 'com.h2database:h2'
+    // Spring AI
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai:1.0.0-M7'
 }
 
 tasks.named('test') {
