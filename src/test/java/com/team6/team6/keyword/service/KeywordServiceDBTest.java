@@ -25,6 +25,7 @@ class KeywordServiceDBTest {
     private KeywordService keywordService;
 
     private static final Long ROOM_ID = 1L;
+    private static final String ROOM_KEY = "x2xx33";
     private static final String KEYWORD_TEXT = "테스트키워드";
     private static final Long MEMBER_ID = 100L;
 
@@ -32,7 +33,7 @@ class KeywordServiceDBTest {
     @Test
     void 키워드_추가시_키워드가_저장되고_반환된다() {
         // given
-        KeywordAddServiceReq req = KeywordAddServiceReq.of(KEYWORD_TEXT, ROOM_ID, MEMBER_ID);
+        KeywordAddServiceReq req = KeywordAddServiceReq.of(KEYWORD_TEXT, ROOM_KEY, ROOM_ID, MEMBER_ID);
 
         // when
         Keyword result = keywordService.addKeyword(req);
@@ -50,11 +51,11 @@ class KeywordServiceDBTest {
     @Test
     void 같은_사용자_같은_키워드_추가가능() {
         // given
-        KeywordAddServiceReq req = KeywordAddServiceReq.of(KEYWORD_TEXT, ROOM_ID, MEMBER_ID);
+        KeywordAddServiceReq req = KeywordAddServiceReq.of(KEYWORD_TEXT, ROOM_KEY, ROOM_ID, MEMBER_ID);
         keywordService.addKeyword(req);
 
         // when
-        KeywordAddServiceReq duplicateReq = KeywordAddServiceReq.of(KEYWORD_TEXT, ROOM_ID, MEMBER_ID);
+        KeywordAddServiceReq duplicateReq = KeywordAddServiceReq.of(KEYWORD_TEXT, ROOM_KEY, ROOM_ID, MEMBER_ID);
         Keyword duplicateResult = keywordService.addKeyword(duplicateReq);
         List<Keyword> savedKeyword = keywordRepository.findAll();
 

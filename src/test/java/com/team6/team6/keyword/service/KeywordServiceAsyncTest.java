@@ -44,13 +44,14 @@ class KeywordServiceAsyncTest {
     private KeywordService keywordService;
 
     private static final Long ROOM_ID = 1L;
+    private static final String ROOM_KEY = "x2xx33";
     private static final String KEYWORD_TEXT = "테스트키워드";
     private static final Long MEMBER_ID = 100L;
 
     @Test
     void 키워드_추가_메서드는_즉시_반환된다() {
         // given
-        KeywordAddServiceReq req = KeywordAddServiceReq.of(KEYWORD_TEXT, ROOM_ID, MEMBER_ID);
+        KeywordAddServiceReq req = KeywordAddServiceReq.of(KEYWORD_TEXT, ROOM_KEY, ROOM_ID, MEMBER_ID);
         Keyword savedKeyword = req.toEntity();
         given(keywordRepository.save(any(Keyword.class))).willReturn(savedKeyword);
 

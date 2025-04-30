@@ -18,7 +18,7 @@ public class KeywordService {
         Keyword savedKeyword = keywordRepository.save(req.toEntity());
 
         // 2. 비동기적으로 키워드 분석 실행 - 다른 서비스에 위임
-        keywordAsyncProcessor.processKeywordAnalysisAsync(req.roomId(), req.keyword());
+        keywordAsyncProcessor.processKeywordAnalysisAsync(req.roomId(), req.roomKey(), req.keyword());
 
         return savedKeyword;
     }
