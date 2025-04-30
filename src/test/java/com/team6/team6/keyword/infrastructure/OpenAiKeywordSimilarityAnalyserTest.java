@@ -1,8 +1,7 @@
 package com.team6.team6.keyword.infrastructure;
 
 import com.team6.team6.keyword.dto.KeywordGroupResponse;
-import com.team6.team6.keyword.exception.exceptions.AiResponseParsingException;
-import com.team6.team6.keyword.exception.exceptions.EmptyKeywordException;
+import com.team6.team6.keyword.exception.AiResponseParsingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.ai.chat.client.ChatClient;
@@ -51,9 +50,15 @@ class OpenAiKeywordSimilarityAnalyserTest {
     }
 
     @Test
-    void 입력_키워드가_비어_있으면_예외_테스트() {
-        assertThatThrownBy(() -> analyser.analyse(List.of()))
-                .isInstanceOf(EmptyKeywordException.class);
+    void 입력_키워드가_비어_있으면_빈_리스트_반환_테스트() {
+        // given
+        List<String> input = List.of();
+
+        // when
+        List<List<String>> result = analyser.analyse(input);
+
+        // then
+        assertThat(result).isEmpty();
     }
 
     @Test

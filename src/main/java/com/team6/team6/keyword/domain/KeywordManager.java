@@ -15,8 +15,12 @@ public class KeywordManager {
     private final KeywordSimilarityAnalyser keywordSimilarityAnalyser;
 
     public List<AnalysisResult> addKeyword(Long roomId, String keyword) {
-
         keywordStore.saveKeyword(roomId, keyword);
+
+        return analyzeKeywords(roomId);
+    }
+
+    public List<AnalysisResult> analyzeKeywords(Long roomId) {
         List<String> keywordsInStore = keywordStore.getKeywords(roomId);
         List<List<String>> groupedResult = keywordSimilarityAnalyser.analyse(keywordsInStore);
 

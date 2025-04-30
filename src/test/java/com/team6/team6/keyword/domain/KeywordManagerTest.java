@@ -92,4 +92,48 @@ class KeywordManagerTest {
             softly.assertThat(results).isEmpty();
         });
     }
+
+    @Test
+    void 키워드_추가_없이_분석_테스트() {
+        // given
+        Long roomId = 1L;
+        List<String> keywordsInStore = List.of("AI", "Deep Learning");
+        List<List<String>> expectedResult = List.of(List.copyOf(keywordsInStore));
+
+        when(store.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
+
+        // when
+        List<AnalysisResult> results = keywordManager.analyzeKeywords(roomId);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(results).hasSize(1);
+            softly.assertThat(results.get(0).referenceName()).isEqualTo("AI");
+            softly.assertThat(results.get(0).count()).isEqualTo(2);
+            softly.assertThat(results.get(0).variations()).containsExactly("AI", "Deep Learning");
+        });
+
+        verify(store).getKeywords(roomId);
+        verify(analyser).analyse(keywordsInStore);
+    }
+
+    @Test
+    void 키워드_추가_없이_분석_빈_그룹_테스트() {
+        // given
+        Long roomId = 1L;
+        List<String> keywordsInStore = List.of();
+        List<List<String>> expectedResult = List.of();
+
+        when(store.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
+
+        // when
+        List<AnalysisResult> results = keywordManager.analyzeKeywords(roomId);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(results).isEmpty();
+        });
+    }
 }
