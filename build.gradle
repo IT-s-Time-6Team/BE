@@ -49,6 +49,8 @@ dependencies {
 	// 스프링 재시도 로직 의존성 추가
 	implementation 'org.springframework.retry:spring-retry'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	// stomp에 spring security 적용하기 위한 의존성 추가
+	implementation 'org.springframework.security:spring-security-messaging'
 }
 
 tasks.named('test') {
@@ -64,6 +66,13 @@ tasks.named('asciidoctor') {
 
 asciidoctor {
 	baseDirFollowsSourceFile()
+
+	doLast {
+		copy {
+			from 'src/main/resources/static/docs/stomp.html'
+			into "${asciidoctor.outputDir}"
+		}
+	}
 }
 
 tasks.register('copyApiDocument', Copy) {
