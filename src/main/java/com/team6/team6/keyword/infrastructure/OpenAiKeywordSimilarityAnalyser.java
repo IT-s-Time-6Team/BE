@@ -3,7 +3,6 @@ package com.team6.team6.keyword.infrastructure;
 import com.team6.team6.keyword.domain.KeywordSimilarityAnalyser;
 import com.team6.team6.keyword.dto.KeywordGroupResponse;
 import com.team6.team6.keyword.exception.exceptions.AiResponseParsingException;
-import com.team6.team6.keyword.exception.exceptions.EmptyKeywordException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -21,7 +20,7 @@ public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyse
     @Override
     public List<List<String>> analyse(List<String> keywords) {
         if (keywords == null || keywords.isEmpty()) {
-            throw new EmptyKeywordException();
+            return List.of();
         }
 
         String formattedKeywords = keywords.stream()
