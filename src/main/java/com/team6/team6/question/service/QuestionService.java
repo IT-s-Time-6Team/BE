@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -31,15 +33,12 @@ public class QuestionService {
             return;
         }
 
-        try {
-            List<String> generated = questionGenerator.generateQuestions(keyword);
-            List<Question> questions = generated.stream()
-                    .map(q -> Question.of(keyword, q))
-                    .toList();
-            questionRepository.saveAll(questions);
-        } finally {
-            lockManager.unlock(keyword);
-        }
+        List<String> generated = questionGenerator.generateQuestions(keyword);
+        List<Question> questions = generated.stream()
+                .map(q -> Question.of(keyword, q))
+                .toList();
+        questionRepository.saveAll(questions);
+        unlockAfterCommit(keyword);
     }
 
     public List<QuestionResponse> getRandomQuestions(String keyword) {
@@ -50,5 +49,22 @@ public class QuestionService {
         return questions.getRandomSubset(DEFAULT_QUESTION_COUNT).stream()
                 .map(QuestionResponse::from)
                 .toList();
+    }
+
+    private void unlockAfterCommit(String keyword) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                lockManager.unlock(keyword);
+            }
+
+            @Override
+            public void afterCompletion(int status) {
+                // 커밋이 아닌 종료(ex. rollback)인 경우에도 안전하게 락 해제
+                if (status != STATUS_COMMITTED) {
+                    lockManager.unlock(keyword);
+                }
+            }
+        });
     }
 }
