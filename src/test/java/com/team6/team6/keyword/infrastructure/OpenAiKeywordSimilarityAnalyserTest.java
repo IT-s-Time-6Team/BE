@@ -51,9 +51,15 @@ class OpenAiKeywordSimilarityAnalyserTest {
     }
 
     @Test
-    void 입력_키워드가_비어_있으면_예외_테스트() {
-        assertThatThrownBy(() -> analyser.analyse(List.of()))
-                .isInstanceOf(EmptyKeywordException.class);
+    void 입력_키워드가_비어_있으면_빈_리스트_반환_테스트() {
+        // given
+        List<String> input = List.of();
+
+        // when
+        List<List<String>> result = analyser.analyse(input);
+
+        // then
+        assertThat(result).isEmpty();
     }
 
     @Test
