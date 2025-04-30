@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 @RequiredArgsConstructor
@@ -23,8 +22,8 @@ public class KeywordController {
     private final KeywordService keywordService;
     private final SimpMessageSendingOperations messagingTemplate;
 
-    // 사용자 방 입장 기록을 위한 맵 (방ID -> {멤버ID -> 입장 여부})
-    private final Map<Long, Map<Long, Boolean>> roomMemberRegistry = new ConcurrentHashMap<>();
+//    // 사용자 방 입장 기록을 위한 맵 (방ID -> {멤버ID -> 입장 여부})
+//    private final Map<Long, Map<Long, Boolean>> roomMemberRegistry = new ConcurrentHashMap<>();
 
     @MessageMapping("/room/{roomKey}/keyword")
     @SendToUser("/queue/keyword-confirmation")
@@ -46,28 +45,28 @@ public class KeywordController {
         return ChatMessage.keywordReceived(nickname, keyword);
     }
 
-    @MessageMapping("/room/{roomKey}/enter")
-    public void enterRoom(@DestinationVariable String roomKey, Authentication authentication) {
-        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
-        Long memberId = principal.getId();
-        String nickname = principal.getNickname();
-        Long roomId = principal.getRoomId();
-
-        // 방에 대한 멤버 레지스트리 조회 또는 생성
-        Map<Long, Boolean> memberRegistry = roomMemberRegistry.computeIfAbsent(roomId, k -> new ConcurrentHashMap<>());
-
-        // 채팅 메시지 생성 및 전송
-        ChatMessage message;
-        if (memberRegistry.containsKey(memberId)) {
-            message = ChatMessage.reenter(nickname);
-        } else {
-            message = ChatMessage.enter(nickname);
-        }
-
-        // 메시지 전송
-        messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
-
-        // 사용자 입장 기록
-        memberRegistry.put(memberId, true);
-    }
+//    @MessageMapping("/room/{roomKey}/enter")
+//    public void enterRoom(@DestinationVariable String roomKey, Authentication authentication) {
+//        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+//        Long memberId = principal.getId();
+//        String nickname = principal.getNickname();
+//        Long roomId = principal.getRoomId();
+//
+//        // 방에 대한 멤버 레지스트리 조회 또는 생성
+//        Map<Long, Boolean> memberRegistry = roomMemberRegistry.computeIfAbsent(roomId, k -> new ConcurrentHashMap<>());
+//
+//        // 채팅 메시지 생성 및 전송
+//        ChatMessage message;
+//        if (memberRegistry.containsKey(memberId)) {
+//            message = ChatMessage.reenter(nickname);
+//        } else {
+//            message = ChatMessage.enter(nickname);
+//        }
+//
+//        // 메시지 전송
+//        messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
+//
+//        // 사용자 입장 기록
+//        memberRegistry.put(memberId, true);
+//    }
 }
