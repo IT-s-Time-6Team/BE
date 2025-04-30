@@ -1,15 +1,17 @@
 package com.team6.team6.question.controller;
 
-import com.team6.team6.global.TestSecurityConfig;
 import com.team6.team6.question.dto.QuestionResponse;
 import com.team6.team6.question.service.QuestionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = QuestionController.class)
 @AutoConfigureRestDocs
-@Import(TestSecurityConfig.class)
 class QuestionControllerTest {
 
     @Autowired
@@ -35,6 +36,19 @@ class QuestionControllerTest {
 
     @MockitoBean
     private QuestionService questionService;
+
+    @TestConfiguration
+    static class TestConfig {
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            return http
+                    .authorizeHttpRequests(auth -> auth
+                            .anyRequest().permitAll()
+                    )
+                    .build();
+        }
+    }
 
     @Test
     void 정상_요청_테스트() throws Exception {
