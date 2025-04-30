@@ -1,4 +1,4 @@
-package com.team6.team6.keyword.exception.exceptions;
+package com.team6.team6.keyword.exception;
 
 public class AiResponseParsingException extends RuntimeException {
 

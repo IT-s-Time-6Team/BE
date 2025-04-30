@@ -1,8 +1,7 @@
 package com.team6.team6.keyword.infrastructure;
 
 import com.team6.team6.keyword.dto.KeywordGroupResponse;
-import com.team6.team6.keyword.exception.exceptions.AiResponseParsingException;
-import com.team6.team6.keyword.exception.exceptions.EmptyKeywordException;
+import com.team6.team6.keyword.exception.AiResponseParsingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.ai.chat.client.ChatClient;

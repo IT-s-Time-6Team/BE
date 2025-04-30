@@ -2,7 +2,7 @@ package com.team6.team6.keyword.infrastructure;
 
 import com.team6.team6.keyword.domain.KeywordSimilarityAnalyser;
 import com.team6.team6.keyword.dto.KeywordGroupResponse;
-import com.team6.team6.keyword.exception.exceptions.AiResponseParsingException;
+import com.team6.team6.keyword.exception.AiResponseParsingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
