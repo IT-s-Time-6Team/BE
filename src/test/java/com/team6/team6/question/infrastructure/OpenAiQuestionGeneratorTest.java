@@ -1,5 +1,6 @@
 package com.team6.team6.question.infrastructure;
 
+import com.team6.team6.question.dto.QuestionsResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,6 +16,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,19 +33,22 @@ class OpenAiQuestionGeneratorTest {
     void 결과_반환_테스트() {
         // given
         String keyword = "LOL";
-        String aiResponse = """
-                롤에서 맞라인으로 나왔을 때 가장 싫은 챔피언은?
-                가장 좋아하는 챔피언은 누구야?
-                승률은 중요하게 생각해?
-                """;
+        List<String> questionsList = List.of(
+                "롤에서 맞라인으로 나왔을 때 가장 싫은 챔피언은?",
+                "가장 좋아하는 챔피언은 누구야?",
+                "승률은 중요하게 생각해?"
+        );
+        QuestionsResponse questionsResponse = new QuestionsResponse(questionsList);
 
+        // ChatClient.ChatClientRequestSpec과 ChatClient.CallResponseSpec을 모킹
         ChatClientRequestSpec requestSpec = mock(ChatClientRequestSpec.class);
-        CallResponseSpec response = mock(CallResponseSpec.class);
+        CallResponseSpec responseSpec = mock(CallResponseSpec.class);
 
-        // when
+        // when: ChatClient의 메서드 체인 모킹
         when(chatClient.prompt(any(Prompt.class))).thenReturn(requestSpec);
-        when(requestSpec.call()).thenReturn(response);
-        when(response.content()).thenReturn(aiResponse);
+        when(requestSpec.call()).thenReturn(responseSpec);
+        when(responseSpec.entity(eq(QuestionsResponse.class))).thenReturn(questionsResponse);
+
         List<String> questions = questionGenerator.generateQuestions(keyword);
 
         // then
@@ -61,9 +66,11 @@ class OpenAiQuestionGeneratorTest {
     void chatClient_호출_중_예외_발생_테스트() {
         // given
         String keyword = "LOL";
+        ChatClientRequestSpec requestSpec = mock(ChatClientRequestSpec.class);
 
         // when
-        when(chatClient.prompt(any(Prompt.class))).thenThrow(new IllegalStateException("API 실패"));
+        when(chatClient.prompt(any(Prompt.class))).thenReturn(requestSpec);
+        when(requestSpec.call()).thenThrow(new IllegalStateException("API 실패"));
 
         // then
         assertThatThrownBy(() -> questionGenerator.generateQuestions(keyword))
