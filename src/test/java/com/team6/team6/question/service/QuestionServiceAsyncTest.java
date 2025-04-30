@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -75,8 +76,8 @@ class QuestionServiceAsyncTest {
 
         Runnable task = () -> {
             try {
-                ready.countDown();
-                start.await();
+                ready.countDown(); // 준비 완료
+                start.await();     // 시작 신호 대기
                 questionService.generateQuestions(keyword);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -87,13 +88,13 @@ class QuestionServiceAsyncTest {
         executor.submit(task);
         executor.submit(task);
 
-        ready.await();  // 두 스레드 준비 대기
-        start.countDown(); // 동시에 실행 시작
-        executor.awaitTermination(3, TimeUnit.SECONDS);
-
-        // then
-        verify(questionRepository, times(1)).saveAll(anyList());
+        ready.await(); // 두 스레드가 준비될 때까지 대기
+        start.countDown(); // 동시에 시작
         executor.shutdown();
+
+        // then - saveAll이 단 한 번만 호출되었는지 확인 (비동기 작업 완료까지 대기)
+        await().atMost(3, TimeUnit.SECONDS)
+                .untilAsserted(() -> verify(questionRepository, times(1)).saveAll(anyList()));
     }
 
     @Test
