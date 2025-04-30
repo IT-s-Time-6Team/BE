@@ -345,7 +345,45 @@
 
         stompClient.subscribe(messagesTopic, function (message) {
             try {
-                const data = JSON.parse(message.body);
+                const data = JSON.parse(message.body);// 채팅방 구독 부분 수정
+                document.getElementById('subscribe-btn').addEventListener('click', function () {
+                    if (!stompClient) {
+                        log('먼저 웹소켓에 연결하세요.', 'error');
+                        return;
+                    }
+
+                    // 1. 채팅방 공개 메시지 구독
+                    const messagesTopic = `/topic/room/${roomKey}/messages`;
+                    log(`메시지 채널 구독: ${messagesTopic}`);
+
+                    stompClient.subscribe(messagesTopic, function (message) {
+                        try {
+                            const data = JSON.parse(message.body);
+                            log(`[${data.type}] ${data.nickname || "시스템"}: ${data.content}`, 'success');
+                            logRawData(data);
+                        } catch (e) {
+                            log(`메시지 파싱 오류: ${message.body}`, 'error');
+                        }
+                    });
+
+                    // 2. 개인 메시지 구독 (키워드 수신 확인용)
+                    const personalTopic = `/user/queue/keyword-confirmation`;
+                    log(`개인 메시지 채널 구독: ${personalTopic}`);
+
+                    stompClient.subscribe(personalTopic, function (message) {
+                        try {
+                            const data = JSON.parse(message.body);
+                            log(`[개인 메시지] ${data.content}`, 'success');
+                            logRawData(data);
+                        } catch (e) {
+                            log(`개인 메시지 파싱 오류: ${message.body}`, 'error');
+                        }
+                    });
+
+
+                    log('구독 완료', 'success');
+                    document.getElementById('send-keyword-btn').disabled = false;
+                });
                 // 오류 메시지 출력 제거 (원본 데이터만 표시)
                 log(`[${data.type}] ${data.nickname || "시스템"}: ${data.content}`, 'success');
                 logRawData(data);
