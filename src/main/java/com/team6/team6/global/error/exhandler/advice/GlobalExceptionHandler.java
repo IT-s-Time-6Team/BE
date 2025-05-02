@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
 
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
-                "잘못된 파라미터",
+                "잘못된 요청",
                 errorMessages
         );
     }
