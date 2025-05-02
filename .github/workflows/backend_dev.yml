@@ -31,9 +31,6 @@ jobs:
       # Gradle 빌드 수행: profile 지정
       - name: Build with Gradle Wrapper
         run: ./gradlew clean bootJar
-        env:
-          SPRING_PROFILES_ACTIVE: dev
-
 
       - name: Build Docker image
         run: |
