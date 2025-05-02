@@ -30,9 +30,7 @@ jobs:
 
       # Gradle 빌드 수행: profile 지정
       - name: Build with Gradle Wrapper
-        run: ./gradlew clean bootJar
-        env:
-          SPRING_PROFILES_ACTIVE: test
+        run: ./gradlew clean bootJar -Dspring.profiles.active=test
 
       - name: Build Docker image
         run: |
@@ -40,7 +38,7 @@ jobs:
 
   deploy:
     needs: build-docker-image
-    runs-on: [macmini]
+    runs-on: [ macmini ]
     steps:
 
       - name: Stop existing Docker container (if running)
