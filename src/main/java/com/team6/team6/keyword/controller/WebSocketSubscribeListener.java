@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,46 +22,59 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
 
     private final SimpMessageSendingOperations messagingTemplate;
     // 사용자 방 입장 기록을 위한 맵 (방ID -> {멤버ID -> 입장 여부})
-    private final Map<Long, Map<Long, Boolean>> roomMemberRegistry = new ConcurrentHashMap<>();
-    
+    private final Map<String, Map<String, Boolean>> roomMemberRegistry = new ConcurrentHashMap<>();
+
     private static final Pattern ROOM_TOPIC_PATTERN = Pattern.compile("/topic/room/([^/]+)/messages");
 
     @Override
     public void onApplicationEvent(SessionSubscribeEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        String destination = headerAccessor.getDestination();
-        
-        // 채팅방 구독인지 확인
-        if (destination == null) return;
-        
-        Matcher matcher = ROOM_TOPIC_PATTERN.matcher(destination);
-        if (!matcher.matches()) return;
-        
-        String roomKey = matcher.group(1);
-        
-        // 인증 정보 가져오기
-        Authentication authentication = (Authentication) headerAccessor.getUser();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal principal)) return;
 
-        Long memberId = principal.getId();
+        // 대상 destination과 방 키 추출
+        String roomKey = extractRoomKeyFromDestination(headerAccessor.getDestination());
+        if (roomKey == null) return;
+
+        // 사용자 인증 정보 및 닉네임 추출
+        UserPrincipal principal = extractUserPrincipal(headerAccessor);
+        if (principal == null) return;
+
         String nickname = principal.getNickname();
-        Long roomId = principal.getRoomId();
 
         // 방에 대한 멤버 레지스트리 조회 또는 생성
-        Map<Long, Boolean> memberRegistry = roomMemberRegistry.computeIfAbsent(roomId, k -> new ConcurrentHashMap<>());
+        Map<String, Boolean> memberRegistry = roomMemberRegistry.computeIfAbsent(roomKey, k -> new ConcurrentHashMap<>());
 
-        // 채팅 메시지 생성 및 전송
-        ChatMessage message;
-        if (memberRegistry.containsKey(memberId)) {
-            message = ChatMessage.reenter(nickname);
-        } else {
-            message = ChatMessage.enter(nickname);
-        }
+        // 입장 또는 재입장 메시지 생성
+        ChatMessage message = memberRegistry.containsKey(nickname) ?
+                ChatMessage.reenter(nickname) :
+                ChatMessage.enter(nickname);
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
 
         // 사용자 입장 기록
-        memberRegistry.put(memberId, true);
+        memberRegistry.put(nickname, true);
+    }
+
+    /**
+     * 목적지 URL에서 방 키를 추출
+     */
+    private String extractRoomKeyFromDestination(String destination) {
+        if (destination == null) return null;
+
+        Matcher matcher = ROOM_TOPIC_PATTERN.matcher(destination);
+        return matcher.matches() ? matcher.group(1) : null;
+    }
+
+    /**
+     * 헤더 접근자에서 사용자 정보 추출
+     */
+    private UserPrincipal extractUserPrincipal(StompHeaderAccessor headerAccessor) {
+        return Optional.ofNullable(headerAccessor.getUser())
+                .filter(Authentication.class::isInstance)
+                .map(Authentication.class::cast)
+                .map(Authentication::getPrincipal)
+                .filter(UserPrincipal.class::isInstance)
+                .map(UserPrincipal.class::cast)
+                .orElse(null);
     }
 }
