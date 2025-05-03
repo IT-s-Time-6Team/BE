@@ -2,6 +2,9 @@ package com.team6.team6.keyword.domain.repository;
 
 import java.util.Map;
 
+/**
+ * 방에 있는 사용자 정보를 관리하는 레포지토리 인터페이스
+ */
 public interface MemberRegistryRepository {
     /**
      * 사용자가 방에 있는지 확인
