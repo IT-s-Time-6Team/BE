@@ -5,7 +5,9 @@ import com.team6.team6.keyword.dto.KeywordAddRequest;
 import com.team6.team6.keyword.service.KeywordService;
 import com.team6.team6.member.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.annotation.SendToUser;
@@ -28,5 +30,13 @@ public class KeywordController {
         keywordService.addKeyword(request.toServiceRequest(roomKey, principal));
 
         return ChatMessage.keywordReceived(principal.getNickname(), request.keyword());
+    }
+
+    @MessageExceptionHandler
+    @SendToUser("/queue/errors")
+    public ChatMessage handleException(MessageConversionException exception) {
+        System.out.println("MessageConversionException: " + exception.getMessage());
+        // ...
+        return ChatMessage.error(exception);
     }
 }
