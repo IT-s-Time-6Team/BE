@@ -1,440 +1,408 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>WebSocket 테스트</title>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/json-formatter-js@2.3.4/dist/json-formatter.umd.min.js"></script>
+    <title>STOMP WebSocket API 명세서</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            line-height: 1.6;
         }
 
-        #log-container {
-            border: 1px solid #ccc;
-            padding: 10px;
-            height: 300px;
-            overflow-y: scroll;
-            margin-bottom: 10px;
+        h1, h2, h3 {
+            color: #333;
+            margin-top: 1.5em;
         }
 
-        button {
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
             padding: 8px 12px;
-            margin-right: 10px;
-            cursor: pointer;
+            text-align: left;
         }
 
-        input {
-            padding: 8px;
-            width: 200px;
+        th {
+            background-color: #f5f5f5;
         }
 
-        .step {
-            border: 1px solid #eee;
+        pre {
+            background-color: #f5f5f5;
             padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+            border-radius: 4px;
+            overflow-x: auto;
         }
 
-        .success {
-            color: green;
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .note {
+            background-color: #fffde7;
+            padding: 10px;
+            border-left: 4px solid #ffeb3b;
+            margin: 15px 0;
         }
 
         .error {
-            color: red;
+            color: #d32f2f;
         }
 
-        .raw-data {
-            background-color: #f5f5f5;
-            padding: 5px;
-            border-radius: 3px;
-            margin-top: 5px;
-            font-family: monospace;
-        }
-
-        .log-controls {
-            margin-bottom: 10px;
-        }
-
-        .url-display {
-            font-family: monospace;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        /* JSON Formatter 스타일 추가 */
-        .json-formatter-row {
-            font-family: monospace;
-        }
-
-        .json-formatter-row .json-formatter-key {
-            color: #0451a5;
-        }
-
-        .json-formatter-row .json-formatter-string {
-            color: #a31515;
-        }
-
-        .json-formatter-row .json-formatter-number {
-            color: #098658;
-        }
-
-        .json-formatter-row .json-formatter-boolean {
-            color: #0000ff;
-        }
-
-        .json-formatter-row .json-formatter-null {
-            color: #0000ff;
+        .success {
+            color: #388e3c;
         }
     </style>
 </head>
 <body>
-<h1>웹소켓 테스트</h1>
+<h1>STOMP WebSocket API 명세서</h1>
+<p><a href="stomp-test.html">STOMP 테스트 페이지 바로 가기</a></p>
 
-<div class="step">
-    <h2>기본 URL 설정</h2>
-    <label>기본 URL: <input type="text" id="baseUrl" value="http://localhost:8080"></label><br><br>
-    <button id="update-url-btn">URL 업데이트</button>
+
+<div class="section">
+    <h2>1. 개요</h2>
+    <p>
+        이 API는 STOMP(Simple Text Oriented Messaging Protocol) 프로토콜을 사용하여 실시간 메시지를 교환합니다.
+        채팅방 입장, 키워드 제출 및 분석 결과 조회 등의 기능을 제공합니다.
+    </p>
+    <p class="note">
+        <strong>중요:</strong> 웹소켓 테스트 페이지를 통해 API를 테스트할 수 있습니다.
+        사전에 연결을 해본 뒤, 이 문서를 읽으면 더욱 쉽게 이해 가능합니다.
+
+    </p>
+    <p class="note">
+        <strong>중요:</strong> WebSocket 연결하기 전에 반드시 REST API를 통한 로그인이 필요합니다.
+        로그인 시 생성된 세션 쿠키를 통해 사용자 인증이 이루어집니다. 별도로 토큰을 전달할 필요가 없습니다.
+
+    </p>
+    <p class="note">
+        <strong>중요:</strong>
+        인증이 없으면 웹소켓 연결이 실패합니다.
+        또한 로그인한 방이 아닌 다른 방 구독 및 메시지 전송시, 웹소켓 연결이 끊어집니다.
+    </p>
 </div>
 
-
-<div class="step">
-    <h2>1. 로그인</h2>
-    <p>웹소켓에 연결하려면 우선 로그인을 해야 합니다.</p>
-    <label>닉네임: <input type="text" id="nickname" value="test2"></label><br><br>
-    <label>비밀번호: <input type="password" id="password" value="123ddd@"></label><br><br>
-    <label>방 키: <input type="text" id="roomKey" value="0671py"></label><br><br>
-    <button id="login-btn">로그인</button>
-    <div class="url-display">
-        로그인 URL: <span id="login-url">http://localhost:8080/rooms/0671py/member</span>
-    </div>
+<div class="section">
+    <h2>2. 사전 준비사항</h2>
+    <p>WebSocket 연결 전 필요한 사항들을 설명합니다.</p>
+    <ul>
+        <li>사용자는 먼저 REST API를 통해 로그인해야 합니다</li>
+        <li>SockJS와 STOMP 클라이언트 라이브러리가 필요합니다</li>
+        <li>인증된 세션이 있어야 WebSocket 연결이 가능합니다</li>
+    </ul>
 </div>
 
-<div class="step">
-    <h2>2. 웹소켓 연결</h2>
-    <button id="connect-btn">웹소켓 연결</button>
-    <button id="disconnect-btn" disabled>연결 끊기</button>
-    <div class="url-display">
-        연결 URL: <span id="connect-url">http://localhost:8080/connect</span>
-    </div>
-</div>
+<div class="section">
+    <h2>3. WebSocket 연결</h2>
+    <p>로그인 후, WebSocket 연결을 설정합니다.</p>
 
-<div class="step">
-    <h2>3. 채팅방 구독</h2>
-    <button id="subscribe-btn" disabled>구독하기</button>
-    <div class="url-display">
-        메시지 토픽: <span id="messages-topic">/topic/room/0671py/messages</span><br>
-        개인 메시지 토픽: <span id="personal-topic">/user/queue/keyword-confirmation</span>
-    </div>
-</div>
+    <h3>연결 정보</h3>
+    <table>
+        <tr>
+            <th>STOMP 엔드포인트</th>
+            <td><code>/connect</code></td>
+        </tr>
+        <tr>
+            <th>WebSocket URL</th>
+            <td><code>http://localhost:8080/connect</code></td>
+        </tr>
+    </table>
 
-<div class="step">
-    <h2>4. 키워드 전송</h2>
-    <label>키워드: <input type="text" id="keyword" value="dd"></label><br><br>
-    <button id="send-keyword-btn" disabled>키워드 전송</button>
-    <div class="url-display">
-        키워드 전송 URL: <span id="keyword-url">/app/room/0671py/keyword</span>
-    </div>
-</div>
+    <h3>JavaScript 예시 코드</h3>
+    <pre><code class="language-js">// SockJS와 STOMP 클라이언트 라이브러리 필요
+const socket = new SockJS('http://localhost:8080/connect');
+const stompClient = Stomp.over(socket);
 
-<h2>로그</h2>
-<div class="log-controls">
-    <button id="clear-log-btn">로그 지우기</button>
-</div>
-<div id="log-container"></div>
+// 디버그 메시지 활성화 (선택사항)
+stompClient.debug = function(str) {
+    console.log('[STOMP DEBUG]', str);
+};
 
-<script>
-    let stompClient = null;
-    let userId = null;
-    let roomKey = '0671py';
-    let baseUrl = 'http://localhost:8080';
-
-    // 페이지 로드 시 URL 표시 업데이트
-    window.addEventListener('DOMContentLoaded', function () {
-        updateAllUrls();
-    });
-
-    // URL 업데이트 버튼
-    document.getElementById('update-url-btn').addEventListener('click', function () {
-        baseUrl = document.getElementById('baseUrl').value.trim();
-        if (!baseUrl) {
-            log('기본 URL을 입력하세요.', 'error');
-            return;
-        }
-
-        // URL 끝에 슬래시가 있으면 제거
-        if (baseUrl.endsWith('/')) {
-            baseUrl = baseUrl.slice(0, -1);
-        }
-
-        updateAllUrls();
-        log(`기본 URL이 ${baseUrl}로 업데이트되었습니다.`, 'success');
-    });
-
-    // 방 키 입력란 변경 감지
-    document.getElementById('roomKey').addEventListener('input', function () {
-        roomKey = this.value;
-        updateAllUrls();
-    });
-
-    // 모든 URL 표시 업데이트
-    function updateAllUrls() {
-        roomKey = document.getElementById('roomKey').value;
-
-        // 로그인 URL
-        document.getElementById('login-url').textContent = `${baseUrl}/rooms/${roomKey}/member`;
-
-        // 연결 URL
-        document.getElementById('connect-url').textContent = `${baseUrl}/connect`;
-
-        // 메시지 토픽
-        document.getElementById('messages-topic').textContent = `/topic/room/${roomKey}/messages`;
-
-        // 개인 메시지 토픽
-        document.getElementById('personal-topic').textContent = `/user/queue/keyword-confirmation`;
-
-        // 키워드 전송 URL
-        document.getElementById('keyword-url').textContent = `/app/room/${roomKey}/keyword`;
+// 연결
+stompClient.connect({},
+    function(frame) { // 성공 콜백
+        console.log('웹소켓 연결 성공!', frame);
+        // 여기서 구독 설정
+    },
+    function(error) { // 에러 콜백
+        console.error('연결 오류:', error);
     }
+);</code></pre>
+</div>
 
-    // 로그 지우기 버튼
-    document.getElementById('clear-log-btn').addEventListener('click', function () {
-        document.getElementById('log-container').innerHTML = '';
-        log('로그가 초기화되었습니다.', 'success');
-    });
+<div class="section">
+    <h2>4. 메시지 구독</h2>
+    <p>연결 성공 후, 다음 채널들을 전부 구독하여 메시지를 수신할 수 있습니다.</p>
+    <p>/topic/room/{roomKey}/messages</p>
+    <p>/user/queue/keyword-confirmation</p>
+    <p>/user/queue/errors</p>
 
-    // 로그 출력 함수
-    function log(message, type = '') {
-        const logContainer = document.getElementById('log-container');
-        const entry = document.createElement('div');
-        entry.className = type;
-        entry.appendChild(document.createTextNode(`${new Date().toLocaleTimeString()}: ${message}`));
-        logContainer.appendChild(entry);
-        logContainer.scrollTop = logContainer.scrollHeight;
+    <h3>4.1. 채팅방 메시지 구독</h3>
+    <table>
+        <tr>
+            <th>구독 주소</th>
+            <td><code>/topic/room/{roomKey}/messages</code></td>
+        </tr>
+        <tr>
+            <th>설명</th>
+            <td>채팅방 내 모든 메시지(입장, 재입장, 분석 결과 등) 수신</td>
+        </tr>
+    </table>
+    <h4>ENTER 메시지</h4>
+    <p>사용자가 /topic/room/{roomKey}/messages을 처음 구독을 하면 ENTER 메시지가 전원에게 전달됩니다.</p>
+    <pre><code class="language-json">{
+  "type": "ENTER",
+  "nickname": "test2",
+  "content": "test2님이 입장했습니다.",
+  "timestamp": "2025-05-04T19:01:28.30981",
+  "data": null
+}</code></pre>
+
+    <h4>REENTER 메시지</h4>
+    <p>사용자가 /topic/room/{roomKey}/messages을 재구독을 하면 REENTER 메시지가 전원에게 전달됩니다.</p>
+    <pre><code class="language-json">{
+    "type": "REENTER",
+    "nickname": "test2",
+    "content": "test2님이 재입장했습니다.",
+    "timestamp": "2025-05-04T19:01:35.882251",
+    "data": null
+}</code></pre>
+
+    <h4>ANALYSIS_RESULT 메시지</h4>
+    <p>사용자가 /app/room/{roomKey}/keyword을 통해 키워드 전달 후, 서버에서 분석이 완료되면 해달 결과를 전원에게 전달됩니다.</p>
+
+    <pre><code class="language-json">{
+  "type": "ANALYSIS_RESULT",
+  "nickname": "@시스템",
+  "content": "키워드 분석 결과가 도착했습니다.",
+  "timestamp": "2025-05-04T19:17:56.340505",
+  "data": [
+    {
+      "referenceName": "Keyword1",
+      "count": 2,
+      "variations": ["variation1", "variation2"]
     }
+  ]
+}</code></pre>
 
-    // 원본 데이터 표시 함수 - 펼쳐진 JSON으로 표시
-    function logRawData(data) {
-        const logContainer = document.getElementById('log-container');
-        const rawDataDiv = document.createElement('div');
-        rawDataDiv.className = 'raw-data';
+    <h3>4.2. 키워드 전송 결과 구독</h3>
+    <table>
+        <tr>
+            <th>구독 주소</th>
+            <td><code>/user/queue/keyword-confirmation</code></td>
+        </tr>
+        <tr>
+            <th>설명</th>
+            <td>키워드 전송 성공 여부에 대한 개인 메시지 수신</td>
+        </tr>
+    </table>
 
-        try {
-            // JSON 객체로 변환
-            let jsonData = typeof data === 'string' ? JSON.parse(data) : data;
+    <h4>KEYWORD_RECEIVED 메시지</h4>
+    <pre><code class="language-json">{
+  "type": "KEYWORD_RECEIVED",
+  "nickname": "test2",
+  "content": "키워드 '예시키워드'가 성공적으로 수신되었습니다.",
+  "timestamp": "2025-05-04T19:17:53.334943",
+  "data": null
+}</code></pre>
 
-            // JSON을 펼쳐진 형태로 예쁘게 표시
-            const formattedJson = JSON.stringify(jsonData, null, 2);
-            const pre = document.createElement('pre');
-            pre.textContent = formattedJson;
+    <h3>4.3. 에러 메시지 구독</h3>
+    <table>
+        <tr>
+            <th>구독 주소</th>
+            <td><code>/user/queue/errors</code></td>
+        </tr>
+        <tr>
+            <th>설명</th>
+            <td>요청 처리 중 발생한 에러 메시지 수신</td>
+        </tr>
+    </table>
 
-            // 포맷된 JSON을 추가
-            rawDataDiv.appendChild(pre);
-        } catch (e) {
-            // JSON 파싱에 실패할 경우 텍스트로 표시
-            rawDataDiv.appendChild(document.createTextNode(data));
-        }
+    <h4>ERROR 메시지</h4>
+    <p>사용자가 /app/room/{roomKey}/keyword에 잘못된 형식의 메시지를 전달한 경우, 해당 사용자에게 에러 메시지를 보냅니다.</p>
 
-        logContainer.appendChild(rawDataDiv);
-        logContainer.scrollTop = logContainer.scrollHeight;
+    <pre><code class="language-json">{
+  "type": "ERROR",
+  "nickname": "@시스템",
+  "content": "[오류] 잘못된 요청 형식입니다. 올바른 형식 : { \"keyword\": \"키워드\" }",
+  "timestamp": "2025-05-04T19:01:56.24617",
+  "data": null
+}</code></pre>
+
+    <h3>JavaScript 구독 예시</h3>
+    <pre><code class="language-js">// 1. 채팅방 메시지 구독
+stompClient.subscribe('/topic/room/0671py/messages', function(message) {
+  console.log('채팅 메시지:', JSON.parse(message.body));
+});
+
+// 2. 키워드 전송 결과(개인) 구독
+stompClient.subscribe('/user/queue/keyword-confirmation', function(message) {
+  console.log('키워드 수신 확인:', JSON.parse(message.body));
+});
+
+// 3. 에러 메시지(개인) 구독
+stompClient.subscribe('/user/queue/errors', function(message) {
+  console.error('에러:', JSON.parse(message.body));
+});</code></pre>
+</div>
+
+<div class="section">
+    <h2>5. 메시지 전송</h2>
+    <p>다음 엔드포인트를 통해 메시지를 서버로 전송할 수 있습니다.</p>
+
+    <h3>5.1. 키워드 전송</h3>
+    <table>
+        <tr>
+            <th>전송 주소</th>
+            <td><code>/app/room/{roomKey}/keyword</code></td>
+        </tr>
+        <tr>
+            <th>Payload</th>
+            <td><code>{ "keyword": "키워드" }</code></td>
+        </tr>
+        <tr>
+            <th>설명</th>
+            <td>키워드 제출</td>
+        </tr>
+        <tr>
+            <th>결과1</th>
+            <td>/user/queue/keyword-confirmation을 통해 해당 유저에게 KEYWORD_RECEIVED 전달</td>
+        </tr>
+        <tr>
+            <th>결과2</th>
+            <td>/topic/room/{roomKey}/messages을 통해 ANALYSIS_RESULT 전부 전달</td>
+        </tr>
+        <tr>
+            <th>에러1</th>
+            <td>/user/queue/errors을 통해 해당 유저에게 ERROR 전달</td>
+        </tr>
+    </table>
+    <pre><code class="language-js">// 키워드 전송
+stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예시키워드' }));</code></pre>
+</div>
+
+<div class="section">
+    <h2>6. 메시지 형식</h2>
+    <p>모든 메시지는 다음과 같은 형식으로 전달됩니다.</p>
+
+    <pre><code class="language-json">{
+  "type": "메시지 타입",
+  "nickname": "발신자 닉네임",
+  "content": "메시지 내용",
+  "timestamp": "2025-05-04T19:01:28.30981",
+  "data": 메시지 관련 추가 데이터(객체 또는 null)
+}</code></pre>
+
+    <h3>6.1. 메시지 타입</h3>
+    <table>
+        <tr>
+            <th>type</th>
+            <th>설명</th>
+            <th>채널</th>
+        </tr>
+        <tr>
+            <td>ENTER</td>
+            <td>채팅방 최초 입장</td>
+            <td>/topic/room/{roomKey}/messages</td>
+        </tr>
+        <tr>
+            <td>REENTER</td>
+            <td>채팅방 재입장</td>
+            <td>/topic/room/{roomKey}/messages</td>
+        </tr>
+        <tr>
+            <td>KEYWORD_RECEIVED</td>
+            <td>키워드 정상 수신</td>
+            <td>/user/queue/keyword-confirmation</td>
+        </tr>
+        <tr>
+            <td>ANALYSIS_RESULT</td>
+            <td>키워드 분석 결과</td>
+            <td>/topic/room/{roomKey}/messages</td>
+        </tr>
+        <tr>
+            <td>ERROR</td>
+            <td>에러 발생</td>
+            <td>/user/queue/errors</td>
+        </tr>
+    </table>
+
+    <h3>6.2. 메시지 예시</h3>
+
+    <h4>ENTER 메시지</h4>
+    <pre><code class="language-json">{
+  "type": "ENTER",
+  "nickname": "test2",
+  "content": "test2님이 입장했습니다.",
+  "timestamp": "2025-05-04T19:01:28.30981",
+  "data": null
+}</code></pre>
+
+    <h4>KEYWORD_RECEIVED 메시지</h4>
+    <pre><code class="language-json">{
+  "type": "KEYWORD_RECEIVED",
+  "nickname": "test2",
+  "content": "키워드 '예시키워드'가 성공적으로 수신되었습니다.",
+  "timestamp": "2025-05-04T19:17:53.334943",
+  "data": null
+}</code></pre>
+
+    <h4>ANALYSIS_RESULT 메시지</h4>
+    <pre><code class="language-json">{
+  "type": "ANALYSIS_RESULT",
+  "nickname": "@시스템",
+  "content": "키워드 분석 결과가 도착했습니다.",
+  "timestamp": "2025-05-04T19:17:56.340505",
+  "data": [
+    {
+      "referenceName": "Keyword1",
+      "count": 2,
+      "variations": ["variation1", "variation2"]
     }
+  ]
+}</code></pre>
 
-    // 로그인 처리
-    document.getElementById('login-btn').addEventListener('click', function () {
-        const nickname = document.getElementById('nickname').value;
-        const password = document.getElementById('password').value;
-        roomKey = document.getElementById('roomKey').value;
+    <h4>ERROR 메시지</h4>
+    <pre><code class="language-json">{
+  "type": "ERROR",
+  "nickname": "@시스템",
+  "content": "[오류] 잘못된 요청 형식입니다. 올바른 형식 : { \"keyword\": \"키워드\" }",
+  "timestamp": "2025-05-04T19:01:56.24617",
+  "data": null
+}</code></pre>
+</div>
 
-        if (!nickname || !password || !roomKey) {
-            log('닉네임, 비밀번호, 방 키를 모두 입력하세요.', 'error');
-            return;
-        }
+<div class="section">
+    <h2>7. 주요 시나리오</h2>
 
-        updateAllUrls();
-        const loginUrl = `${baseUrl}/rooms/${roomKey}/member`;
-        log(`로그인 시도: ${nickname}, 방 키: ${roomKey}, URL: ${loginUrl}`);
+    <h3>7.1. 채팅방 입장 및 메시지 구독</h3>
+    <ol>
+        <li>REST API로 로그인 (/rooms/{roomKey}/member)</li>
+        <li>WebSocket 연결 (/connect)</li>
+        <li>채팅방 메시지 구독 (/topic/room/{roomKey}/messages)</li>
+        <li>개인 메시지 구독 (/user/queue/keyword-confirmation, /user/queue/errors)</li>
+    </ol>
 
-        fetch(loginUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                nickname: nickname,
-                password: password
-            }),
-            credentials: 'include'  // 쿠키를 포함하여 보내기 위함
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('로그인 실패');
-                }
-                return response.json();
-            })
-            .then(data => {
-                log(`로그인 성공!`, 'success');
-                log(`응답 데이터: ${JSON.stringify(data)}`, 'success');
-                logRawData(data);
-                document.getElementById('connect-btn').disabled = false;
+    <h3>7.2. 키워드 전송 및 결과 수신</h3>
+    <ol>
+        <li>키워드 전송 (/app/room/{roomKey}/keyword)</li>
+        <li>개인 확인 메시지 수신 (/user/queue/keyword-confirmation)</li>
+        <li>분석 결과 수신 (/topic/room/{roomKey}/messages, type: ANALYSIS_RESULT)</li>
+    </ol>
+</div>
 
-                // 사용자 ID 저장 (응답에서 얻을 수 있다면)
-                if (data.data && data.data.id) {
-                    userId = data.data.id;
-                }
-            })
-            .catch(error => {
-                log(`로그인 오류: ${error.message}`, 'error');
-            });
-    });
-
-    // 웹소켓 연결
-    document.getElementById('connect-btn').addEventListener('click', function () {
-        const connectUrl = `${baseUrl}/connect`;
-        log(`웹소켓 연결 시도... URL: ${connectUrl}`);
-
-        // SockJS를 사용하여 웹소켓 연결
-        const socket = new SockJS(connectUrl);
-        stompClient = Stomp.over(socket);
-
-        // 디버그 메시지 표시
-        stompClient.debug = function (str) {
-            log(`[STOMP DEBUG] ${str}`);
-        };
-
-        // 연결 시도
-        stompClient.connect({},
-            function (frame) {
-                log(`웹소켓 연결 성공! ${frame}`, 'success');
-                document.getElementById('connect-btn').disabled = true;
-                document.getElementById('disconnect-btn').disabled = false;
-                document.getElementById('subscribe-btn').disabled = false;
-            },
-            function (error) {
-                log(`웹소켓 연결 실패: ${error}`, 'error');
-                document.getElementById('connect-btn').disabled = false;
-                document.getElementById('disconnect-btn').disabled = true;
-            }
-        );
-    });
-
-    // 연결 끊기
-    document.getElementById('disconnect-btn').addEventListener('click', function () {
-        if (stompClient) {
-            stompClient.disconnect(function () {
-                log('웹소켓 연결 종료됨');
-                document.getElementById('connect-btn').disabled = false;
-                document.getElementById('disconnect-btn').disabled = true;
-                document.getElementById('subscribe-btn').disabled = true;
-                document.getElementById('send-keyword-btn').disabled = true;
-            });
-        }
-    });
-
-    // 채팅방 구독
-    document.getElementById('subscribe-btn').addEventListener('click', function () {
-        if (!stompClient) {
-            log('먼저 웹소켓에 연결하세요.', 'error');
-            return;
-        }
-
-        // 1. 채팅방 공개 메시지 구독
-        const messagesTopic = `/topic/room/${roomKey}/messages`;
-        log(`메시지 채널 구독: ${messagesTopic}`);
-
-        stompClient.subscribe(messagesTopic, function (message) {
-            try {
-                const data = JSON.parse(message.body);// 채팅방 구독 부분 수정
-                document.getElementById('subscribe-btn').addEventListener('click', function () {
-                    if (!stompClient) {
-                        log('먼저 웹소켓에 연결하세요.', 'error');
-                        return;
-                    }
-
-                    // 1. 채팅방 공개 메시지 구독
-                    const messagesTopic = `/topic/room/${roomKey}/messages`;
-                    log(`메시지 채널 구독: ${messagesTopic}`);
-
-                    stompClient.subscribe(messagesTopic, function (message) {
-                        try {
-                            const data = JSON.parse(message.body);
-                            log(`[${data.type}] ${data.nickname || "시스템"}: ${data.content}`, 'success');
-                            logRawData(data);
-                        } catch (e) {
-                            log(`메시지 파싱 오류: ${message.body}`, 'error');
-                        }
-                    });
-
-                    // 2. 개인 메시지 구독 (키워드 수신 확인용)
-                    const personalTopic = `/user/queue/keyword-confirmation`;
-                    log(`개인 메시지 채널 구독: ${personalTopic}`);
-
-                    stompClient.subscribe(personalTopic, function (message) {
-                        try {
-                            const data = JSON.parse(message.body);
-                            log(`[개인 메시지] ${data.content}`, 'success');
-                            logRawData(data);
-                        } catch (e) {
-                            log(`개인 메시지 파싱 오류: ${message.body}`, 'error');
-                        }
-                    });
-
-
-                    log('구독 완료', 'success');
-                    document.getElementById('send-keyword-btn').disabled = false;
-                });
-                // 오류 메시지 출력 제거 (원본 데이터만 표시)
-                log(`[${data.type}] ${data.nickname || "시스템"}: ${data.content}`, 'success');
-                logRawData(data);
-            } catch (e) {
-                log(`메시지 파싱 오류: ${message.body}`, 'error');
-            }
-        });
-
-        // 2. 개인 메시지 구독 (키워드 수신 확인용)
-        const personalTopic = `/user/queue/keyword-confirmation`;
-        log(`개인 메시지 채널 구독: ${personalTopic}`);
-
-        stompClient.subscribe(personalTopic, function (message) {
-            try {
-                const data = JSON.parse(message.body);
-                log(`[개인 메시지] ${data.content}`, 'success');
-                logRawData(data);
-            } catch (e) {
-                log(`개인 메시지 파싱 오류: ${message.body}`, 'error');
-            }
-        });
-
-        // 입장 메시지 전송
-        stompClient.send(`/app/room/${roomKey}/enter`, {}, {});
-
-        log('구독 완료 및 입장 메시지 전송', 'success');
-        document.getElementById('send-keyword-btn').disabled = false;
-    });
-
-    // 키워드 전송
-    document.getElementById('send-keyword-btn').addEventListener('click', function () {
-        if (!stompClient) {
-            log('먼저 웹소켓에 연결하세요.', 'error');
-            return;
-        }
-
-        const keyword = document.getElementById('keyword').value;
-        if (!keyword) {
-            log('키워드를 입력하세요.', 'error');
-            return;
-        }
-
-        const destination = `/app/room/${roomKey}/keyword`;
-        const payload = JSON.stringify({keyword: keyword});
-
-        log(`키워드 전송: ${keyword} -> ${destination}`);
-        logRawData(JSON.parse(payload));
-
-        stompClient.send(destination, {}, payload);
-        log('키워드 전송 완료', 'success');
-    });
-</script>
 </body>
 </html>
