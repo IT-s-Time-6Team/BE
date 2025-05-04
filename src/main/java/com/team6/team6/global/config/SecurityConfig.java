@@ -31,12 +31,12 @@ public class SecurityConfig {
                     return configuration;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/docs/**").permitAll()
-                        .requestMatchers("/connect/**", "/topic/**", "/app/**", "/queue/**").authenticated()
-                        .requestMatchers("/rooms/*/member").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/rooms").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/rooms/*").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/rooms/*/close").authenticated()
+                        .requestMatchers("/rooms/*/member").permitAll() // 회원가입/로그인은 허용
+                        .requestMatchers(HttpMethod.POST, "/rooms").permitAll() // 방 생성은 허용
+                        .requestMatchers(HttpMethod.GET, "/rooms/*").authenticated() // 방 조회는 인증 필요
+                        .requestMatchers(HttpMethod.PATCH, "/rooms/*/close").authenticated() // 방 종료는 인증 필요
+                        .requestMatchers("/docs/**").permitAll() // API 문서 접근 허용
+                        .requestMatchers("/actuator/**").permitAll() // actuator 접근 허용
                         .anyRequest().authenticated()
                 )
                 // Spring Security 6부터는 인증 정보의 세션 저장 방식이 "자동 저장"에서 "명시적 저장"으로 변경됨
