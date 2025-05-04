@@ -58,6 +58,11 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+tasks.withType(Test) {
+	// 모든 테스트 실행 시 test 프로파일 활성화
+	systemProperty 'spring.profiles.active', 'test'
+}
+
 tasks.named('asciidoctor') {
 	inputs.dir snippetsDir
 	configurations 'asciidoctorExt'
