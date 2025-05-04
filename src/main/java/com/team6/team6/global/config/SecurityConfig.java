@@ -31,6 +31,7 @@ public class SecurityConfig {
                     return configuration;
                 }))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/docs/**").permitAll()
                         .requestMatchers("/connect/**", "/topic/**", "/app/**", "/queue/**").authenticated()
                         .requestMatchers("/rooms/*/member").permitAll()
                         .requestMatchers(HttpMethod.POST, "/rooms").permitAll()
