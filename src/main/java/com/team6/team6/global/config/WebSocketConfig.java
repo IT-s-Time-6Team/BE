@@ -8,7 +8,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-//@EnableWebSocketSecurity
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
@@ -27,16 +26,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 메시지 발행 경로 프리픽스 설정
         registry.setApplicationDestinationPrefixes("/app");
     }
-
-//    @Bean
-//    public AuthorizationManager<Message<?>> messageAuthorizationManager(
-//            MessageMatcherDelegatingAuthorizationManager.Builder messages) {
-//        messages
-//                .nullDestMatcher().permitAll()
-//                .simpDestMatchers("/app/**").permitAll()
-//                .simpSubscribeDestMatchers("/topic/**").permitAll()
-//                .anyMessage().permitAll();
-//        return messages.build();
-//    }
 
 }
