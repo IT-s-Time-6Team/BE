@@ -1,5 +1,4 @@
-package com.team6.team6.keyword.entity;
-
+package com.team6.team6.question.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
 import jakarta.persistence.Entity;
@@ -19,20 +18,19 @@ public class Question extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String question;
     private String keyword;
+    private String question;
 
     @Builder
-    private Question(String keyword) {
+    private Question(String keyword, String question) {
+        this.question = question;
         this.keyword = keyword;
     }
 
-    public static Question of(String keyword) {
+    public static Question of(String keyword, String question) {
         return Question.builder()
                 .keyword(keyword)
+                .question(question)
                 .build();
     }
-
-
 }
-
