@@ -11,7 +11,10 @@ import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+
+import java.security.Principal;
 
 
 @Controller
@@ -24,19 +27,20 @@ public class KeywordController {
     @SendToUser("/queue/keyword-confirmation")
     public ChatMessage addKeyword(@DestinationVariable String roomKey,
                                   @Payload KeywordAddRequest request,
-                                  UserPrincipal principal) {
+                                  Principal principal) {
+
+        UserPrincipal userPrincipal = (UserPrincipal) ((Authentication) principal).getPrincipal();
 
         // 키워드 저장 및 분석 처리
-        keywordService.addKeyword(request.toServiceRequest(roomKey, principal));
+        keywordService.addKeyword(request.toServiceRequest(roomKey, userPrincipal));
 
-        return ChatMessage.keywordReceived(principal.getNickname(), request.keyword());
+        return ChatMessage.keywordReceived(userPrincipal.getNickname(), request.keyword());
     }
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
     public ChatMessage handleException(MessageConversionException exception) {
-        System.out.println("MessageConversionException: " + exception.getMessage());
-        // ...
+
         return ChatMessage.error(exception);
     }
 }
