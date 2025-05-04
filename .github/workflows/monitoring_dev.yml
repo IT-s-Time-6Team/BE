@@ -1,0 +1,22 @@
+name: Monitoring Dev CI/CD
+
+on:
+  push:
+    branches:
+      - monitoring_dev
+
+jobs:
+  deploy-monitoring-dev:
+    runs-on: macmini
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy DEV monitoring stack
+        working-directory: monitoring
+        env:
+          GRAFANA_USER: ${{ secrets.GRAFANA_USER }}
+          GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
+        run: |
+          docker compose -f docker-compose.base.yml -f docker-compose.dev.yml down
+          docker compose -f docker-compose.base.yml -f docker-compose.dev.yml up -d
