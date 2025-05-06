@@ -16,10 +16,13 @@ import static org.mockito.Mockito.*;
 class KeywordManagerTest {
 
     @Mock
-    private KeywordStore store;
+    private KeywordStore keywordStore;
 
     @Mock
     private KeywordSimilarityAnalyser analyser;
+
+    @Mock
+    private AnalysisResultStore analysisResultStore;
 
     @InjectMocks
     private KeywordManager keywordManager;
@@ -33,16 +36,16 @@ class KeywordManagerTest {
         List<String> keywordsInStore = List.of("AI", "Deep Learning");
         List<List<String>> expectedResult = List.of(keywordsInStore);
 
-        doNothing().when(store).saveKeyword(roomId, keyword);
-        when(store.getKeywords(roomId)).thenReturn(keywordsInStore);
+        doNothing().when(keywordStore).saveKeyword(roomId, keyword);
+        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
         keywordManager.addKeyword(roomId, keyword);
 
         // then
-        verify(store).saveKeyword(roomId, keyword);
-        verify(store).getKeywords(roomId);
+        verify(keywordStore).saveKeyword(roomId, keyword);
+        verify(keywordStore).getKeywords(roomId);
         verify(analyser).analyse(keywordsInStore);
     }
 
@@ -55,8 +58,8 @@ class KeywordManagerTest {
         List<String> keywordsInStore = List.of("AI", "Deep Learning");
         List<List<String>> expectedResult = List.of(keywordsInStore);
 
-        doNothing().when(store).saveKeyword(roomId, keyword);
-        when(store.getKeywords(roomId)).thenReturn(keywordsInStore);
+        doNothing().when(keywordStore).saveKeyword(roomId, keyword);
+        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
@@ -80,8 +83,8 @@ class KeywordManagerTest {
         List<String> keywordsInStore = List.of("AI", "Deep Learning");
         List<List<String>> expectedResult = List.of(List.of());
 
-        doNothing().when(store).saveKeyword(roomId, keyword);
-        when(store.getKeywords(roomId)).thenReturn(keywordsInStore);
+        doNothing().when(keywordStore).saveKeyword(roomId, keyword);
+        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
@@ -100,7 +103,8 @@ class KeywordManagerTest {
         List<String> keywordsInStore = List.of("AI", "Deep Learning");
         List<List<String>> expectedResult = List.of(List.copyOf(keywordsInStore));
 
-        when(store.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(analysisResultStore.findByRoomId(roomId)).thenReturn(List.of());
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
@@ -114,7 +118,8 @@ class KeywordManagerTest {
             softly.assertThat(results.get(0).variations()).containsExactly("AI", "Deep Learning");
         });
 
-        verify(store).getKeywords(roomId);
+        verify(keywordStore).getKeywords(roomId);
+        verify(analysisResultStore).findByRoomId(roomId);
         verify(analyser).analyse(keywordsInStore);
     }
 
@@ -125,7 +130,7 @@ class KeywordManagerTest {
         List<String> keywordsInStore = List.of();
         List<List<String>> expectedResult = List.of();
 
-        when(store.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
@@ -135,5 +140,53 @@ class KeywordManagerTest {
         assertSoftly(softly -> {
             softly.assertThat(results).isEmpty();
         });
+    }
+
+    @Test
+    void analyzeAndSave_정상_동작_테스트() {
+        // given
+        Long roomId = 1L;
+        List<String> keywordsInStore = List.of("AI", "Deep Learning");
+        List<List<String>> expectedResult = List.of(List.copyOf(keywordsInStore));
+
+        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
+
+        // when
+        List<AnalysisResult> results = keywordManager.analyzeKeywords(roomId);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(results).hasSize(1);
+            softly.assertThat(results.get(0).referenceName()).isEqualTo("AI");
+            softly.assertThat(results.get(0).count()).isEqualTo(2);
+            softly.assertThat(results.get(0).variations()).containsExactly("AI", "Deep Learning");
+        });
+
+        verify(keywordStore).getKeywords(roomId);
+        verify(analyser).analyse(keywordsInStore);
+        verify(analysisResultStore).save(roomId, results);
+    }
+
+    @Test
+    void analyzeKeywords_저장된_결과_반환_테스트() {
+        // given
+        Long roomId = 1L;
+        List<AnalysisResult> storedResults = List.of(
+                AnalysisResult.of("AI", List.of("AI", "Deep Learning"))
+        );
+
+        when(analysisResultStore.findByRoomId(roomId)).thenReturn(storedResults);
+
+        // when
+        List<AnalysisResult> results = keywordManager.analyzeKeywords(roomId);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(results).isEqualTo(storedResults);
+        });
+
+        verify(analysisResultStore).findByRoomId(roomId);
+        verifyNoInteractions(keywordStore, analyser);
     }
 }
