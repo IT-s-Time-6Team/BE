@@ -106,6 +106,28 @@ class InMemoryAnalysisResultStoreTest {
     }
 
     @Test
+    void 공감된_키워드들을_중복_없이_가져올_수_있다() {
+        // given
+        Long roomId = 1L;
+        AnalysisResult result1 = AnalysisResult.of("자바", Arrays.asList("Java", "JAVA", "자바"));
+        AnalysisResult result2 = AnalysisResult.of("파이썬", Arrays.asList("Python", "python", "파이썬"));
+        AnalysisResult result3 = AnalysisResult.of("자바스크립트", Arrays.asList("JavaScript", "JS"));
+
+        store.save(roomId, Arrays.asList(result1, result2, result3));
+
+        // when
+        List<String> sharedKeywords = store.findReferenceNamesByRoomId(roomId);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(sharedKeywords).hasSize(3);
+            softly.assertThat(sharedKeywords).containsExactlyInAnyOrder(
+                    "자바", "파이썬", "자바스크립트"
+            );
+        });
+    }
+
+    @Test
     void 서로_다른_방_ID의_결과는_독립적으로_관리된다() {
         // given
         Long roomId1 = 1L;
