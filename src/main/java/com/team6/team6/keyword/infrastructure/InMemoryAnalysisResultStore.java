@@ -29,24 +29,22 @@ public class InMemoryAnalysisResultStore implements AnalysisResultStore {
     }
 
     @Override
-    public List<String> findSharedKeywordsByRoomId(Long roomId) {
-        // 해당 방의 모든 분석 결과에서 중복 없이 키워드 이름만 추출
+    public List<String> findSharedKeywordsByRoomId(Long roomId, Integer requiredAgreements) {
         List<AnalysisResult> results = findByRoomId(roomId);
 
-        // 모든 분석 결과에서 variations에 있는 모든 값을 하나의 리스트로 모으고 중복 제거
         return results.stream()
+                .filter(result -> result.count() >= requiredAgreements)
                 .flatMap(result -> result.variations().stream())
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<String> findReferenceNamesByRoomId(Long roomId) {
-        // 해당 방의 모든 분석 결과에서 중복 없이 참조 이름만 추출
+    public List<String> findReferenceNamesByRoomId(Long roomId, Integer requiredAgreements) {
         List<AnalysisResult> results = findByRoomId(roomId);
 
-        // 모든 분석 결과에서 referenceName에 있는 모든 값을 하나의 리스트로 모으고 중복 제거
         return results.stream()
+                .filter(result -> result.count() >= requiredAgreements)
                 .map(AnalysisResult::referenceName)
                 .distinct()
                 .collect(Collectors.toList());

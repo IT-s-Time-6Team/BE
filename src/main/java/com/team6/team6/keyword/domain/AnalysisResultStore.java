@@ -9,7 +9,7 @@ public interface AnalysisResultStore {
 
     List<AnalysisResult> findByRoomId(Long roomId);
 
-    List<String> findSharedKeywordsByRoomId(Long roomId);
+    List<String> findSharedKeywordsByRoomId(Long roomId, Integer requiredAgreements);
 
-    List<String> findReferenceNamesByRoomId(Long roomId);
+    List<String> findReferenceNamesByRoomId(Long roomId, Integer requiredAgreements);
 }
