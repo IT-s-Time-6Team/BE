@@ -69,6 +69,10 @@ public class RoomService {
 
     public RoomResult getRoomResult(String roomKey) {
         Room room = findRoomByKey(roomKey);
+        if (room.getClosedAt() == null) {
+            throw new IllegalStateException("아직 종료되지 않은 방입니다.");
+        }
+
         // 1. 총 대화 시간 계산
         Duration totalDuration = Duration.between(room.getCreatedAt(), room.getClosedAt());
 
