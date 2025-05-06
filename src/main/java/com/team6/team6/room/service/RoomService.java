@@ -1,6 +1,8 @@
 package com.team6.team6.room.service;
 
 import com.team6.team6.global.error.exception.NotFoundException;
+import com.team6.team6.keyword.domain.AnalysisResultStore;
+import com.team6.team6.room.dto.MemberKeywordCount;
 import com.team6.team6.room.domain.RoomExpiryManager;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -23,6 +26,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomKeyGenerator roomKeyGenerator;
+    private final AnalysisResultStore analysisResultStore;
     private final RoomExpiryManager roomExpiryManager;
 
     @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
