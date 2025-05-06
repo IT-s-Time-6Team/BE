@@ -1,6 +1,5 @@
 package com.team6.team6.room.dto;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
