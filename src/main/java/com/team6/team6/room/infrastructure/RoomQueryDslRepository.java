@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.team6.team6.keyword.entity.QKeyword;
 import com.team6.team6.room.dto.MemberKeywordCount;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
