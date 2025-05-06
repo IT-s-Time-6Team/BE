@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     boolean existsByKeyword(String keyword);
+
     List<Question> findAllByKeyword(String keyword);
 }

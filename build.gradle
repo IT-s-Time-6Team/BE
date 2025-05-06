@@ -38,31 +38,32 @@ dependencies {
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-    // == Security ==
+// == Security ==
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-messaging'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    // == JPA & DB ==
+// == JPA & DB ==
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'com.h2database:h2'
 
-    // == Monitoring ==
+// == Monitoring ==
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
-    // == AI Integration ==
+// == AI Integration ==
     implementation 'org.springframework.ai:spring-ai-starter-model-openai:1.0.0-M7'
 
-    // == REST Docs ==
+// == REST Docs ==
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
-    // == Testing ==
+// == Testing ==
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // == Lombok ==
+// == Lombok ==
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 }
@@ -72,6 +73,11 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+tasks.withType(Test) {
+	// 모든 테스트 실행 시 test 프로파일 활성화
+	systemProperty 'spring.profiles.active', 'test'
+}
+
 tasks.named('asciidoctor') {
     inputs.dir snippetsDir
     configurations 'asciidoctorExt'
@@ -79,7 +85,14 @@ tasks.named('asciidoctor') {
 }
 
 asciidoctor {
-    baseDirFollowsSourceFile()
+	baseDirFollowsSourceFile()
+
+	doLast {
+		copy {
+			from 'src/main/resources/static/docs/stomp.html'
+			into "${asciidoctor.outputDir}"
+		}
+	}
 }
 
 tasks.register('copyApiDocument', Copy) {

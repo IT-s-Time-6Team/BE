@@ -258,31 +258,32 @@ class MemberServiceTest {
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
-        
+
         MemberCreateOrLoginServiceRequest memberRequest = MemberCreateOrLoginServiceRequest.builder()
                 .nickname("테스트유저")
                 .password("test123!")
                 .build();
-                
+
         // when
         memberService.joinOrLogin(roomKey, memberRequest);
-        
+
         // then
         assertSoftly(softly -> {
             // 인증 객체가 존재하는지 확인
             var authentication = SecurityContextHolder.getContext().getAuthentication();
             softly.assertThat(authentication).isNotNull();
-            
+
             // Principal이 올바른 타입인지 확인
             softly.assertThat(authentication.getPrincipal()).isInstanceOf(UserPrincipal.class);
-            
+
             // UserPrincipal에 올바른 정보가 들어있는지 확인
             var principal = (UserPrincipal) authentication.getPrincipal();
             softly.assertThat(principal.getNickname()).isEqualTo("테스트유저");
-            
+            softly.assertThat(principal.getRoomKey()).isEqualTo(roomKey);
+
             // 권한(Authorities) 확인 - 첫 번째 멤버는 ROLE_USER와 ROLE_LEADER 모두 가짐
             softly.assertThat(authentication.getAuthorities()).hasSize(2);
-            
+
             // 권한 목록에 ROLE_USER와 ROLE_LEADER가 모두 포함되어 있는지 확인
             var authorities = authentication.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
@@ -290,7 +291,7 @@ class MemberServiceTest {
             softly.assertThat(authorities).contains("ROLE_USER", "ROLE_LEADER");
         });
     }
-    
+
     @Test
     void 로그인_시_보안_컨텍스트_갱신() {
         // given

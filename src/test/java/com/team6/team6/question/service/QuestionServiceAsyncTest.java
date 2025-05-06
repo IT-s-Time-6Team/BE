@@ -34,18 +34,8 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 class QuestionServiceAsyncTest {
 
-    @TestConfiguration
-    @EnableAsync
-    static class TestConfig {
-        @Bean
-        public QuestionGenerator questionGenerator() {
-            return new SimulatedLatencyQuestionGenerator();
-        }
-    }
-
     @MockitoSpyBean
     private QuestionRepository questionRepository;
-
     @Autowired
     private QuestionService questionService;
 
@@ -107,6 +97,15 @@ class QuestionServiceAsyncTest {
         assertThatThrownBy(() -> questionService.getRandomQuestions(keyword))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("해당 키워드에 대한 질문이 존재하지 않습니다");
+    }
+
+    @TestConfiguration
+    @EnableAsync
+    static class TestConfig {
+        @Bean
+        public QuestionGenerator questionGenerator() {
+            return new SimulatedLatencyQuestionGenerator();
+        }
     }
 }
 

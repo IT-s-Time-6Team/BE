@@ -13,8 +13,8 @@ public interface MessagePublisher {
     /**
      * 키워드 분석 결과를 발행
      *
-     * @param roomId 메시지를 발행할 대상 룸의 ID
+     * @param roomKey 메시지를 발행할 대상 룸의 키
      * @param results 발행할 키워드 분석 결과 객체
      */
-    void publishKeywordAnalysisResult(Long roomId, Object results);
+    void publishKeywordAnalysisResult(String roomKey, Object results);
 }

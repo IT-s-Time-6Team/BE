@@ -23,17 +23,8 @@ import static org.mockito.BDDMockito.given;
 @ActiveProfiles("test")
 public class QuestionServiceNonAsyncTest {
 
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public QuestionGenerator questionGenerator() {
-            return new SimulatedLatencyQuestionGenerator();
-        }
-    }
-
     @MockitoBean
     private QuestionRepository questionRepository;
-
     @Autowired
     private QuestionService questionService;
 
@@ -50,5 +41,13 @@ public class QuestionServiceNonAsyncTest {
 
         // then
         assertThat(elapsed).isGreaterThanOrEqualTo(2000L); // 동기로 2초 이상 걸려야 함
+    }
+
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public QuestionGenerator questionGenerator() {
+            return new SimulatedLatencyQuestionGenerator();
+        }
     }
 }
