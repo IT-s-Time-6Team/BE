@@ -40,8 +40,7 @@ public class RoomService {
     }
 
     public RoomResponse getRoom(String roomKey) {
-        Room room = roomRepository.findByRoomKey(roomKey)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 방입니다."));
+        Room room = findRoomByKey(roomKey);
 
         if (room.getClosedAt() != null) {
             throw new IllegalStateException("종료된 방입니다.");
@@ -52,8 +51,7 @@ public class RoomService {
 
     @Transactional
     public void closeRoom(String roomKey) {
-        Room room = roomRepository.findByRoomKey(roomKey)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 방입니다."));
+        Room room = findRoomByKey(roomKey);
 
         if (room.getClosedAt() != null) {
             throw new IllegalStateException("이미 종료된 방입니다.");
@@ -61,5 +59,11 @@ public class RoomService {
 
         room.closeRoom();
         roomRepository.save(room);
+    }
+
+    private Room findRoomByKey(String roomKey) {
+        Room room = roomRepository.findByRoomKey(roomKey)
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 방입니다."));
+        return room;
     }
 }
