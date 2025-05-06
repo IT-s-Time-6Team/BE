@@ -1,5 +1,6 @@
 package com.team6.team6.room.service;
 
+
 import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.keyword.domain.AnalysisResultStore;
 import com.team6.team6.room.domain.RoomExpiryManager;
@@ -36,6 +37,7 @@ public class RoomService {
     @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
     @Transactional
     public RoomResponse createRoom(RoomCreateServiceRequest request) {
+
         String roomKey = roomKeyGenerator.generateRoomKey();
         Room room = Room.create(roomKey, request);
         Room savedRoom = roomRepository.save(room);
@@ -45,7 +47,6 @@ public class RoomService {
 
         return RoomResponse.from(savedRoom);
     }
-
 
     @Recover
     public RoomResponse recoverCreateRoom(Exception e, RoomCreateServiceRequest request) {
