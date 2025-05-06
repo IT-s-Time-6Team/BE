@@ -70,86 +70,72 @@ class InMemoryAnalysisResultStoreTest {
     }
 
     @Test
-    void 여러_분석_결과를_저장할_수_있다() {
+    void findSharedKeywordsByRoomId_필터링_성공() {
         // given
         Long roomId = 1L;
-        AnalysisResult result1 = AnalysisResult.of("자바", Arrays.asList("Java", "JAVA", "자바"));
-        AnalysisResult result2 = AnalysisResult.of("파이썬", Arrays.asList("Python", "파이썬"));
+        List<AnalysisResult> results = Arrays.asList(
+                AnalysisResult.of("var1", Arrays.asList("var1", "var2")), // count: 2
+                AnalysisResult.of("var3", Arrays.asList("var3", "var4", "var5")), // count: 3
+                AnalysisResult.of("var6", Arrays.asList("var6")) // count: 1
+        );
+        store.save(roomId, results);
+
         // when
-        store.save(roomId, Arrays.asList(result1, result2));
+        List<String> sharedKeywords = store.findSharedKeywordsByRoomId(roomId, 3);
 
         // then
-        List<AnalysisResult> results = store.findByRoomId(roomId);
-        assertThat(results).hasSize(2);
+        assertThat(sharedKeywords).containsExactlyInAnyOrder("var3", "var4", "var5");
     }
 
     @Test
-    void 공유_키워드_목록을_중복_없이_가져올_수_있다() {
+    void findReferenceNamesByRoomId_필터링_성공() {
         // given
         Long roomId = 1L;
-        AnalysisResult result1 = AnalysisResult.of("자바", Arrays.asList("Java", "JAVA", "자바"));
-        AnalysisResult result2 = AnalysisResult.of("파이썬", Arrays.asList("Python", "python", "파이썬"));
-        AnalysisResult result3 = AnalysisResult.of("자바스크립트", Arrays.asList("JavaScript", "JS"));
-
-        store.save(roomId, Arrays.asList(result1, result2, result3));
+        List<AnalysisResult> results = Arrays.asList(
+                AnalysisResult.of("var1", Arrays.asList("var1", "var2")), // count: 2
+                AnalysisResult.of("var3", Arrays.asList("var3", "var4", "var5")), // count: 3
+                AnalysisResult.of("var6", Arrays.asList("var6")) // count: 1
+        );
+        store.save(roomId, results);
 
         // when
-        List<String> sharedKeywords = store.findSharedKeywordsByRoomId(roomId);
+        List<String> referenceNames = store.findReferenceNamesByRoomId(roomId, 3);
 
         // then
-        assertSoftly(softly -> {
-            softly.assertThat(sharedKeywords).hasSize(8);
-            softly.assertThat(sharedKeywords).containsExactlyInAnyOrder(
-                    "Java", "JAVA", "자바", "Python", "python", "파이썬", "JavaScript", "JS"
-            );
-        });
+        assertThat(referenceNames).containsExactly("var3");
     }
 
     @Test
-    void 공감된_키워드들을_중복_없이_가져올_수_있다() {
+    void findSharedKeywordsByRoomId_빈_결과() {
         // given
         Long roomId = 1L;
-        AnalysisResult result1 = AnalysisResult.of("자바", Arrays.asList("Java", "JAVA", "자바"));
-        AnalysisResult result2 = AnalysisResult.of("파이썬", Arrays.asList("Python", "python", "파이썬"));
-        AnalysisResult result3 = AnalysisResult.of("자바스크립트", Arrays.asList("JavaScript", "JS"));
-
-        store.save(roomId, Arrays.asList(result1, result2, result3));
+        List<AnalysisResult> results = Arrays.asList(
+                AnalysisResult.of("var1", Arrays.asList("var1", "var2")), // count: 2
+                AnalysisResult.of("var6", Arrays.asList("var6")) // count: 1
+        );
+        store.save(roomId, results);
 
         // when
-        List<String> sharedKeywords = store.findReferenceNamesByRoomId(roomId);
+        List<String> sharedKeywords = store.findSharedKeywordsByRoomId(roomId, 3);
 
         // then
-        assertSoftly(softly -> {
-            softly.assertThat(sharedKeywords).hasSize(3);
-            softly.assertThat(sharedKeywords).containsExactlyInAnyOrder(
-                    "자바", "파이썬", "자바스크립트"
-            );
-        });
+        assertThat(sharedKeywords).isEmpty();
     }
 
     @Test
-    void 서로_다른_방_ID의_결과는_독립적으로_관리된다() {
+    void findReferenceNamesByRoomId_빈_결과() {
         // given
-        Long roomId1 = 1L;
-        Long roomId2 = 2L;
-
-        AnalysisResult result1 = AnalysisResult.of("자바", Arrays.asList("Java", "자바"));
-        AnalysisResult result2 = AnalysisResult.of("파이썬", Arrays.asList("Python", "파이썬"));
+        Long roomId = 1L;
+        List<AnalysisResult> results = Arrays.asList(
+                AnalysisResult.of("var1", Arrays.asList("var1", "var2")), // count: 2
+                AnalysisResult.of("var6", Arrays.asList("var6")) // count: 1
+        );
+        store.save(roomId, results);
 
         // when
-        store.save(roomId1, List.of(result1));
-        store.save(roomId2, List.of(result2));
+        List<String> referenceNames = store.findReferenceNamesByRoomId(roomId, 3);
 
         // then
-        List<AnalysisResult> results1 = store.findByRoomId(roomId1);
-        List<AnalysisResult> results2 = store.findByRoomId(roomId2);
-
-        assertSoftly(softly -> {
-            softly.assertThat(results1).hasSize(1);
-            softly.assertThat(results1.get(0).referenceName()).isEqualTo("자바");
-
-            softly.assertThat(results2).hasSize(1);
-            softly.assertThat(results2.get(0).referenceName()).isEqualTo("파이썬");
-        });
+        assertThat(referenceNames).isEmpty();
     }
 }
