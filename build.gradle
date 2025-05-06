@@ -16,6 +16,7 @@ java {
 
 configurations {
     asciidoctorExt
+    querydsl
     compileOnly {
         extendsFrom annotationProcessor
     }
@@ -47,6 +48,12 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // == QueryDSL Implementation ==
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     // == Monitoring ==
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -109,5 +116,25 @@ bootJar {
     dependsOn copyApiDocument
     from("src/main/resources/static/docs") {
         into("static/docs")
+    }
+}
+
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+
+sourceSets {
+    main {
+        java {
+            srcDirs += [querydslDir]
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+}
+
+tasks.named('clean') {
+    doLast {
+        file(querydslDir).deleteDir()
     }
 }
