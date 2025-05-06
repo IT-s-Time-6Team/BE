@@ -4,6 +4,7 @@ import com.team6.team6.global.CustomRestDocsHandler;
 import com.team6.team6.global.RestDocsSupport;
 import com.team6.team6.room.dto.RoomCreateRequest;
 import com.team6.team6.room.dto.RoomResponse;
+import com.team6.team6.room.dto.RoomResult;
 import com.team6.team6.room.entity.GameMode;
 import com.team6.team6.room.service.RoomNotificationService;
 import com.team6.team6.room.service.RoomService;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -170,6 +172,56 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                                         .description("응답 메시지"),
                                 fieldWithPath("data").type(JsonFieldType.NULL)
                                         .description("응답 데이터 없음")
+                        )
+                ));
+    }
+
+    @DisplayName("방 결과 조회 API")
+    @Test
+    void getRoomResult() throws Exception {
+        // 가짜 RoomResult 객체 생성
+        List<String> sharedKeywords = List.of("LOL", "애니");
+        List<String> topContributors = List.of("하나");
+        List<String> mostMatchedUsers = List.of("하나");
+
+        RoomResult mockResult = new RoomResult(
+                sharedKeywords,
+                "30분 12초",
+                topContributors,
+                3,
+                mostMatchedUsers,
+                2
+        );
+
+        given(roomService.getRoomResult("abc123")).willReturn(mockResult);
+
+        mockMvc.perform(get("/rooms/{roomKey}/result", "abc123")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(CustomRestDocsHandler.customDocument("get-result",
+                        pathParameters(
+                                parameterWithName("roomKey").description("방 키")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("결과 코드"),
+                                fieldWithPath("status").type(JsonFieldType.STRING)
+                                        .description("HTTP 상태"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data.sharedKeywords").type(JsonFieldType.ARRAY)
+                                        .description("공유 키워드 목록"),
+                                fieldWithPath("data.totalDuration").type(JsonFieldType.STRING)
+                                        .description("총 대화 시간"),
+                                fieldWithPath("data.topKeywordContributorNames").type(JsonFieldType.ARRAY)
+                                        .description("가장 많은 키워드를 생성한 사용자들"),
+                                fieldWithPath("data.topKeywordCount").type(JsonFieldType.NUMBER)
+                                        .description("최다 키워드 생성 수"),
+                                fieldWithPath("data.mostMatchedHobbyUserNames").type(JsonFieldType.ARRAY)
+                                        .description("공감 키워드가 가장 많은 사용자들"),
+                                fieldWithPath("data.matchedHobbyCount").type(JsonFieldType.NUMBER)
+                                        .description("최다 공감 키워드 수")
                         )
                 ));
     }
