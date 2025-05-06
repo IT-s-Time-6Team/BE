@@ -39,4 +39,16 @@ public class InMemoryAnalysisResultStore implements AnalysisResultStore {
                 .distinct()
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<String> findReferenceNamesByRoomId(Long roomId) {
+        // 해당 방의 모든 분석 결과에서 중복 없이 참조 이름만 추출
+        List<AnalysisResult> results = findByRoomId(roomId);
+
+        // 모든 분석 결과에서 referenceName에 있는 모든 값을 하나의 리스트로 모으고 중복 제거
+        return results.stream()
+                .map(AnalysisResult::referenceName)
+                .distinct()
+                .collect(Collectors.toList());
+    }
 }

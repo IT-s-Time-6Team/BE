@@ -10,4 +10,6 @@ public interface AnalysisResultStore {
     List<AnalysisResult> findByRoomId(Long roomId);
 
     List<String> findSharedKeywordsByRoomId(Long roomId);
+
+    List<String> findReferenceNamesByRoomId(Long roomId);
 }
