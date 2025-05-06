@@ -80,6 +80,7 @@ public class RoomService {
         List<MemberKeywordCount> topKeywordContributors = roomRepository.findMembersWithMostKeywordsInRoom(roomKey);
 
         // 3. 공통 키워드 목록 가져오기
+        List<String> referenceNames = analysisResultStore.findReferenceNamesByRoomId(room.getId());
         List<String> sharedKeywords = analysisResultStore.findSharedKeywordsByRoomId(room.getId());
 
         // 4. 공감 키워드가 가장 많은 멤버와 개수 찾기
@@ -87,7 +88,7 @@ public class RoomService {
                 roomRepository.findMembersWithMostSharedKeywordsInRoom(roomKey, sharedKeywords);
 
         return RoomResult.of(
-                sharedKeywords,
+                referenceNames,
                 totalDuration,
                 topKeywordContributors,
                 mostSharedKeywordUsers
