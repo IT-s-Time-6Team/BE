@@ -5,6 +5,7 @@ import com.team6.team6.global.RestDocsSupport;
 import com.team6.team6.room.dto.RoomCreateRequest;
 import com.team6.team6.room.dto.RoomResponse;
 import com.team6.team6.room.entity.GameMode;
+import com.team6.team6.room.service.RoomNotificationService;
 import com.team6.team6.room.service.RoomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,10 +28,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RoomControllerDocsTest extends RestDocsSupport {
 
     private final RoomService roomService = mock(RoomService.class);
+    private final RoomNotificationService roomNotificationService = mock(RoomNotificationService.class);
 
     @Override
     protected Object initController() {
-        return new RoomController(roomService);
+        return new RoomController(roomService, roomNotificationService);
     }
 
     @DisplayName("방 생성 API")
