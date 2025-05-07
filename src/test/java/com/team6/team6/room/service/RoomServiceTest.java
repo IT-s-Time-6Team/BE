@@ -1,6 +1,7 @@
 package com.team6.team6.room.service;
 
 import com.team6.team6.global.error.exception.NotFoundException;
+import com.team6.team6.room.domain.RoomExpiryManager;
 import com.team6.team6.room.dto.MemberKeywordCount;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -27,6 +29,9 @@ class RoomServiceTest {
 
     @Autowired
     private RoomService roomService;
+
+    @MockitoBean
+    private RoomExpiryManager roomExpiryManager;
 
     @Autowired
     private RoomRepository roomRepository;
