@@ -17,6 +17,8 @@ jobs:
         env:
           GRAFANA_USER: ${{ secrets.GRAFANA_USER }}
           GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
+          PROM_ROUTE_PREFIX: ${{ secrets.PROM_ROUTE_PREFIX }}
+          PROM_WEB_EXTERNAL_URL: ${{ secrets.DEV_BASE_URL }}${{ secrets.PROM_ROUTE_PREFIX }}
         run: |
           docker compose -f docker-compose.base.yml -f docker-compose.dev.yml down
           docker compose -f docker-compose.base.yml -f docker-compose.dev.yml up -d
