@@ -12,8 +12,6 @@ services:
       - "9091:9090"
     volumes:
       - ./prometheus/prometheus_dev.yml:/etc/prometheus/prometheus.yml
-    command:
-      - --web.external-url=${PROM_WEB_EXTERNAL_URL}
 
 volumes:
   grafana-storage-dev:
