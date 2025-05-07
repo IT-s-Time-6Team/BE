@@ -1,21 +1,24 @@
 package com.team6.team6.room.repository;
 
+import com.team6.team6.room.dto.MemberKeywordCount;
 import com.team6.team6.room.entity.Room;
-import jakarta.persistence.LockModeType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RoomRepository extends JpaRepository<Room, Long> {
+public interface RoomRepository {
 
     Optional<Room> findByRoomKey(String roomKey);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT r FROM Room r WHERE r.roomKey = :roomKey")
-    Optional<Room> findByRoomKeyWithLock(@Param("roomKey") String roomKey);
+    Optional<Room> findByRoomKeyWithLock(String roomKey);
+
+    Room save(Room room);
+
+    void deleteAll();
+
+    List<MemberKeywordCount> findAllMemberKeywordCountsInRoom(String roomKey);
+
+    List<MemberKeywordCount> findAllMemberSharedKeywordCountsInRoom(String roomKey, List<String> sharedKeywords);
 }

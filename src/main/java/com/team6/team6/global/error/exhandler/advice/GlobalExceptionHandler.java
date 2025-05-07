@@ -58,8 +58,9 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(IllegalStateException.class)
-    public ApiResponse<Object> handleIllegalStateException(IllegalStateException e) {
+    @ExceptionHandler({IllegalStateException.class, IllegalArgumentException.class})
+    public ApiResponse<Object> handleIllegalStateException(Exception e) {
+
         List<String> errorMessages = List.of(e.getMessage());
 
         return ApiResponse.of(

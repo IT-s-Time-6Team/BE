@@ -46,3 +46,19 @@ include::{snippetsDir}/room-controller-docs-test/close/path-parameters.adoc[]
 === 응답 형식 (HTTP)
 include::{snippetsDir}/room-controller-docs-test/close/http-response.adoc[]
 include::{snippetsDir}/room-controller-docs-test/close/response-fields.adoc[]
+
+'''
+
+== 방 종료
+
+====
+방의 결과를 조회하는 API입니다. 방 결과 조회는 GET 요청이므로 요청 본문 필드가 없습니다.
+====
+
+=== 요청 형식 (HTTP)
+include::{snippetsDir}/room-controller-docs-test/get-result/http-request.adoc[]
+include::{snippetsDir}/room-controller-docs-test/get-result/path-parameters.adoc[]
+
+=== 응답 형식 (HTTP)
+include::{snippetsDir}/room-controller-docs-test/get-result/http-response.adoc[]
+include::{snippetsDir}/room-controller-docs-test/get-result/response-fields.adoc[]
