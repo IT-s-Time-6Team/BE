@@ -5,7 +5,9 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeContext>true</includeContext>
             <includeMdc>true</includeMdc>
-            <customFields>{"environment":"dev"}</customFields>
+            <fieldNames>
+                <message>data</message>
+            </fieldNames>
         </encoder>
     </appender>
 
