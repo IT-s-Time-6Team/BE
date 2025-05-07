@@ -16,6 +16,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -97,12 +99,18 @@ class RoomQueryDslRepositoryTest {
 
         // then
         assertSoftly(softly -> {
-            softly.assertThat(result).hasSize(3); // member1, member2가 동일하게 3개로 최대
+            softly.assertThat(result).hasSize(3);
             softly.assertThat(result.stream().map(MemberKeywordCount::memberName).toList())
                     .containsExactlyInAnyOrder("사용자1", "사용자2", "사용자3");
-            softly.assertThat(result.get(0).keywordCount()).isEqualTo(3);
-            softly.assertThat(result.get(1).keywordCount()).isEqualTo(3);
-            softly.assertThat(result.get(2).keywordCount()).isEqualTo(2);
+            Map<String, Integer> countByMember = result.stream()
+                    .collect(Collectors.toMap(
+                            MemberKeywordCount::memberName,
+                            MemberKeywordCount::keywordCount
+                    ));
+
+            softly.assertThat(countByMember.get("사용자1")).isEqualTo(3);
+            softly.assertThat(countByMember.get("사용자2")).isEqualTo(3);
+            softly.assertThat(countByMember.get("사용자3")).isEqualTo(2);
         });
     }
 
@@ -134,12 +142,18 @@ class RoomQueryDslRepositoryTest {
 
         // then
         assertSoftly(softly -> {
-            softly.assertThat(result).hasSize(3); // member1과 member2는 공유 키워드 중 2개씩 가짐
+            softly.assertThat(result).hasSize(3);
             softly.assertThat(result.stream().map(MemberKeywordCount::memberName).toList())
                     .containsExactlyInAnyOrder("사용자1", "사용자2", "사용자3");
-            softly.assertThat(result.get(0).keywordCount()).isEqualTo(2);
-            softly.assertThat(result.get(1).keywordCount()).isEqualTo(2);
-            softly.assertThat(result.get(2).keywordCount()).isEqualTo(1);
+            Map<String, Integer> countByMember = result.stream()
+                    .collect(Collectors.toMap(
+                            MemberKeywordCount::memberName,
+                            MemberKeywordCount::keywordCount
+                    ));
+
+            softly.assertThat(countByMember.get("사용자1")).isEqualTo(2); // Java, Python
+            softly.assertThat(countByMember.get("사용자2")).isEqualTo(2); // Java, Spring
+            softly.assertThat(countByMember.get("사용자3")).isEqualTo(1); // Java
         });
     }
 
