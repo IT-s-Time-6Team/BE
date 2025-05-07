@@ -5,6 +5,7 @@ import com.team6.team6.member.dto.MemberCreateOrLoginServiceRequest;
 import com.team6.team6.member.dto.MemberResponse;
 import com.team6.team6.member.entity.Member;
 import com.team6.team6.member.security.UserPrincipal;
+import com.team6.team6.room.domain.RoomExpiryManager;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
 import com.team6.team6.room.entity.GameMode;
@@ -18,6 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
@@ -39,7 +41,10 @@ class MemberServiceTest {
     
     @Autowired
     private RoomService roomService;
-    
+
+    @MockitoBean
+    private RoomExpiryManager roomExpiryManager;
+
     @Autowired
     private RoomRepository roomRepository;
     
