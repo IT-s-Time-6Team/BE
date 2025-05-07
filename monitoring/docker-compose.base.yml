@@ -16,3 +16,5 @@ services:
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --web.external-url=${PROM_WEB_EXTERNAL_URL}
+      - --web.route-prefix=/
+
