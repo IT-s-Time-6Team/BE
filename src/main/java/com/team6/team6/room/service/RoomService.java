@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -77,7 +79,7 @@ public class RoomService {
         Duration totalDuration = Duration.between(room.getCreatedAt(), room.getClosedAt());
 
         // 2. 가장 많은 키워드를 생성한 멤버와 개수 찾기
-        List<MemberKeywordCount> topKeywordContributors = roomRepository.findAllMemberKeywordCountsInRoom(roomKey);
+        List<MemberKeywordCount> topKeywordContributors = findMembersWithMaxCount(roomRepository.findAllMemberKeywordCountsInRoom(roomKey));
 
         // 3. 공통 키워드 목록 가져오기
         List<String> referenceNames = analysisResultStore.findReferenceNamesByRoomId(room.getId(), room.getRequiredAgreements());
@@ -85,7 +87,7 @@ public class RoomService {
 
         // 4. 공감 키워드가 가장 많은 멤버와 개수 찾기
         List<MemberKeywordCount> mostSharedKeywordUsers =
-                roomRepository.findAllMemberSharedKeywordCountsInRoom(roomKey, sharedKeywords);
+                findMembersWithMaxCount(roomRepository.findAllMemberSharedKeywordCountsInRoom(roomKey, sharedKeywords));
 
         return RoomResult.of(
                 referenceNames,
@@ -98,5 +100,20 @@ public class RoomService {
     private Room findRoomByKey(String roomKey) {
         return roomRepository.findByRoomKey(roomKey)
                 .orElseThrow(() -> new NotFoundException("존재하지 않는 방입니다."));
+    }
+
+    public List<MemberKeywordCount> findMembersWithMaxCount(List<MemberKeywordCount> memberKeywordCounts) {
+        if (memberKeywordCounts.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        int maxCount = memberKeywordCounts.stream()
+                .mapToInt(MemberKeywordCount::keywordCount)
+                .max()
+                .orElse(0);
+
+        return memberKeywordCounts.stream()
+                .filter(count -> count.keywordCount() == maxCount)
+                .collect(Collectors.toList());
     }
 }
