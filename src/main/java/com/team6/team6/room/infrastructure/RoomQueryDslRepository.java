@@ -29,6 +29,7 @@ public class RoomQueryDslRepository {
                 .join(member).on(keyword.memberId.eq(member.id))
                 .where(member.room.roomKey.eq(roomKey))
                 .groupBy(keyword.memberId)
+                .orderBy(keyword.count().desc())
                 .fetch();
 
         return results.stream()
@@ -55,6 +56,7 @@ public class RoomQueryDslRepository {
                         keyword.keyword.in(sharedKeywords)
                 )
                 .groupBy(keyword.memberId)
+                .orderBy(keyword.count().desc())
                 .fetch();
 
         return results.stream()
