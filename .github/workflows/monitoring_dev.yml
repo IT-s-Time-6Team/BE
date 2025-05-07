@@ -19,7 +19,7 @@ jobs:
           GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
           GF_SERVER_ROOT_URL: ${{ secrets.DEV_BASE_URL }}${{ secrets.GF_ROUTE_PREFIX }}
           PROM_ROUTE_PREFIX: ${{ secrets.PROM_ROUTE_PREFIX }}
-          PROM_WEB_EXTERNAL_URL: ${{ secrets.DEV_BASE_URL }}${{ secrets.PROM_ROUTE_PREFIX }}
+          PROM_WEB_EXTERNAL_URL: ${{ secrets.DEV_BASE_URL }}${{ secrets.PROM_ROUTE_PREFIX }}/
         run: |
           # 이전에 실행 중인 prod 컨테이너만 중지
           docker compose -p monitoring_dev -f docker-compose.base.yml -f docker-compose.dev.yml down || true
