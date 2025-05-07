@@ -7,14 +7,17 @@
 ====
 
 === 요청 형식 (HTTP)
+
 [options="header"]
 |===
 | 파라미터 | 타입 | 필수 여부 | 설명
 | keyword | String | 필수 | 랜덤 질문을 가져올 키워드
 |===
+
 include::{snippets}/question-controller-test/get/http-request.adoc[]
 
 === 응답 형식 (HTTP)
+
 include::{snippets}/question-controller-test/get/response-fields.adoc[]
 include::{snippets}/question-controller-test/get/response-body.adoc[]
 

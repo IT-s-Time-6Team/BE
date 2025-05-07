@@ -9,10 +9,12 @@ public class UserPrincipal implements Serializable {
     private final Long id;
     private final String nickname;
     private final Long roomId;
+    private final String roomKey;
 
     public UserPrincipal(Member member) {
         this.id = member.getId();
         this.nickname = member.getNickname();
         this.roomId = member.getRoom().getId();
+        this.roomKey = member.getRoom().getRoomKey();
     }
 }

@@ -19,7 +19,8 @@ import java.util.List;
 
 import static com.team6.team6.global.CustomRestDocsHandler.customDocument;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,19 +37,6 @@ class QuestionControllerTest {
 
     @MockitoBean
     private QuestionService questionService;
-
-    @TestConfiguration
-    static class TestConfig {
-
-        @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-            return http
-                    .authorizeHttpRequests(auth -> auth
-                            .anyRequest().permitAll()
-                    )
-                    .build();
-        }
-    }
 
     @Test
     void 정상_요청_테스트() throws Exception {
@@ -80,5 +68,18 @@ class QuestionControllerTest {
                                 fieldWithPath("data[].question").description("질문 내용")
                         )
                 ));
+    }
+
+    @TestConfiguration
+    static class TestConfig {
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            return http
+                    .authorizeHttpRequests(auth -> auth
+                            .anyRequest().permitAll()
+                    )
+                    .build();
+        }
     }
 }
