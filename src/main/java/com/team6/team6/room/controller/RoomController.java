@@ -3,6 +3,7 @@ package com.team6.team6.room.controller;
 import com.team6.team6.global.ApiResponse;
 import com.team6.team6.room.dto.RoomCreateRequest;
 import com.team6.team6.room.dto.RoomResponse;
+import com.team6.team6.room.dto.RoomResult;
 import com.team6.team6.room.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,4 +41,9 @@ public class RoomController {
         return ApiResponse.of(HttpStatus.OK, "방이 종료되었습니다", null);
     }
 
+    @GetMapping("/{roomKey}/result")
+    public ApiResponse<RoomResult> getRoomResult(@PathVariable String roomKey) {
+        RoomResult roomResult = roomService.getRoomResult(roomKey);
+        return ApiResponse.of(HttpStatus.OK, "방 결과 조회 성공", roomResult);
+    }
 }
