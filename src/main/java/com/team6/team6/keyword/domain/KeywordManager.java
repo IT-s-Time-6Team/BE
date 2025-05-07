@@ -13,18 +13,32 @@ public class KeywordManager {
 
     private final KeywordStore keywordStore;
     private final KeywordSimilarityAnalyser keywordSimilarityAnalyser;
+    private final AnalysisResultStore analysisResultStore;
 
     public List<AnalysisResult> addKeyword(Long roomId, String keyword) {
         keywordStore.saveKeyword(roomId, keyword);
-
-        return analyzeKeywords(roomId);
+        // 키워드 추가 시에는 항상 새로 분석
+        return analyzeAndSave(roomId);
     }
 
     public List<AnalysisResult> analyzeKeywords(Long roomId) {
+        // 먼저 analysisResultStore에서 결과가 있는지 확인
+        List<AnalysisResult> storedResults = analysisResultStore.findByRoomId(roomId);
+        // 저장된 결과가 있으면 그대로 반환
+        if (!storedResults.isEmpty()) {
+            return storedResults;
+        }
+        // 저장된 결과가 없으면 새로 분석
+        return analyzeAndSave(roomId);
+    }
+
+    private List<AnalysisResult> analyzeAndSave(Long roomId) {
         List<String> keywordsInStore = keywordStore.getKeywords(roomId);
         List<List<String>> groupedResult = keywordSimilarityAnalyser.analyse(keywordsInStore);
-
-        return convertToAnalysisResult(groupedResult, keywordsInStore);
+        List<AnalysisResult> results = convertToAnalysisResult(groupedResult, keywordsInStore);
+        // 분석 결과 저장
+        analysisResultStore.save(roomId, results);
+        return results;
     }
 
     private List<AnalysisResult> convertToAnalysisResult(List<List<String>> groupedResult, List<String> keywordsInStore) {
