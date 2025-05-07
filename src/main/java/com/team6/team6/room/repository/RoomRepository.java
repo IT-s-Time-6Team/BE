@@ -16,7 +16,7 @@ public interface RoomRepository {
 
     Room save(Room room);
 
-    List<MemberKeywordCount> findMembersWithMostKeywordsInRoom(String roomKey);
+    List<MemberKeywordCount> findAllMemberKeywordCountsInRoom(String roomKey);
 
-    List<MemberKeywordCount> findMembersWithMostSharedKeywordsInRoom(String roomKey, List<String> sharedKeywords);
+    List<MemberKeywordCount> findAllMemberSharedKeywordCountsInRoom(String roomKey, List<String> sharedKeywords);
 }

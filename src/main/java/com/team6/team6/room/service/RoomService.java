@@ -77,7 +77,7 @@ public class RoomService {
         Duration totalDuration = Duration.between(room.getCreatedAt(), room.getClosedAt());
 
         // 2. 가장 많은 키워드를 생성한 멤버와 개수 찾기
-        List<MemberKeywordCount> topKeywordContributors = roomRepository.findMembersWithMostKeywordsInRoom(roomKey);
+        List<MemberKeywordCount> topKeywordContributors = roomRepository.findAllMemberKeywordCountsInRoom(roomKey);
 
         // 3. 공통 키워드 목록 가져오기
         List<String> referenceNames = analysisResultStore.findReferenceNamesByRoomId(room.getId(), room.getRequiredAgreements());
@@ -85,7 +85,7 @@ public class RoomService {
 
         // 4. 공감 키워드가 가장 많은 멤버와 개수 찾기
         List<MemberKeywordCount> mostSharedKeywordUsers =
-                roomRepository.findMembersWithMostSharedKeywordsInRoom(roomKey, sharedKeywords);
+                roomRepository.findAllMemberSharedKeywordCountsInRoom(roomKey, sharedKeywords);
 
         return RoomResult.of(
                 referenceNames,
