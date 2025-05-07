@@ -32,6 +32,11 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
+    public void deleteAll() {
+        jpaRepository.deleteAll();
+    }
+
+    @Override
     public List<MemberKeywordCount> findAllMemberKeywordCountsInRoom(String roomKey) {
         return queryDslRepository.findAllMemberKeywordCountsInRoom(roomKey);
     }

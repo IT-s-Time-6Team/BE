@@ -18,4 +18,6 @@ public interface RoomJpaRepository extends JpaRepository<Room, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT r FROM Room r WHERE r.roomKey = :roomKey")
     Optional<Room> findByRoomKeyWithLock(@Param("roomKey") String roomKey);
+
+    void deleteAll();
 }
