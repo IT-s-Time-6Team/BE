@@ -2,6 +2,7 @@ package com.team6.team6.global.log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team6.team6.member.security.UserPrincipal;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.springframework.security.core.Authentication;
@@ -16,15 +17,19 @@ import static org.slf4j.LoggerFactory.getLogger;
 public abstract class AbstractLog {
 
     private static final String ANONYMOUS_USER = "anonymous";
+    private static final String UNKNOWN_ROOM = "unknown-room";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     protected static final Logger log = getLogger(AbstractLog.class);
 
     private final String userId;
+    private final String roomKey;
     private final LogType type;
     private final String timestamp;
 
     protected AbstractLog(LogType type) {
-        this.userId = getCurrentUserId();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        this.userId = getCurrentUserId(authentication);
+        this.roomKey = getCurrentRoomKey(authentication);
         this.type = type;
         this.timestamp = getCurrentTimestamp();
     }
@@ -44,11 +49,18 @@ public abstract class AbstractLog {
         return LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
     }
 
-    private static String getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    private static String getCurrentUserId(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
             return authentication.getName();
         }
         return ANONYMOUS_USER;
+    }
+
+    private static String getCurrentRoomKey(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            return userPrincipal.getRoomKey() != null ? userPrincipal.getRoomKey() : UNKNOWN_ROOM;
+        }
+        return UNKNOWN_ROOM;
     }
 }
