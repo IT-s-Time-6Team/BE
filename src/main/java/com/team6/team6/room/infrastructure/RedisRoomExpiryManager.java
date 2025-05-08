@@ -3,6 +3,7 @@ package com.team6.team6.room.infrastructure;
 import com.team6.team6.room.domain.RoomExpiryManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.time.Duration;
 @Slf4j
 @RequiredArgsConstructor
 @Component
+@Profile("!test")
 public class RedisRoomExpiryManager implements RoomExpiryManager {
 
     private static final String ROOM_WARNING_PREFIX = "room_warning:";
