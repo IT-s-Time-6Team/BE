@@ -1,6 +1,5 @@
 package com.team6.team6.room.service;
 
-
 import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.keyword.domain.AnalysisResultStore;
 import com.team6.team6.room.domain.RoomExpiryManager;
@@ -38,7 +37,6 @@ public class RoomService {
     @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
     @Transactional
     public RoomResponse createRoom(RoomCreateServiceRequest request) {
-
         String roomKey = roomKeyGenerator.generateRoomKey();
         Room room = Room.create(roomKey, request);
         Room savedRoom = roomRepository.save(room);
@@ -52,14 +50,14 @@ public class RoomService {
         return RoomResponse.from(savedRoom);
     }
 
+
     @Recover
     public RoomResponse recoverCreateRoom(Exception e, RoomCreateServiceRequest request) {
         throw new RuntimeException("방 생성에 실패했습니다.", e);
     }
 
     public RoomResponse getRoom(String roomKey) {
-        Room room = roomRepository.findByRoomKey(roomKey)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 방입니다."));
+        Room room = findRoomByKey(roomKey);
 
         if (room.getClosedAt() != null) {
             throw new IllegalStateException("종료된 방입니다.");
@@ -70,8 +68,7 @@ public class RoomService {
 
     @Transactional
     public void closeRoom(String roomKey) {
-        Room room = roomRepository.findByRoomKey(roomKey)
-                .orElseThrow(() -> new NotFoundException("존재하지 않는 방입니다."));
+        Room room = findRoomByKey(roomKey);
 
         if (room.getClosedAt() != null) {
             throw new IllegalStateException("이미 종료된 방입니다.");
@@ -83,6 +80,7 @@ public class RoomService {
         // 방 관련 모든 타이머 취소
         roomExpiryService.cancelRoomExpiry(roomKey);
     }
+
 
     public RoomResult getRoomResult(String roomKey) {
         Room room = findRoomByKey(roomKey);
