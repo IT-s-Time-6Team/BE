@@ -31,6 +31,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomKeyGenerator roomKeyGenerator;
+    private final RoomExpiryService roomExpiryService;
     private final AnalysisResultStore analysisResultStore;
     private final RoomExpiryManager roomExpiryManager;
 
@@ -43,7 +44,10 @@ public class RoomService {
         Room savedRoom = roomRepository.save(room);
 
         // 방 만료 타이머 설정
-        scheduleRoomExpiryTimers(roomKey, request.durationMinutes());
+        roomExpiryService.scheduleRoomExpiry(
+                roomKey,
+                request.durationMinutes()
+        );
 
         return RoomResponse.from(savedRoom);
     }
@@ -77,33 +81,8 @@ public class RoomService {
         roomRepository.save(room);
 
         // 방 관련 모든 타이머 취소
-        roomExpiryManager.cancelAllTimers(roomKey);
+        roomExpiryService.cancelRoomExpiry(roomKey);
     }
-
-
-    /**
-     * 방 만료 관련 타이머를 설정합니다.
-     *
-     * @param roomKey         방 식별 키
-     * @param durationMinutes 방 지속 시간 (분)
-     */
-    private void scheduleRoomExpiryTimers(String roomKey, int durationMinutes) {
-        // 방 종료 5분 전 알림을 위한 타이머 설정
-        if (durationMinutes > 5) {
-            int warningTimeInMinutes = durationMinutes - 5;
-            roomExpiryManager.scheduleExpiryWarning(
-                    roomKey,
-                    Duration.ofMinutes(warningTimeInMinutes)
-            );
-        }
-
-        // 방 종료 알림을 위한 타이머 설정
-        roomExpiryManager.scheduleRoomClosure(
-                roomKey,
-                Duration.ofMinutes(durationMinutes)
-        );
-    }
-
 
     public RoomResult getRoomResult(String roomKey) {
         Room room = findRoomByKey(roomKey);
