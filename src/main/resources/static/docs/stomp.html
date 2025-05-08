@@ -158,7 +158,7 @@ stompClient.connect({},
         </tr>
         <tr>
             <th>설명</th>
-            <td>채팅방 내 모든 메시지(입장, 재입장, 분석 결과 등) 수신</td>
+            <td>채팅방 내 모든 메시지(입장, 재입장, 분석 결과, 방 종료 5분 전/종료 알림) 수신</td>
         </tr>
     </table>
     <h4>ENTER 메시지</h4>
@@ -196,6 +196,26 @@ stompClient.connect({},
       "variations": ["variation1", "variation2"]
     }
   ]
+}</code></pre>
+
+    <h4>ROOM_EXPIRY_WARNING 메시지</h4>
+    <p>방 종료 5분 전, 방에 있는 모든 사용자에게 방 종료 알림을 보냅니다.</p>
+    <pre><code class="language-json">{
+  "type": "ROOM_EXPIRY_WARNING",
+  "nickname": "@시스템",
+  "content": "방 종료까지 5분 남았습니다.",
+  "timestamp": "2025-05-08T03:15:15.430348",
+  "data": null
+}</code></pre>
+
+    <h4>ROOM_EXPIRED 메시지</h4>
+    <p>방이 종료되면 방에 있는 모든 사용자에게 방 종료 알림을 보냅니다.</p>
+    <pre><code class="language-json">{
+  "type": "ROOM_EXPIRED",
+  "nickname": "@시스템",
+  "content": "방이 종료되었습니다.",
+  "timestamp": "2025-05-08T03:15:15.430348",
+  "data": null
 }</code></pre>
 
     <h3>4.2. 키워드 전송 결과 구독</h3>
@@ -338,6 +358,16 @@ stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예�
             <td>에러 발생</td>
             <td>/user/queue/errors</td>
         </tr>
+        <tr>
+            <td>ROOM_EXPIRY_WARNING</td>
+            <td>방 종료 5분 전 알림</td>
+            <td>/topic/room/{roomKey}/messages</td>
+        </tr>
+        <tr>
+            <td>ROOM_EXPIRED</td>
+            <td>방 종료 알림</td>
+            <td>/topic/room/{roomKey}/messages</td>
+        </tr>
     </table>
 
     <h3>6.2. 메시지 예시</h3>
@@ -383,6 +413,24 @@ stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예�
   "timestamp": "2025-05-04T19:01:56.24617",
   "data": null
 }</code></pre>
+
+    <h4>ROOM_EXPIRY_WARNING 메시지</h4>
+    <pre><code class="language-json">{
+  "type": "ROOM_EXPIRY_WARNING",
+  "nickname": "@시스템",
+  "content": "방 종료까지 5분 남았습니다.",
+  "timestamp": "2025-05-08T03:15:15.430348",
+  "data": null
+}</code></pre>
+
+    <h4>ROOM_EXPIRED 메시지</h4>
+    <pre><code class="language-json">{
+  "type": "ROOM_EXPIRED",
+  "nickname": "@시스템",
+  "content": "방이 종료되었습니다.",
+  "timestamp": "2025-05-08T03:15:15.430348",
+  "data": null
+}</code></pre>
 </div>
 
 <div class="section">
@@ -401,6 +449,13 @@ stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예�
         <li>키워드 전송 (/app/room/{roomKey}/keyword)</li>
         <li>개인 확인 메시지 수신 (/user/queue/keyword-confirmation)</li>
         <li>분석 결과 수신 (/topic/room/{roomKey}/messages, type: ANALYSIS_RESULT)</li>
+    </ol>
+
+    <h3>7.3. 방 종료 알림 시나리오</h3>
+    <ol>
+        <li>방 생성 시, 만료 시간이 설정됨</li>
+        <li>방 종료 5분 전 <code>ROOM_EXPIRY_WARNING</code> 메시지가 <code>/topic/room/{roomKey}/messages</code>로 전송됨</li>
+        <li>방이 종료되면 <code>ROOM_EXPIRED</code> 메시지가 <code>/topic/room/{roomKey}/messages</code>로 전송됨</li>
     </ol>
 </div>
 

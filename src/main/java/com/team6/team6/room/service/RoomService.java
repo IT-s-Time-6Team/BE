@@ -1,6 +1,5 @@
 package com.team6.team6.room.service;
 
-
 import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.keyword.domain.AnalysisResultStore;
 import com.team6.team6.room.dto.MemberKeywordCount;
@@ -29,18 +28,25 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomKeyGenerator roomKeyGenerator;
+    private final RoomExpiryService roomExpiryService;
     private final AnalysisResultStore analysisResultStore;
 
     @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
     @Transactional
     public RoomResponse createRoom(RoomCreateServiceRequest request) {
-
         String roomKey = roomKeyGenerator.generateRoomKey();
         Room room = Room.create(roomKey, request);
         Room savedRoom = roomRepository.save(room);
 
+        // 방 만료 타이머 설정
+        roomExpiryService.scheduleRoomExpiry(
+                roomKey,
+                request.durationMinutes()
+        );
+
         return RoomResponse.from(savedRoom);
     }
+
 
     @Recover
     public RoomResponse recoverCreateRoom(Exception e, RoomCreateServiceRequest request) {
@@ -67,7 +73,11 @@ public class RoomService {
 
         room.closeRoom();
         roomRepository.save(room);
+
+        // 방 관련 모든 타이머 취소
+        roomExpiryService.cancelRoomExpiry(roomKey);
     }
+
 
     public RoomResult getRoomResult(String roomKey) {
         Room room = findRoomByKey(roomKey);

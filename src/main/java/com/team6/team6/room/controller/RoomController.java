@@ -3,6 +3,7 @@ package com.team6.team6.room.controller;
 import com.team6.team6.global.ApiResponse;
 import com.team6.team6.room.dto.RoomCreateRequest;
 import com.team6.team6.room.dto.RoomResponse;
+import com.team6.team6.room.service.RoomNotificationService;
 import com.team6.team6.room.dto.RoomResult;
 import com.team6.team6.room.service.RoomService;
 import jakarta.validation.Valid;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class RoomController {
 
     private final RoomService roomService;
+    private final RoomNotificationService roomNotificationService;
 
     // 방 생성
     @PostMapping
@@ -38,6 +40,7 @@ public class RoomController {
     @PatchMapping("/{roomKey}/close")
     public ApiResponse<Void> closeRoom(@PathVariable String roomKey) {
         roomService.closeRoom(roomKey);
+        roomNotificationService.sendClosedNotification(roomKey);
         return ApiResponse.of(HttpStatus.OK, "방이 종료되었습니다", null);
     }
 
