@@ -53,5 +53,6 @@ jobs:
           -e SPRING_PROFILES_ACTIVE=dev \
           -e spring.config.location=/app/application-dev.properties \
           -v /Users/scienceyds/team6/application-dev.properties:/app/application-dev.properties \
+          -v /Users/scienceyds/team6/logs:/logs \
           macmini/team6_server_dev:latest
 
