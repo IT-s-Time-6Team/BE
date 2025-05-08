@@ -3,11 +3,13 @@ package com.team6.team6.keyword.service;
 import com.team6.team6.keyword.domain.repository.KeywordRepository;
 import com.team6.team6.keyword.dto.KeywordAddServiceReq;
 import com.team6.team6.keyword.entity.Keyword;
+import com.team6.team6.question.service.QuestionService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -23,6 +25,9 @@ class KeywordServiceDBTest {
 
     @Autowired
     private KeywordService keywordService;
+
+    @MockitoBean
+    private QuestionService questionService;
 
     private static final Long ROOM_ID = 1L;
     private static final String KEYWORD_TEXT = "테스트키워드";

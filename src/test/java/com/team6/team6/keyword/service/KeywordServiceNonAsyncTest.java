@@ -5,6 +5,7 @@ import com.team6.team6.keyword.domain.KeywordManager;
 import com.team6.team6.keyword.domain.repository.KeywordRepository;
 import com.team6.team6.keyword.dto.KeywordAddServiceReq;
 import com.team6.team6.keyword.entity.Keyword;
+import com.team6.team6.question.service.QuestionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +42,9 @@ class KeywordServiceNonAsyncTest {
 
     @Autowired
     private KeywordService keywordService;
+
+    @MockitoBean
+    private QuestionService questionService;
 
     private static final Long ROOM_ID = 1L;
     private static final String KEYWORD_TEXT = "테스트키워드";
