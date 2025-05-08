@@ -32,12 +32,12 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
-    public List<MemberKeywordCount> findMembersWithMostKeywordsInRoom(String roomKey) {
-        return queryDslRepository.findMembersWithMostKeywordsInRoom(roomKey);
+    public List<MemberKeywordCount> findAllMemberKeywordCountsInRoom(String roomKey) {
+        return queryDslRepository.findAllMemberKeywordCountsInRoom(roomKey);
     }
 
     @Override
-    public List<MemberKeywordCount> findMembersWithMostSharedKeywordsInRoom(String roomKey, List<String> sharedKeywords) {
-        return queryDslRepository.findMembersWithMostSharedKeywordsInRoom(roomKey, sharedKeywords);
+    public List<MemberKeywordCount> findAllMemberSharedKeywordCountsInRoom(String roomKey, List<String> sharedKeywords) {
+        return queryDslRepository.findAllMemberSharedKeywordCountsInRoom(roomKey, sharedKeywords);
     }
 }

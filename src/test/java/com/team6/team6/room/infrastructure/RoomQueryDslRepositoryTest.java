@@ -3,12 +3,11 @@ package com.team6.team6.room.infrastructure;
 import com.team6.team6.global.TestQueryDslConfig;
 import com.team6.team6.keyword.domain.repository.KeywordRepository;
 import com.team6.team6.keyword.entity.Keyword;
-import com.team6.team6.member.entity.Member;
 import com.team6.team6.member.domain.MemberRepository;
+import com.team6.team6.member.entity.Member;
 import com.team6.team6.room.dto.MemberKeywordCount;
 import com.team6.team6.room.entity.Room;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -17,6 +16,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
@@ -92,17 +93,24 @@ class RoomQueryDslRepositoryTest {
     }
 
     @Test
-    void 방에서_가장_많은_키워드_생성_멤버_테스트() {
+    void 방에서_모든_키워드_생성_멤버_테스트() {
         // when
-        List<MemberKeywordCount> result = roomQueryDslRepository.findMembersWithMostKeywordsInRoom(roomKey);
+        List<MemberKeywordCount> result = roomQueryDslRepository.findAllMemberKeywordCountsInRoom(roomKey);
 
         // then
         assertSoftly(softly -> {
-            softly.assertThat(result).hasSize(2); // member1, member2가 동일하게 3개로 최대
+            softly.assertThat(result).hasSize(3);
             softly.assertThat(result.stream().map(MemberKeywordCount::memberName).toList())
-                    .containsExactlyInAnyOrder("사용자1", "사용자2");
-            softly.assertThat(result.get(0).keywordCount()).isEqualTo(3);
-            softly.assertThat(result.get(1).keywordCount()).isEqualTo(3);
+                    .containsExactlyInAnyOrder("사용자1", "사용자2", "사용자3");
+            Map<String, Integer> countByMember = result.stream()
+                    .collect(Collectors.toMap(
+                            MemberKeywordCount::memberName,
+                            MemberKeywordCount::keywordCount
+                    ));
+
+            softly.assertThat(countByMember.get("사용자1")).isEqualTo(3);
+            softly.assertThat(countByMember.get("사용자2")).isEqualTo(3);
+            softly.assertThat(countByMember.get("사용자3")).isEqualTo(2);
         });
     }
 
@@ -116,7 +124,7 @@ class RoomQueryDslRepositoryTest {
         roomRepository.save(emptyRoom);
 
         // when
-        List<MemberKeywordCount> result = roomQueryDslRepository.findMembersWithMostKeywordsInRoom(emptyRoomKey);
+        List<MemberKeywordCount> result = roomQueryDslRepository.findAllMemberKeywordCountsInRoom(emptyRoomKey);
 
         // then
         assertSoftly(softly -> {
@@ -125,27 +133,34 @@ class RoomQueryDslRepositoryTest {
     }
 
     @Test
-    void 방에서_공유_키워드를_가장_많이_가진_멤버_조회_테스트() {
+    void 방에서_모든_공유_키워드_멤버_조회_테스트() {
         // given
         List<String> sharedKeywords = Arrays.asList("Java", "Python", "Spring");
 
         // when
-        List<MemberKeywordCount> result = roomQueryDslRepository.findMembersWithMostSharedKeywordsInRoom(roomKey, sharedKeywords);
+        List<MemberKeywordCount> result = roomQueryDslRepository.findAllMemberSharedKeywordCountsInRoom(roomKey, sharedKeywords);
 
         // then
         assertSoftly(softly -> {
-            softly.assertThat(result).hasSize(2); // member1과 member2는 공유 키워드 중 2개씩 가짐
+            softly.assertThat(result).hasSize(3);
             softly.assertThat(result.stream().map(MemberKeywordCount::memberName).toList())
-                    .containsExactlyInAnyOrder("사용자1", "사용자2");
-            softly.assertThat(result.get(0).keywordCount()).isEqualTo(2);
-            softly.assertThat(result.get(1).keywordCount()).isEqualTo(2);
+                    .containsExactlyInAnyOrder("사용자1", "사용자2", "사용자3");
+            Map<String, Integer> countByMember = result.stream()
+                    .collect(Collectors.toMap(
+                            MemberKeywordCount::memberName,
+                            MemberKeywordCount::keywordCount
+                    ));
+
+            softly.assertThat(countByMember.get("사용자1")).isEqualTo(2); // Java, Python
+            softly.assertThat(countByMember.get("사용자2")).isEqualTo(2); // Java, Spring
+            softly.assertThat(countByMember.get("사용자3")).isEqualTo(1); // Java
         });
     }
 
     @Test
     void 공유_키워드_목록이_비어있을_때_테스트() {
         // when
-        List<MemberKeywordCount> result = roomQueryDslRepository.findMembersWithMostSharedKeywordsInRoom(roomKey, List.of());
+        List<MemberKeywordCount> result = roomQueryDslRepository.findAllMemberSharedKeywordCountsInRoom(roomKey, List.of());
 
         // then
         assertSoftly(softly -> {
