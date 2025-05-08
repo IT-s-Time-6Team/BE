@@ -22,8 +22,9 @@ configurations {
 }
 
 repositories {
-    mavenCentral()
-    maven { url 'https://repo.spring.io/milestone' }
+
+	mavenCentral()
+	maven {url 'https://repo.spring.io/milestone'}
 }
 
 ext {
@@ -52,6 +53,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     // Spring AI
     implementation 'org.springframework.ai:spring-ai-starter-model-openai:1.0.0-M7'
+
+	// Spring AI
+	implementation 'org.springframework.ai:spring-ai-starter-model-openai:1.0.0-M7'
 }
 
 tasks.named('test') {
