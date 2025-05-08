@@ -1,6 +1,5 @@
 package com.team6.team6.room.service;
 
-import com.team6.team6.room.domain.RoomExpiryManager;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
 import com.team6.team6.room.entity.GameMode;
@@ -31,9 +30,6 @@ class RoomServiceRetryTest {
 
     @MockitoBean
     private RoomKeyGenerator roomKeyGenerator;
-
-    @MockitoBean
-    private RoomExpiryManager roomExpiryManager;
 
 
 
