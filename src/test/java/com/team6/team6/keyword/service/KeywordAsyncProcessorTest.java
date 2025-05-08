@@ -35,6 +35,8 @@ class KeywordAsyncProcessorTest {
         // given
         Long roomId = 2L;
         String keyword = "테스트";
+        String roomKey = "roomKey";
+
 
         // keywordManager가 반환할 결과 설정
         List<String> variations = List.of("분석결과1", "분석결과2");
@@ -42,7 +44,7 @@ class KeywordAsyncProcessorTest {
         when(keywordManager.addKeyword(roomId, keyword)).thenReturn(List.of(result));
 
         // when
-        keywordAsyncProcessor.processKeywordAnalysisAsync(roomId, keyword);
+        keywordAsyncProcessor.processKeywordAnalysisAsync(roomId, roomKey, keyword);
 
         // then
         // questionService.generateQuestions가 "분석결과"를 인자로 호출되었는지 검증

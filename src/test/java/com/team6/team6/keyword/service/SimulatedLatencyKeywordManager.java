@@ -1,6 +1,9 @@
 package com.team6.team6.keyword.service;
 
+import com.team6.team6.keyword.domain.AnalysisResultStore;
 import com.team6.team6.keyword.domain.KeywordManager;
+import com.team6.team6.keyword.domain.KeywordSimilarityAnalyser;
+import com.team6.team6.keyword.domain.KeywordStore;
 import com.team6.team6.keyword.dto.AnalysisResult;
 
 import java.util.List;
@@ -13,6 +16,7 @@ public class SimulatedLatencyKeywordManager extends KeywordManager {
     private final long delayMillis;
 
     public SimulatedLatencyKeywordManager(long delayMillis) {
+        super(new MockKeywordStore(), new MockKeywordSimilarityAnalyser(), new MockAnalysisResultStore());
         this.delayMillis = delayMillis;
     }
 
@@ -25,6 +29,46 @@ public class SimulatedLatencyKeywordManager extends KeywordManager {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("키워드 분석 중 인터럽트 발생", e);
+        }
+    }
+
+    // 테스트용 목(mock) 클래스들
+    private static class MockKeywordStore implements KeywordStore {
+        @Override
+        public void saveKeyword(Long roomId, String keyword) {
+        }
+
+        @Override
+        public List<String> getKeywords(Long roomId) {
+            return List.of();
+        }
+    }
+
+    private static class MockKeywordSimilarityAnalyser implements KeywordSimilarityAnalyser {
+        @Override
+        public List<List<String>> analyse(List<String> keywords) {
+            return List.of();
+        }
+    }
+
+    private static class MockAnalysisResultStore implements AnalysisResultStore {
+        @Override
+        public List<AnalysisResult> findByRoomId(Long roomId) {
+            return List.of();
+        }
+
+        @Override
+        public void save(Long roomId, List<AnalysisResult> results) {
+        }
+
+        @Override
+        public List<String> findSharedKeywordsByRoomId(Long roomId, Integer limit) {
+            return List.of();
+        }
+
+        @Override
+        public List<String> findReferenceNamesByRoomId(Long roomId, Integer limit) {
+            return List.of();
         }
     }
 }
