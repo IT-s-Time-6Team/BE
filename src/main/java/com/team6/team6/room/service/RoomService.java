@@ -2,6 +2,7 @@ package com.team6.team6.room.service;
 
 import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.keyword.domain.AnalysisResultStore;
+import com.team6.team6.member.security.UserPrincipal;
 import com.team6.team6.room.dto.MemberKeywordCount;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class RoomService {
+
+    private static final String ANONYMOUS_MEMBER = "anonymous";
 
     private final RoomRepository roomRepository;
     private final RoomKeyGenerator roomKeyGenerator;
@@ -99,11 +104,24 @@ public class RoomService {
         List<MemberKeywordCount> mostSharedKeywordUsers =
                 findMembersWithMaxCount(roomRepository.findAllMemberSharedKeywordCountsInRoom(roomKey, sharedKeywords));
 
+        // 5. 요청한 멤버 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String requestMemberName = ANONYMOUS_MEMBER;
+        Integer requestMemberCharacterId = null;
+
+        if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            requestMemberName = userPrincipal.getNickname();
+            requestMemberCharacterId = userPrincipal.getCharacterId();
+        }
+
         return RoomResult.of(
                 referenceNames,
                 totalDuration,
                 topKeywordContributors,
-                mostSharedKeywordUsers
+                mostSharedKeywordUsers,
+                requestMemberName,
+                requestMemberCharacterId
         );
     }
 

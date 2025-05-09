@@ -190,7 +190,9 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                 topContributors,
                 3,
                 mostMatchedUsers,
-                2
+                2,
+                "member1",
+                1
         );
 
         given(roomService.getRoomResult("abc123")).willReturn(mockResult);
@@ -221,7 +223,11 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                                 fieldWithPath("data.mostMatchedHobbyUserNames").type(JsonFieldType.ARRAY)
                                         .description("공감 키워드가 가장 많은 사용자들"),
                                 fieldWithPath("data.matchedHobbyCount").type(JsonFieldType.NUMBER)
-                                        .description("최다 공감 키워드 수")
+                                        .description("최다 공감 키워드 수"),
+                                fieldWithPath("data.requestMemberName").type(JsonFieldType.STRING)
+                                        .description("요청한 멤버 이름"),
+                                fieldWithPath("data.requestMemberCharacterId").type(JsonFieldType.NUMBER)
+                                        .description("요청한 멤버의 캐릭터 ID")
                         )
                 ));
     }
