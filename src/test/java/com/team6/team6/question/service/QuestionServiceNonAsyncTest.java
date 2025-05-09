@@ -39,7 +39,7 @@ public class QuestionServiceNonAsyncTest {
         long elapsed = System.currentTimeMillis() - startTime;
 
         // then
-        //assertThat(elapsed).isGreaterThanOrEqualTo(2000L); // 동기로 2초 이상 걸려야 함
+//        assertThat(elapsed).isGreaterThanOrEqualTo(2000L); // 동기로 2초 이상 걸려야 함
     }
 
     @TestConfiguration

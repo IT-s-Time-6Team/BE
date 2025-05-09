@@ -8,10 +8,12 @@
 ====
 
 === 요청 형식 (HTTP)
+
 include::{snippetsDir}/room-controller-docs-test/create/http-request.adoc[]
 include::{snippetsDir}/room-controller-docs-test/create/request-fields.adoc[]
 
 === 응답 형식 (HTTP)
+
 include::{snippetsDir}/room-controller-docs-test/create/http-response.adoc[]
 include::{snippetsDir}/room-controller-docs-test/create/response-fields.adoc[]
 
@@ -20,14 +22,17 @@ include::{snippetsDir}/room-controller-docs-test/create/response-fields.adoc[]
 == 방 조회
 
 ====
-방 정보를 조회하는 API입니다. 방 조회는 GET 요청이므로 요청 본문 필드가 없습니다.
+방 정보를 조회하는 API입니다.
+방 조회는 GET 요청이므로 요청 본문 필드가 없습니다.
 ====
 
 === 요청 형식 (HTTP)
+
 include::{snippetsDir}/room-controller-docs-test/get/http-request.adoc[]
 include::{snippetsDir}/room-controller-docs-test/get/path-parameters.adoc[]
 
 === 응답 형식 (HTTP)
+
 include::{snippetsDir}/room-controller-docs-test/get/http-response.adoc[]
 include::{snippetsDir}/room-controller-docs-test/get/response-fields.adoc[]
 
@@ -36,14 +41,17 @@ include::{snippetsDir}/room-controller-docs-test/get/response-fields.adoc[]
 == 방 종료
 
 ====
-방을 종료하는 API입니다. 방 종료는 PATCH 요청이며, 요청 본문 필드가 없습니다.
+방을 종료하는 API입니다.
+방 종료는 PATCH 요청이며, 요청 본문 필드가 없습니다.
 ====
 
 === 요청 형식 (HTTP)
+
 include::{snippetsDir}/room-controller-docs-test/close/http-request.adoc[]
 include::{snippetsDir}/room-controller-docs-test/close/path-parameters.adoc[]
 
 === 응답 형식 (HTTP)
+
 include::{snippetsDir}/room-controller-docs-test/close/http-response.adoc[]
 include::{snippetsDir}/room-controller-docs-test/close/response-fields.adoc[]
 

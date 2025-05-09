@@ -17,7 +17,8 @@ public record RoomResponse(
         Boolean isClosed
 ) {
     @Builder
-    public RoomResponse {}
+    public RoomResponse {
+    }
 
     public static RoomResponse from(Room room) {
         return RoomResponse.builder()

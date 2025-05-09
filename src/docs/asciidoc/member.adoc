@@ -9,10 +9,12 @@
 ====
 
 === 요청 형식 (HTTP)
+
 include::{snippetsDir}/member-controller-docs-test/join-or-login/http-request.adoc[]
 include::{snippetsDir}/member-controller-docs-test/join-or-login/request-fields.adoc[]
 
 === 응답 형식 (HTTP)
+
 include::{snippetsDir}/member-controller-docs-test/join-or-login/http-response.adoc[]
 include::{snippetsDir}/member-controller-docs-test/join-or-login/response-fields.adoc[]
 
@@ -25,9 +27,11 @@ include::{snippetsDir}/member-controller-docs-test/join-or-login/response-fields
 ====
 
 === 요청 형식 (HTTP)
+
 include::{snippetsDir}/member-controller-docs-test/join-or-login-validation-failure/http-request.adoc[]
 include::{snippetsDir}/member-controller-docs-test/join-or-login-validation-failure/request-fields.adoc[]
 
 === 응답 형식 (HTTP)
+
 include::{snippetsDir}/member-controller-docs-test/join-or-login-validation-failure/http-response.adoc[]
 include::{snippetsDir}/member-controller-docs-test/join-or-login-validation-failure/response-body.adoc[]

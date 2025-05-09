@@ -2,6 +2,7 @@ package com.team6.team6.room.service;
 
 import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.keyword.domain.AnalysisResultStore;
+import com.team6.team6.room.domain.RoomExpiryManager;
 import com.team6.team6.member.security.UserPrincipal;
 import com.team6.team6.room.dto.MemberKeywordCount;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -35,6 +37,7 @@ public class RoomService {
     private final RoomKeyGenerator roomKeyGenerator;
     private final RoomExpiryService roomExpiryService;
     private final AnalysisResultStore analysisResultStore;
+    private final RoomExpiryManager roomExpiryManager;
 
     @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
     @Transactional

@@ -40,10 +40,6 @@ public class Room extends BaseEntity {
         this.gameMode = gameMode;
     }
 
-    public void closeRoom() {
-        this.closedAt = LocalDateTime.now();
-    }
-
     public static Room create(String roomKey, RoomCreateServiceRequest request) {
         return Room.builder()
                 .roomKey(roomKey)
@@ -52,5 +48,9 @@ public class Room extends BaseEntity {
                 .durationMinutes(request.durationMinutes())
                 .gameMode(request.gameMode())
                 .build();
+    }
+
+    public void closeRoom() {
+        this.closedAt = LocalDateTime.now();
     }
 }

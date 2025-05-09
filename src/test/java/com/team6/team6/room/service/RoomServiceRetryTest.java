@@ -32,7 +32,6 @@ class RoomServiceRetryTest {
     private RoomKeyGenerator roomKeyGenerator;
 
 
-
     @Test
     void 룸키_중복시_자동_재시도_성공() {
         // given

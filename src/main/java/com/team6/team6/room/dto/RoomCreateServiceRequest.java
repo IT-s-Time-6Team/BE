@@ -10,7 +10,8 @@ public record RoomCreateServiceRequest(
         GameMode gameMode
 ) {
     @Builder
-    public RoomCreateServiceRequest {}
+    public RoomCreateServiceRequest {
+    }
 
 
 }
