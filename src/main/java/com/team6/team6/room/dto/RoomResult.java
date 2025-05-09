@@ -10,14 +10,18 @@ public record RoomResult(
         List<String> topKeywordContributorNames,
         int topKeywordCount,
         List<String> mostMatchedHobbyUserNames,
-        int matchedHobbyCount
+        int matchedHobbyCount,
+        String requestMemberName,
+        Integer requestMemberCharacterId
 ) {
 
     public static RoomResult of(
             List<String> sharedKeywords,
             Duration totalDuration,
             List<MemberKeywordCount> topKeywordContributors,
-            List<MemberKeywordCount> mostSharedKeywordUsers
+            List<MemberKeywordCount> mostSharedKeywordUsers,
+            String requestMemberName,
+            Integer requestMemberCharacterId
     ) {
         String formattedDuration = formatDuration(totalDuration);
 
@@ -35,7 +39,9 @@ public record RoomResult(
                 topKeywordContributorNames,
                 topKeywordCount,
                 mostMatchedHobbyUserNames,
-                matchedHobbyCount
+                matchedHobbyCount,
+                requestMemberName,
+                requestMemberCharacterId
         );
     }
 

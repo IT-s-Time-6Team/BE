@@ -26,12 +26,17 @@ class RoomResultTest {
                 new MemberKeywordCount("사용자4", 3)
         );
 
+        String requestMemberName = "사용자1";
+        Integer requestMemberCharacterId = 1;
+
         // when
         RoomResult result = RoomResult.of(
                 sharedKeywords,
                 totalDuration,
                 topKeywordContributors,
-                mostSharedKeywordUsers
+                mostSharedKeywordUsers,
+                requestMemberName,
+                requestMemberCharacterId
         );
 
         // then
@@ -42,6 +47,8 @@ class RoomResultTest {
             softly.assertThat(result.topKeywordCount()).isEqualTo(10);
             softly.assertThat(result.mostMatchedHobbyUserNames()).containsExactly("사용자3", "사용자4");
             softly.assertThat(result.matchedHobbyCount()).isEqualTo(3);
+            softly.assertThat(result.requestMemberName()).isEqualTo("사용자1");
+            softly.assertThat(result.requestMemberCharacterId()).isEqualTo(1);
         });
     }
 
@@ -50,13 +57,17 @@ class RoomResultTest {
         // given
         List<String> sharedKeywords = List.of("여행");
         List<MemberKeywordCount> contributors = List.of(new MemberKeywordCount("사용자1", 1));
+        String requestMemberName = "사용자1";
+        Integer requestMemberCharacterId = 1;
 
         // when - 초만 있는 경우
         RoomResult secondsOnly = RoomResult.of(
                 sharedKeywords,
                 Duration.ofSeconds(45),
                 contributors,
-                contributors
+                contributors,
+                requestMemberName,
+                requestMemberCharacterId
         );
 
         // when - 분과 초만 있는 경우
@@ -64,7 +75,9 @@ class RoomResultTest {
                 sharedKeywords,
                 Duration.ofMinutes(25).plusSeconds(30),
                 contributors,
-                contributors
+                contributors,
+                requestMemberName,
+                requestMemberCharacterId
         );
 
         // when - 시간, 분, 초가 모두 있는 경우
@@ -72,7 +85,9 @@ class RoomResultTest {
                 sharedKeywords,
                 Duration.ofHours(2).plusMinutes(15).plusSeconds(10),
                 contributors,
-                contributors
+                contributors,
+                requestMemberName,
+                requestMemberCharacterId
         );
 
         // then
@@ -89,13 +104,17 @@ class RoomResultTest {
         List<String> emptyKeywords = Collections.emptyList();
         Duration duration = Duration.ofMinutes(10);
         List<MemberKeywordCount> emptyContributors = Collections.emptyList();
+        String requestMemberName = "사용자1";
+        Integer requestMemberCharacterId = 1;
 
         // when
         RoomResult result = RoomResult.of(
                 emptyKeywords,
                 duration,
                 emptyContributors,
-                emptyContributors
+                emptyContributors,
+                requestMemberName,
+                requestMemberCharacterId
         );
 
         // then
@@ -106,6 +125,8 @@ class RoomResultTest {
             softly.assertThat(result.topKeywordCount()).isEqualTo(0);
             softly.assertThat(result.mostMatchedHobbyUserNames()).isEmpty();
             softly.assertThat(result.matchedHobbyCount()).isEqualTo(0);
+            softly.assertThat(result.requestMemberName()).isEqualTo("사용자1");
+            softly.assertThat(result.requestMemberCharacterId()).isEqualTo(1);
         });
     }
 }
