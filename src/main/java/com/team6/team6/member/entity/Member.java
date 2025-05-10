@@ -27,23 +27,26 @@ public class Member extends BaseEntity {
     @JoinColumn(name = "room_id")
     private Room room;
 
-    private Integer characterId;
+    @Enumerated(EnumType.STRING)
+    private CharacterType character;
 
     @Builder
-    private Member(String nickname, String password, boolean isLeader, Room room, Integer characterId) {
+    private Member(String nickname, String password, boolean isLeader, Room room, CharacterType character) {
         this.nickname = nickname;
         this.password = password;
         this.isLeader = isLeader;
         this.room = room;
-        this.characterId = characterId;
+        this.character = character;
     }
 
-    public static Member create(String nickname, String password, Room room, Integer characterId, boolean isLeader) {
+    public static Member create(String nickname, String password, Room room, Integer characterOrder, boolean isLeader) {
+        CharacterType characterType = CharacterType.fromOrder(characterOrder);
+
         return Member.builder()
                 .nickname(nickname)
                 .password(password)
                 .room(room)
-                .characterId(characterId)
+                .character(characterType)
                 .isLeader(isLeader)
                 .build();
     }
