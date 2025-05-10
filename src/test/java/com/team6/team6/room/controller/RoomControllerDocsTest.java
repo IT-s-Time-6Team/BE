@@ -2,6 +2,7 @@ package com.team6.team6.room.controller;
 
 import com.team6.team6.global.CustomRestDocsHandler;
 import com.team6.team6.global.RestDocsSupport;
+import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.room.dto.RoomCreateRequest;
 import com.team6.team6.room.dto.RoomResponse;
 import com.team6.team6.room.dto.RoomResult;
@@ -192,7 +193,7 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                 mostMatchedUsers,
                 2,
                 "member1",
-                1
+                CharacterType.RABBIT
         );
 
         given(roomService.getRoomResult("abc123")).willReturn(mockResult);
@@ -226,8 +227,8 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                                         .description("최다 공감 키워드 수"),
                                 fieldWithPath("data.requestMemberName").type(JsonFieldType.STRING)
                                         .description("요청한 멤버 이름"),
-                                fieldWithPath("data.requestMemberCharacterId").type(JsonFieldType.NUMBER)
-                                        .description("요청한 멤버의 캐릭터 ID")
+                                fieldWithPath("data.requestMemberCharacter").type(JsonFieldType.STRING)
+                                        .description("요청한 멤버의 캐릭터")
                         )
                 ));
     }
