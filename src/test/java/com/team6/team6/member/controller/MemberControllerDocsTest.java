@@ -2,6 +2,7 @@ package com.team6.team6.member.controller;
 
 import com.team6.team6.global.config.SecurityConfig;
 import com.team6.team6.member.dto.MemberResponse;
+import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.member.service.MemberService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +44,8 @@ class MemberControllerDocsTest {
     void 회원_가입_또는_로그인_정상_요청_테스트() throws Exception {
         // given
         String roomKey = "room123";
-        MemberResponse memberResponse = new MemberResponse("tester", 1, true);
-        
+        MemberResponse memberResponse = new MemberResponse("tester", CharacterType.RABBIT, true);
+
         given(memberService.joinOrLogin(any(), any())).willReturn(memberResponse);
 
         // Request body
@@ -81,7 +82,7 @@ class MemberControllerDocsTest {
                                         .description("응답 메시지"),
                                 fieldWithPath("data").description("회원 정보"),
                                 fieldWithPath("data.nickname").description("회원 닉네임"),
-                                fieldWithPath("data.characterId").description("캐릭터 ID"),
+                                fieldWithPath("data.character").description("회원 캐릭터"),
                                 fieldWithPath("data.isLeader").description("방장 여부")
                         )
                 ));

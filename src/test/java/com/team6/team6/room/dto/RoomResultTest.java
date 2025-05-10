@@ -1,5 +1,6 @@
 package com.team6.team6.room.dto;
 
+import com.team6.team6.member.entity.CharacterType;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -27,7 +28,7 @@ class RoomResultTest {
         );
 
         String requestMemberName = "사용자1";
-        Integer requestMemberCharacterId = 1;
+        CharacterType requestMemberCharacter = CharacterType.RABBIT;
 
         // when
         RoomResult result = RoomResult.of(
@@ -36,7 +37,7 @@ class RoomResultTest {
                 topKeywordContributors,
                 mostSharedKeywordUsers,
                 requestMemberName,
-                requestMemberCharacterId
+                requestMemberCharacter
         );
 
         // then
@@ -48,7 +49,7 @@ class RoomResultTest {
             softly.assertThat(result.mostMatchedHobbyUserNames()).containsExactly("사용자3", "사용자4");
             softly.assertThat(result.matchedHobbyCount()).isEqualTo(3);
             softly.assertThat(result.requestMemberName()).isEqualTo("사용자1");
-            softly.assertThat(result.requestMemberCharacterId()).isEqualTo(1);
+            softly.assertThat(result.requestMemberCharacter()).isEqualTo(CharacterType.RABBIT);
         });
     }
 
@@ -58,7 +59,7 @@ class RoomResultTest {
         List<String> sharedKeywords = List.of("여행");
         List<MemberKeywordCount> contributors = List.of(new MemberKeywordCount("사용자1", 1));
         String requestMemberName = "사용자1";
-        Integer requestMemberCharacterId = 1;
+        CharacterType requestMemberCharacter = CharacterType.RABBIT;
 
         // when - 초만 있는 경우
         RoomResult secondsOnly = RoomResult.of(
@@ -67,7 +68,7 @@ class RoomResultTest {
                 contributors,
                 contributors,
                 requestMemberName,
-                requestMemberCharacterId
+                requestMemberCharacter
         );
 
         // when - 분과 초만 있는 경우
@@ -77,7 +78,7 @@ class RoomResultTest {
                 contributors,
                 contributors,
                 requestMemberName,
-                requestMemberCharacterId
+                requestMemberCharacter
         );
 
         // when - 시간, 분, 초가 모두 있는 경우
@@ -87,7 +88,7 @@ class RoomResultTest {
                 contributors,
                 contributors,
                 requestMemberName,
-                requestMemberCharacterId
+                requestMemberCharacter
         );
 
         // then
@@ -105,7 +106,7 @@ class RoomResultTest {
         Duration duration = Duration.ofMinutes(10);
         List<MemberKeywordCount> emptyContributors = Collections.emptyList();
         String requestMemberName = "사용자1";
-        Integer requestMemberCharacterId = 1;
+        CharacterType requestMemberCharacter = CharacterType.RABBIT;
 
         // when
         RoomResult result = RoomResult.of(
@@ -114,7 +115,7 @@ class RoomResultTest {
                 emptyContributors,
                 emptyContributors,
                 requestMemberName,
-                requestMemberCharacterId
+                requestMemberCharacter
         );
 
         // then
@@ -126,7 +127,7 @@ class RoomResultTest {
             softly.assertThat(result.mostMatchedHobbyUserNames()).isEmpty();
             softly.assertThat(result.matchedHobbyCount()).isEqualTo(0);
             softly.assertThat(result.requestMemberName()).isEqualTo("사용자1");
-            softly.assertThat(result.requestMemberCharacterId()).isEqualTo(1);
+            softly.assertThat(result.requestMemberCharacter()).isEqualTo(CharacterType.RABBIT);
         });
     }
 }

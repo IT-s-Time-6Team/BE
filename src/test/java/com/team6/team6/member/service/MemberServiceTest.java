@@ -3,6 +3,7 @@ package com.team6.team6.member.service;
 import com.team6.team6.member.domain.MemberRepository;
 import com.team6.team6.member.dto.MemberCreateOrLoginServiceRequest;
 import com.team6.team6.member.dto.MemberResponse;
+import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.member.entity.Member;
 import com.team6.team6.member.security.UserPrincipal;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
@@ -42,7 +43,7 @@ class MemberServiceTest {
 
     @Autowired
     private RoomRepository roomRepository;
-    
+
     @Test
     void 신규_멤버_가입_성공() {
         // given
@@ -51,27 +52,27 @@ class MemberServiceTest {
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
-        
+
         MemberCreateOrLoginServiceRequest memberRequest = MemberCreateOrLoginServiceRequest.builder()
                 .nickname("테스트유저")
                 .password("test123!")
                 .build();
-                
+
         // when
         MemberResponse response = memberService.joinOrLogin(roomKey, memberRequest);
-        
+
         // then
         assertSoftly(softly -> {
             softly.assertThat(response).isNotNull();
             softly.assertThat(response.nickname()).isEqualTo("테스트유저");
-            softly.assertThat(response.characterId()).isEqualTo(1);
+            softly.assertThat(response.character()).isEqualTo(CharacterType.RABBIT); // CharacterType.RABBIT로 변경
             softly.assertThat(response.isLeader()).isTrue(); // 첫 번째 멤버는 리더
-            
+
             // 실제 DB에 저장되었는지 확인
             Room room = roomRepository.findByRoomKey(roomKey).orElseThrow();
             Member member = memberRepository.findByNicknameAndRoomId("테스트유저", room.getId()).orElseThrow();
             softly.assertThat(member.isLeader()).isTrue();
-            
+
             // 인증 상태 확인
             softly.assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
         });
