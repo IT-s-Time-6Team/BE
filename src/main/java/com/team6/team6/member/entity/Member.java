@@ -28,6 +28,7 @@ public class Member extends BaseEntity {
     private Room room;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "character_type")
     private CharacterType character;
 
     @Builder
