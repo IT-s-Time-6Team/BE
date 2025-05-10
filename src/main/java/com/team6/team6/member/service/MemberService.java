@@ -47,21 +47,24 @@ public class MemberService {
 
     private MemberResponse join(Room room, MemberCreateOrLoginServiceRequest request) {
         long currentMemberCount = memberRepository.countByRoomId(room.getId());
-    
+
         if (currentMemberCount >= room.getMaxMember()) {
             throw new IllegalStateException("방의 최대 인원 수에 도달했습니다. 가입할 수 없습니다.");
         }
-    
+
         boolean isFirstMember = currentMemberCount == 0;
-    
+
+        // 멤버 순서에 따라 캐릭터 번호 할당 (1부터 시작, 8 이상은 미지정으로 처리됨)
+        int characterOrder = (int) currentMemberCount + 1;
+
         Member newMember = Member.create(
                 request.nickname(),
                 passwordEncoder.encode(request.password()),
                 room,
-                1,
+                characterOrder,
                 isFirstMember
         );
-    
+
         Member savedMember = memberRepository.save(newMember);
         authenticateUser(savedMember);
         return MemberResponse.from(savedMember);

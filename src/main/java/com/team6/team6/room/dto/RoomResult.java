@@ -1,5 +1,7 @@
 package com.team6.team6.room.dto;
 
+import com.team6.team6.member.entity.CharacterType;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +14,7 @@ public record RoomResult(
         List<String> mostMatchedHobbyUserNames,
         int matchedHobbyCount,
         String requestMemberName,
-        Integer requestMemberCharacterId
+        CharacterType requestMemberCharacter
 ) {
 
     public static RoomResult of(
@@ -21,7 +23,7 @@ public record RoomResult(
             List<MemberKeywordCount> topKeywordContributors,
             List<MemberKeywordCount> mostSharedKeywordUsers,
             String requestMemberName,
-            Integer requestMemberCharacterId
+            CharacterType requestMemberCharacter
     ) {
         String formattedDuration = formatDuration(totalDuration);
 
@@ -41,7 +43,7 @@ public record RoomResult(
                 mostMatchedHobbyUserNames,
                 matchedHobbyCount,
                 requestMemberName,
-                requestMemberCharacterId
+                requestMemberCharacter
         );
     }
 
