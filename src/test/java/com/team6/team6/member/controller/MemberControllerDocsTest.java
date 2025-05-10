@@ -82,7 +82,7 @@ class MemberControllerDocsTest {
                                         .description("응답 메시지"),
                                 fieldWithPath("data").description("회원 정보"),
                                 fieldWithPath("data.nickname").description("회원 닉네임"),
-                                fieldWithPath("data.character").description("회원 캐릭터"),
+                                fieldWithPath("data.character").description("회원 캐릭터 (1번부터 RABBIT, CHICK, PANDA, FOX, PIG, TURTLE, BEAR 순서로 지정되며, 8번부터는 UNDEFINED로 리텁합니다.)"),
                                 fieldWithPath("data.isLeader").description("방장 여부")
                         )
                 ));
