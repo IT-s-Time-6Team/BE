@@ -3,6 +3,7 @@
     <!-- 개발 환경 콘솔 로그 설정 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <jsonGeneratorDecorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
             <includeContext>true</includeContext>
             <includeMdc>true</includeMdc>
             <fieldNames>
@@ -19,6 +20,7 @@
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <jsonGeneratorDecorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
             <includeContext>true</includeContext>
             <includeMdc>true</includeMdc>
             <fieldNames>
@@ -35,6 +37,7 @@
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <jsonGeneratorDecorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
             <includeContext>true</includeContext>
             <includeMdc>true</includeMdc>
             <fieldNames>
