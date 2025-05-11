@@ -29,6 +29,12 @@ public class RequestResponseLoggingFilter extends OncePerRequestFilter {
             return;
         }
 
+        // Prometheus 요청 제외
+        if (request.getRequestURI().contains("/actuator/prometheus")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         ContentCachingRequestWrapper requestWrapper =
                 request instanceof ContentCachingRequestWrapper
                         ? (ContentCachingRequestWrapper) request
