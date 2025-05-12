@@ -142,6 +142,19 @@
     </div>
 </div>
 
+<div class="step">
+    <h2>5. 키보드 입력 이벤트 테스트</h2>
+    <h3>5.2 키보드 입력 상태 (key-event)</h3>
+    <select id="key-event">
+        <option value="typing">입력 중</option>
+        <option value="cancel">입력 취소</option>
+    </select><br><br>
+    <button disabled id="send-key-event-btn">키보드 입력 상태 이벤트 전송</button>
+    <div class="url-display">
+        키보드 입력 상태 이벤트 URL: <span id="key-event-url">/app/room/0671py/key-event</span>
+    </div>
+</div>
+
 <h2>로그</h2>
 <div class="log-controls">
     <button id="clear-log-btn">로그 지우기</button>
@@ -200,6 +213,9 @@
 
         // 키워드 전송 URL
         document.getElementById('keyword-url').textContent = `/app/room/${roomKey}/keyword`;
+
+        // 키보드 입력 상태 이벤트 URL
+        document.getElementById('key-event-url').textContent = `/app/room/${roomKey}/key-event`;
     }
 
     // 로그 지우기 버튼
@@ -331,6 +347,7 @@
                 document.getElementById('disconnect-btn').disabled = true;
                 document.getElementById('subscribe-btn').disabled = true;
                 document.getElementById('send-keyword-btn').disabled = true;
+                document.getElementById('send-key-event-btn').disabled = true;
             });
         }
     });
@@ -348,46 +365,7 @@
 
         stompClient.subscribe(messagesTopic, function (message) {
             try {
-                const data = JSON.parse(message.body);// 채팅방 구독 부분 수정
-                document.getElementById('subscribe-btn').addEventListener('click', function () {
-                    if (!stompClient) {
-                        log('먼저 웹소켓에 연결하세요.', 'error');
-                        return;
-                    }
-
-                    // 1. 채팅방 공개 메시지 구독
-                    const messagesTopic = `/topic/room/${roomKey}/messages`;
-                    log(`메시지 채널 구독: ${messagesTopic}`);
-
-                    stompClient.subscribe(messagesTopic, function (message) {
-                        try {
-                            const data = JSON.parse(message.body);
-                            log(`[${data.type}] ${data.nickname || "시스템"}: ${data.content}`, 'success');
-                            logRawData(data);
-                        } catch (e) {
-                            log(`메시지 파싱 오류: ${message.body}`, 'error');
-                        }
-                    });
-
-                    // 2. 개인 메시지 구독 (키워드 수신 확인용)
-                    const personalTopic = `/user/queue/keyword-confirmation`;
-                    log(`개인 메시지 채널 구독: ${personalTopic}`);
-
-                    stompClient.subscribe(personalTopic, function (message) {
-                        try {
-                            const data = JSON.parse(message.body);
-                            log(`[개인 메시지] ${data.content}`, 'success');
-                            logRawData(data);
-                        } catch (e) {
-                            log(`개인 메시지 파싱 오류: ${message.body}`, 'error');
-                        }
-                    });
-
-
-                    log('구독 완료', 'success');
-                    document.getElementById('send-keyword-btn').disabled = false;
-                });
-                // 오류 메시지 출력 제거 (원본 데이터만 표시)
+                const data = JSON.parse(message.body);
                 log(`[${data.type}] ${data.nickname || "시스템"}: ${data.content}`, 'success');
                 logRawData(data);
             } catch (e) {
@@ -425,6 +403,7 @@
 
         log('구독 완료 및 입장 메시지 전송', 'success');
         document.getElementById('send-keyword-btn').disabled = false;
+        document.getElementById('send-key-event-btn').disabled = false;
     });
 
     // 키워드 전송
@@ -448,6 +427,26 @@
 
         stompClient.send(destination, {}, payload);
         log('키워드 전송 완료', 'success');
+    });
+
+
+    // 키보드 입력 상태 이벤트 전송 (key-event)
+    document.getElementById('send-key-event-btn').addEventListener('click', function () {
+        if (!stompClient) {
+            log('먼저 웹소켓에 연결하세요.', 'error');
+            return;
+        }
+
+        const status = document.getElementById('key-event').value;
+
+        const destination = `/app/room/${roomKey}/key-event`;
+        const payload = JSON.stringify({key: status});
+
+        log(`키보드 입력 상태 이벤트 전송: ${status} -> ${destination}`);
+        logRawData(JSON.parse(payload));
+
+        stompClient.send(destination, {}, payload);
+        log('키보드 입력 상태 이벤트 전송 완료', 'success');
     });
 </script>
 </body>
