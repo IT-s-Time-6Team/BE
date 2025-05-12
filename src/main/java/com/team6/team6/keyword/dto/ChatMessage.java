@@ -113,10 +113,20 @@ public record ChatMessage(
         );
     }
 
+    public static ChatMessage keyEvent(String nickname, String keyEvent) {
+        return new ChatMessage(
+                MessageType.KEY_EVENT,
+                nickname,
+                keyEvent,
+                LocalDateTime.now(),
+                null
+        );
+    }
+
     public record UserCountData(int userCount) {
     }
 
     public enum MessageType {
-        ENTER, REENTER, LEAVE, KEYWORD_RECEIVED, ANALYSIS_RESULT, ERROR, ROOM_EXPIRY_WARNING, ROOM_EXPIRED
+        ENTER, REENTER, LEAVE, KEYWORD_RECEIVED, ANALYSIS_RESULT, ERROR, ROOM_EXPIRY_WARNING, ROOM_EXPIRED, KEY_EVENT
     }
 }
