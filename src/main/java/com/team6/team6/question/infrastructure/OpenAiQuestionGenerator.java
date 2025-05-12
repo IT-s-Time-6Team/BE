@@ -1,5 +1,6 @@
 package com.team6.team6.question.infrastructure;
 
+import com.team6.team6.global.error.exception.ExternalApiException;
 import com.team6.team6.question.domain.QuestionGenerator;
 import com.team6.team6.question.dto.QuestionsResponse;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +56,7 @@ public class OpenAiQuestionGenerator implements QuestionGenerator {
 
             return parsedQuestions;
         } catch (Exception e) {
-            throw new RuntimeException("OpenAI 질문 생성 실패: " + e.getMessage(), e);
+            throw new ExternalApiException("OpenAI 질문 생성 실패", e);
         }
     }
 

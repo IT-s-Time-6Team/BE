@@ -1,8 +1,8 @@
 package com.team6.team6.keyword.infrastructure;
 
+import com.team6.team6.global.error.exception.ExternalApiException;
 import com.team6.team6.keyword.domain.KeywordSimilarityAnalyser;
 import com.team6.team6.keyword.dto.KeywordGroupResponse;
-import com.team6.team6.keyword.exception.AiResponseParsingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -56,13 +56,12 @@ public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyse
                     .entity(KeywordGroupResponse.class);
             List<List<String>> groups = response.groups();
 
-            return response.groups();
-        } catch (Exception e) {
-            throw new AiResponseParsingException(e);
             infoLog(String.format("OpenAI로부터 키워드 유사성 분석 완료 - 그룹 수: %d, 입력 키워드 수: %d",
                     groups.size(), keywords.size()));
 
             return groups;
+        } catch (RuntimeException e) {
+            throw new ExternalApiException("OpenAI 키워드 유사성 분석 실패", e);
         }
     }
 }
