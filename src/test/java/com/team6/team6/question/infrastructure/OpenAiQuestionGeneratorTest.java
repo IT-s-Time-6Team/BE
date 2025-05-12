@@ -1,5 +1,6 @@
 package com.team6.team6.question.infrastructure;
 
+import com.team6.team6.global.error.exception.ExternalApiException;
 import com.team6.team6.question.dto.QuestionsResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,7 +75,7 @@ class OpenAiQuestionGeneratorTest {
 
         // then
         assertThatThrownBy(() -> questionGenerator.generateQuestions(keyword))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(ExternalApiException.class)
                 .hasMessageContaining("OpenAI 질문 생성 실패");
     }
 }

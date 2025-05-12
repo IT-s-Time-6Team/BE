@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.infrastructure;
 
+import com.team6.team6.global.error.exception.ExternalApiException;
 import com.team6.team6.keyword.dto.KeywordGroupResponse;
-import com.team6.team6.keyword.exception.AiResponseParsingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.ai.chat.client.ChatClient;
@@ -73,7 +73,7 @@ class OpenAiKeywordSimilarityAnalyserTest {
 
         // then
         assertThatThrownBy(() -> analyser.analyse(input))
-                .isInstanceOf(AiResponseParsingException.class)
+                .isInstanceOf(ExternalApiException.class)
                 .hasCauseInstanceOf(RuntimeException.class);
     }
 }

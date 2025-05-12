@@ -1,5 +1,6 @@
 package com.team6.team6.question.infrastructure;
 
+import com.team6.team6.global.error.exception.ExternalApiException;
 import com.team6.team6.question.domain.QuestionGenerator;
 import com.team6.team6.question.dto.QuestionsResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.team6.team6.global.log.LogUtil.infoLog;
 
 @Component
 @RequiredArgsConstructor
@@ -31,24 +34,29 @@ public class OpenAiQuestionGenerator implements QuestionGenerator {
                 - 결과를 JSON 형식의 질문 목록으로 반환해줘, "questions" 키에 질문 배열이 담겨야 함
                 
                 예시 응답 형식:
-                {
-                  "questions": [
+                \\{
+                  "questions": \\[
                     "롤에서 맞라인으로 나왔을 때 가장 싫은 챔피언은?",
                     "첫 번째 롤 챔피언은 뭐였어?"
-                  ]
-                }
+                  \\]
+                \\}
                 """, keyword);
 
         Prompt prompt = new Prompt(promptText);
 
         try {
+            infoLog(String.format("OpenAI API 호출 시작 - 키워드: %s", keyword));
             QuestionsResponse response = chatClient.prompt(prompt)
                     .call()
                     .entity(QuestionsResponse.class);
 
-            return parseQuestions(response.questions());
+            List<String> parsedQuestions = parseQuestions(response.questions());
+            infoLog(String.format("OpenAI로부터 질문 생성 완료 - 키워드: %s, 생성된 질문 개수: %d",
+                    keyword, parsedQuestions.size()));
+
+            return parsedQuestions;
         } catch (Exception e) {
-            throw new RuntimeException("OpenAI 질문 생성 실패: " + e.getMessage(), e);
+            throw new ExternalApiException("OpenAI 질문 생성 실패", e);
         }
     }
 
