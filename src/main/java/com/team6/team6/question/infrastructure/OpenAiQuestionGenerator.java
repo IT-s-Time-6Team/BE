@@ -31,12 +31,12 @@ public class OpenAiQuestionGenerator implements QuestionGenerator {
                 - 결과를 JSON 형식의 질문 목록으로 반환해줘, "questions" 키에 질문 배열이 담겨야 함
                 
                 예시 응답 형식:
-                {
-                  "questions": [
+                \\{
+                  "questions": \\[
                     "롤에서 맞라인으로 나왔을 때 가장 싫은 챔피언은?",
                     "첫 번째 롤 챔피언은 뭐였어?"
-                  ]
-                }
+                  \\]
+                \\}
                 """, keyword);
 
         Prompt prompt = new Prompt(promptText);
