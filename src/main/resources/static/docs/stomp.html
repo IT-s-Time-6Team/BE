@@ -158,28 +158,45 @@ stompClient.connect({},
         </tr>
         <tr>
             <th>설명</th>
-            <td>채팅방 내 모든 메시지(입장, 재입장, 분석 결과, 방 종료 5분 전/종료 알림) 수신</td>
+            <td>채팅방 내 모든 메시지(입장, 재입장, 퇴장, 분석 결과, 방 종료 5분 전/종료 알림, 키 이벤트, ) 수신</td>
         </tr>
     </table>
     <h4>ENTER 메시지</h4>
-    <p>사용자가 /topic/room/{roomKey}/messages을 처음 구독을 하면 ENTER 메시지가 전원에게 전달됩니다.</p>
+    <p>사용자가 /topic/room/{roomKey}/messages을 처음 구독을 하면 ENTER 메시지가 전원에게 전달됩니다. 현재 접속자는 data를 통해 전달됩니다.</p>
     <pre><code class="language-json">{
   "type": "ENTER",
   "nickname": "test2",
   "content": "test2님이 입장했습니다.",
   "timestamp": "2025-05-04T19:01:28.30981",
-  "data": null
+  "data": {
+    "userCount": 1
+  }
 }</code></pre>
 
     <h4>REENTER 메시지</h4>
-    <p>사용자가 /topic/room/{roomKey}/messages을 재구독을 하면 REENTER 메시지가 전원에게 전달됩니다.</p>
+    <p>사용자가 /topic/room/{roomKey}/messages을 재구독을 하면 REENTER 메시지가 전원에게 전달됩니다. 현재 접속자는 data를 통해 전달됩니다.</p>
     <pre><code class="language-json">{
     "type": "REENTER",
     "nickname": "test2",
     "content": "test2님이 재입장했습니다.",
     "timestamp": "2025-05-04T19:01:35.882251",
-    "data": null
+    "data": {
+    "userCount": 1
+  }
 }</code></pre>
+
+    <h4>LEAVE</h4>
+    <p>사용자가 stomp 연결을 끊으면 LEAVE 메시지가 전원에게 전달됩니다. 현재 접속자는 data를 통해 전달됩니다.</p>
+    <pre><code class="language-json">{
+    "type": "LEAVE",
+    "nickname": "test2",
+    "content": "test2님이 퇴장했습니다.",
+    "timestamp": "2025-05-04T19:01:35.882251",
+    "data": {
+    "userCount": 1
+    }
+}</code></pre>
+
 
     <h4>ANALYSIS_RESULT 메시지</h4>
     <p>사용자가 /app/room/{roomKey}/keyword을 통해 키워드 전달 후, 서버에서 분석이 완료되면 해달 결과를 전원에게 전달됩니다.</p>
@@ -215,6 +232,16 @@ stompClient.connect({},
   "nickname": "@시스템",
   "content": "방이 종료되었습니다.",
   "timestamp": "2025-05-08T03:15:15.430348",
+  "data": null
+}</code></pre>
+
+    <h4>KEY_EVENT 메시지</h4>
+    <p>사용자가 키보드 입력 상태 이벤트(typing, cancel 등등)를 전송하면, 해당 이벤트가 전원에게 전달됩니다.</p>
+    <pre><code class="language-json">{
+  "type": "KEY_EVENT",
+  "nickname": "test2",
+  "content": "typing",
+  "timestamp": "2025-05-08T03:20:20.123456",
   "data": null
 }</code></pre>
 
@@ -312,6 +339,28 @@ stompClient.subscribe('/user/queue/errors', function(message) {
     </table>
     <pre><code class="language-js">// 키워드 전송
 stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예시키워드' }));</code></pre>
+
+    <h3>5.2. 키보드 입력 상태 이벤트 전송 (key-event)</h3>
+    <table>
+        <tr>
+            <th>전송 주소</th>
+            <td><code>/app/room/{roomKey}/key-event</code></td>
+        </tr>
+        <tr>
+            <th>Payload</th>
+            <td><code>{ "key": "입력 상태" }</code></td>
+        </tr>
+        <tr>
+            <th>설명</th>
+            <td>사용자의 키보드 입력 상태 이벤트 전송 (입력 중/입력 취소)</td>
+        </tr>
+        <tr>
+            <th>결과</th>
+            <td>/topic/room/{roomKey}/messages을 통해 KEY_EVENT 메시지 전부 전달</td>
+        </tr>
+    </table>
+    <pre><code class="language-js">// 키보드 입력 상태 이벤트 전송
+stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing' }));</code></pre>
 </div>
 
 <div class="section">
@@ -344,6 +393,11 @@ stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예�
             <td>/topic/room/{roomKey}/messages</td>
         </tr>
         <tr>
+            <td>LEAVE</td>
+            <td>채팅방 퇴장</td>
+            <td>/topic/room/{roomKey}/messages</td>
+        </tr>
+        <tr>
             <td>KEYWORD_RECEIVED</td>
             <td>키워드 정상 수신</td>
             <td>/user/queue/keyword-confirmation</td>
@@ -368,6 +422,11 @@ stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예�
             <td>방 종료 알림</td>
             <td>/topic/room/{roomKey}/messages</td>
         </tr>
+        <tr>
+            <td>KEY_EVENT</td>
+            <td>키보드 입력 이벤트</td>
+            <td>/topic/room/{roomKey}/messages</td>
+        </tr>
     </table>
 
     <h3>6.2. 메시지 예시</h3>
@@ -378,7 +437,32 @@ stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예�
   "nickname": "test2",
   "content": "test2님이 입장했습니다.",
   "timestamp": "2025-05-04T19:01:28.30981",
-  "data": null
+  "data": {
+    "userCount": 1
+  }
+}</code></pre>
+
+    <h4>REENTER 메시지</h4>
+    <pre><code class="language-json">{
+    "type": "REENTER",
+    "nickname": "test2",
+    "content": "test2님이 재입장했습니다.",
+    "timestamp": "2025-05-04T19:01:35.882251",
+    "data": {
+    "userCount": 1
+    }
+}</code></pre>
+
+    <h4>LEAVE 메시지</h4>
+    <pre><code class="language-json">{
+    "type": "LEAVE",
+    "nickname": "test2",
+    "content": "test2님이 퇴장했습니다.",
+    "timestamp": "2025-05-04T19:01:35.882251",
+    "data": {
+    "userCount": 1
+    }
+
 }</code></pre>
 
     <h4>KEYWORD_RECEIVED 메시지</h4>
@@ -429,6 +513,14 @@ stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예�
   "nickname": "@시스템",
   "content": "방이 종료되었습니다.",
   "timestamp": "2025-05-08T03:15:15.430348",
+  "data": null
+}</code></pre>
+    <h4>KEY_EVENT 메시지</h4>
+    <pre><code class="language-json">{
+  "type": "KEY_EVENT",
+  "nickname": "test2",
+  "content": "typing",
+  "timestamp": "2025-05-08T03:20:20.123456",
   "data": null
 }</code></pre>
 </div>

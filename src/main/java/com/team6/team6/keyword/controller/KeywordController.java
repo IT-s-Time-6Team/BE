@@ -1,15 +1,13 @@
 package com.team6.team6.keyword.controller;
 
 import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.dto.KeyEventRequest;
 import com.team6.team6.keyword.dto.KeywordAddRequest;
 import com.team6.team6.keyword.service.KeywordService;
 import com.team6.team6.member.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.converter.MessageConversionException;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -35,6 +33,15 @@ public class KeywordController {
         keywordService.addKeyword(request.toServiceRequest(roomKey, userPrincipal));
 
         return ChatMessage.keywordReceived(userPrincipal.getNickname(), request.keyword());
+    }
+
+    @MessageMapping("/room/{roomKey}/key-event")
+    @SendTo("/topic/room/{roomKey}/messages")
+    public ChatMessage keyEvent(@Payload KeyEventRequest request, Principal principal) {
+
+        UserPrincipal userPrincipal = (UserPrincipal) ((Authentication) principal).getPrincipal();
+
+        return ChatMessage.keyEvent(userPrincipal.getNickname(), request.key());
     }
 
     @MessageExceptionHandler
