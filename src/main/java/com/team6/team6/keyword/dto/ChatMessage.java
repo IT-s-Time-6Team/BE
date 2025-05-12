@@ -17,11 +17,17 @@ public record ChatMessage(
     private static final String SYSTEM_NICKNAME = "@시스템";
     private static final String ENTER_MESSAGE_FORMAT = "%s님이 입장했습니다.";
     private static final String REENTER_MESSAGE_FORMAT = "%s님이 재입장했습니다.";
+    private static final String LEAVE_MESSAGE_FORMAT = "%s님이 퇴장했습니다.";
     private static final String KEYWORD_RECEIVED_FORMAT = "키워드 '%s'가 성공적으로 수신되었습니다.";
     private static final String ANALYSIS_RESULT_MESSAGE = "키워드 분석 결과가 도착했습니다.";
     private static final String ERROR_PREFIX = "[오류] ";
     private static final String REQUEST_FORMAT_ERROR_MESSAGE = "잘못된 요청 형식입니다. 올바른 형식 : { \"keyword\": \"키워드\" }";
     private static final String ROOM_EXPIRED_MESSAGE = "방이 종료되었습니다.";
+
+    // 빌더 메서드
+    public static ChatMessage enter(String nickname) {
+        return enter(nickname, 0);
+    }
 
     public static ChatMessage error(MessageConversionException exception) {
         return new ChatMessage(
@@ -33,24 +39,37 @@ public record ChatMessage(
         );
     }
 
-    // 빌더 메서드
-    public static ChatMessage enter(String nickname) {
+    public static ChatMessage enter(String nickname, int userCount) {
         return new ChatMessage(
                 MessageType.ENTER,
                 nickname,
                 String.format(ENTER_MESSAGE_FORMAT, nickname),
                 LocalDateTime.now(),
-                null
+                new UserCountData(userCount)
         );
     }
 
     public static ChatMessage reenter(String nickname) {
+        return reenter(nickname, 0);
+    }
+
+    public static ChatMessage reenter(String nickname, int userCount) {
         return new ChatMessage(
                 MessageType.REENTER,
                 nickname,
                 String.format(REENTER_MESSAGE_FORMAT, nickname),
                 LocalDateTime.now(),
-                null
+                new UserCountData(userCount)
+        );
+    }
+
+    public static ChatMessage leave(String nickname, int userCount) {
+        return new ChatMessage(
+                MessageType.LEAVE,
+                nickname,
+                String.format(LEAVE_MESSAGE_FORMAT, nickname),
+                LocalDateTime.now(),
+                new UserCountData(userCount)
         );
     }
 
@@ -92,6 +111,9 @@ public record ChatMessage(
                 LocalDateTime.now(),
                 null
         );
+    }
+
+    public record UserCountData(int userCount) {
     }
 
     public enum MessageType {

@@ -38,16 +38,26 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
 
         String nickname = principal.getNickname();
 
+        // 사용자가 이미 방에 있는지 확인
+        boolean isReenter = memberRegistryRepository.isUserInRoom(roomKey, nickname);
+
+        // 사용자를 온라인으로 설정
+        if (isReenter) {
+            memberRegistryRepository.setUserOnline(roomKey, nickname);
+        } else {
+            memberRegistryRepository.registerUserInRoom(roomKey, nickname);
+        }
+
+        // 현재 방에 있는 온라인 사용자 수 계산
+        int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
+
         // 입장 또는 재입장 메시지 생성
-        ChatMessage message = memberRegistryRepository.isUserInRoom(roomKey, nickname) ?
-                ChatMessage.reenter(nickname) :
-                ChatMessage.enter(nickname);
+        ChatMessage message = isReenter ?
+                ChatMessage.reenter(nickname, onlineUserCount) :
+                ChatMessage.enter(nickname, onlineUserCount);
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
-
-        // 사용자 입장 기록
-        memberRegistryRepository.registerUserInRoom(roomKey, nickname);
     }
 
     /**
