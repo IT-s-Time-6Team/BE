@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.team6.team6.global.log.LogUtil.infoLog;
+
 @Component
 @RequiredArgsConstructor
 public class OpenAiQuestionGenerator implements QuestionGenerator {
@@ -42,11 +44,16 @@ public class OpenAiQuestionGenerator implements QuestionGenerator {
         Prompt prompt = new Prompt(promptText);
 
         try {
+            infoLog(String.format("OpenAI API 호출 시작 - 키워드: %s", keyword));
             QuestionsResponse response = chatClient.prompt(prompt)
                     .call()
                     .entity(QuestionsResponse.class);
 
-            return parseQuestions(response.questions());
+            List<String> parsedQuestions = parseQuestions(response.questions());
+            infoLog(String.format("OpenAI로부터 질문 생성 완료 - 키워드: %s, 생성된 질문 개수: %d",
+                    keyword, parsedQuestions.size()));
+
+            return parsedQuestions;
         } catch (Exception e) {
             throw new RuntimeException("OpenAI 질문 생성 실패: " + e.getMessage(), e);
         }
