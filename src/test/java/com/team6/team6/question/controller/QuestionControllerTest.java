@@ -70,6 +70,49 @@ class QuestionControllerTest {
                 ));
     }
 
+    @Test
+    void 키워드_누락_테스트() throws Exception {
+        // when & then
+        mockMvc.perform(get("/questions")
+                        .param("keyword", ""))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andDo(customDocument(
+                        "get-empty-keyword-error",
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("결과 코드"),
+                                fieldWithPath("status").type(JsonFieldType.STRING)
+                                        .description("HTTP 상태"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data").type(JsonFieldType.ARRAY)
+                                        .description("에러 메시지 목록")
+                        )
+                ));
+    }
+
+    @Test
+    void 키워드_파라미터_누락_테스트() throws Exception {
+        // when & then
+        mockMvc.perform(get("/questions"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andDo(customDocument(
+                        "get-missing-keyword-error",
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("결과 코드"),
+                                fieldWithPath("status").type(JsonFieldType.STRING)
+                                        .description("HTTP 상태"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data").type(JsonFieldType.ARRAY)
+                                        .description("에러 메시지 목록")
+                        )
+                ));
+    }
+
     @TestConfiguration
     static class TestConfig {
 
