@@ -4,7 +4,6 @@ import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.keyword.domain.AnalysisResultStore;
 import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.member.security.UserPrincipal;
-import com.team6.team6.room.domain.RoomExpiryManager;
 import com.team6.team6.room.dto.MemberKeywordCount;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
@@ -38,7 +37,7 @@ public class RoomService {
     private final RoomKeyGenerator roomKeyGenerator;
     private final RoomExpiryService roomExpiryService;
     private final AnalysisResultStore analysisResultStore;
-    private final RoomExpiryManager roomExpiryManager;
+    private final RoomNotificationService roomNotificationService;
 
     @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
     @Transactional
@@ -82,6 +81,8 @@ public class RoomService {
 
         room.closeRoom();
         roomRepository.save(room);
+        // 방 만료 알림 전송
+        roomNotificationService.sendClosedNotification(roomKey);
 
         // 방 관련 모든 타이머 취소
         roomExpiryService.cancelRoomExpiry(roomKey);
