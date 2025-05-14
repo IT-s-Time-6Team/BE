@@ -3,11 +3,14 @@ package com.team6.team6.global.error.exhandler.advice;
 import com.team6.team6.global.ApiResponse;
 import com.team6.team6.global.error.exception.ExternalApiException;
 import com.team6.team6.global.error.exception.NotFoundException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -98,6 +101,34 @@ public class GlobalExceptionHandler {
                 HttpStatus.SERVICE_UNAVAILABLE,
                 "외부 서비스 일시적 오류",
                 List.of("잠시 후 다시 시도해주세요")
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ApiResponse<Object> handleConstraintViolationException(ConstraintViolationException e) {
+        List<String> errorMessages = e.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toList());
+
+        errorLog("요청 파라미터 검증 실패", e);
+
+        return ApiResponse.of(
+                HttpStatus.BAD_REQUEST,
+                "잘못된 파라미터",
+                errorMessages.isEmpty() ? List.of("유효하지 않은 요청입니다") : errorMessages
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ApiResponse<Object> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        errorLog("필수 파라미터 누락", e);
+
+        return ApiResponse.of(
+                HttpStatus.BAD_REQUEST,
+                "잘못된 파라미터",
+                List.of(e.getParameterName() + " 파라미터가 필요합니다")
         );
     }
 
