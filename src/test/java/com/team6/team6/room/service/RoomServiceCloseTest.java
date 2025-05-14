@@ -30,6 +30,9 @@ class RoomServiceCloseTest {
     @MockitoBean
     private RoomExpiryManager roomExpiryManager;
 
+    @MockitoBean
+    private RoomNotificationService roomNotificationService;
+
     @Test
     void 정상_방_종료시_타이머_취소() {
         // given
@@ -68,5 +71,23 @@ class RoomServiceCloseTest {
         assertThatThrownBy(() -> roomService.closeRoom("roomKey2"))
                 .isInstanceOf(IllegalStateException.class);
         verify(roomExpiryManager, never()).cancelAllTimers(anyString());
+    }
+
+
+    @Test
+    void 방_종료시_알림_전송_확인() {
+        // given
+        RoomCreateServiceRequest request = new RoomCreateServiceRequest(
+                3, 6, 30, GameMode.NORMAL
+        );
+        Room room = Room.create("roomKey3", request);
+        roomRepository.save(room);
+
+        // when
+        roomService.closeRoom("roomKey3");
+
+        // then
+        verify(roomExpiryManager).cancelAllTimers("roomKey3");
+        verify(roomNotificationService).sendClosedNotification("roomKey3");
     }
 }
