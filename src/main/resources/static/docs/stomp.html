@@ -158,7 +158,7 @@ stompClient.connect({},
         </tr>
         <tr>
             <th>설명</th>
-            <td>채팅방 내 모든 메시지(입장, 재입장, 퇴장, 분석 결과, 방 종료 5분 전/종료 알림, 키 이벤트, ) 수신</td>
+            <td>채팅방 내 모든 메시지(입장, 재입장, 퇴장, 분석 결과, 방 종료 5분 전/종료 알림,방장 방 종료 알림, 키 이벤트) 수신</td>
         </tr>
     </table>
     <h4>ENTER 메시지</h4>
@@ -234,6 +234,17 @@ stompClient.connect({},
   "timestamp": "2025-05-08T03:15:15.430348",
   "data": null
 }</code></pre>
+
+    <h4>LEADER_ROOM_EXPIRED 메시지</h4>
+    <p>방장이 방을 종료하면 방에 있는 모든 사용자에게 방 종료 알림을 보냅니다.</p>
+    <pre><code class="language-json">{
+  "type": "LEADER_ROOM_EXPIRED",
+  "nickname": "@시스템",
+  "content": "방장이 방을 종료했습니다.",
+  "timestamp": "2025-05-16T21:06:24.811844",
+  "data": null
+}
+</code></pre>
 
     <h4>KEY_EVENT 메시지</h4>
     <p>사용자가 키보드 입력 상태 이벤트(typing, cancel 등등)를 전송하면, 해당 이벤트가 전원에게 전달됩니다.</p>
@@ -423,6 +434,11 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
             <td>/topic/room/{roomKey}/messages</td>
         </tr>
         <tr>
+            <td>LEADER_ROOM_EXPIRED</td>
+            <td>방장이 방 종료 알림</td>
+            <td>/topic/room/{roomKey}/messages</td>
+        </tr>
+        <tr>
             <td>KEY_EVENT</td>
             <td>키보드 입력 이벤트</td>
             <td>/topic/room/{roomKey}/messages</td>
@@ -515,6 +531,16 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
   "timestamp": "2025-05-08T03:15:15.430348",
   "data": null
 }</code></pre>
+
+    <h4>LEADER_ROOM_EXPIRED 메시지</h4>
+    <pre><code class="language-json">{
+    "type": "LEADER_ROOM_EXPIRED",
+    "nickname": "@시스템",
+    "content": "방장이 방을 종료했습니다.",
+    "timestamp": "2025-05-16T21:06:24.811844",
+    "data": null
+}</code></pre>
+
     <h4>KEY_EVENT 메시지</h4>
     <pre><code class="language-json">{
   "type": "KEY_EVENT",

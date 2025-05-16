@@ -58,7 +58,7 @@ include::{snippetsDir}/room-controller-docs-test/close/response-fields.adoc[]
 '''
 ===== 방 종료 알림
 
-방이 종료되면 STOMP 웹소켓을 통해 방에 있는 모든 사용자에게 방 종료 알림 메시지가 전송됩니다.
+방장이 방을 종료되면 STOMP 웹소켓을 통해 방에 있는 모든 사용자에게 방장 방 종료 알림 메시지가 전송됩니다.
 이 메시지를 수신한 후에는 프론트엔드에서 웹소켓 연결을 직접 종료해야 합니다.
 서버에서 자동으로 웹소켓 연결을 종료하지 않습니다.
 
@@ -66,10 +66,10 @@ include::{snippetsDir}/room-controller-docs-test/close/response-fields.adoc[]
 [source,json]
 ----
 {
-  "type": "ROOM_EXPIRED",
+  "type": "LEADER_ROOM_EXPIRED",
   "nickname": "@시스템",
-  "content": "방이 종료되었습니다.",
-  "timestamp": "2025-05-08T03:15:15.430348",
+  "content": "방장이 방을 종료했습니다.",
+  "timestamp": "2025-05-16T21:06:24.811844",
   "data": null
 }
 ----
