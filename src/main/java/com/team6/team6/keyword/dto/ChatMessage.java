@@ -23,6 +23,7 @@ public record ChatMessage(
     private static final String ERROR_PREFIX = "[오류] ";
     private static final String REQUEST_FORMAT_ERROR_MESSAGE = "잘못된 요청 형식입니다. 올바른 형식 : { \"keyword\": \"키워드\" }";
     private static final String ROOM_EXPIRED_MESSAGE = "방이 종료되었습니다.";
+    private static final String LEADER_ROOM_EXPIRED_MESSAGE = "방장이 방을 종료했습니다.";
 
     // 빌더 메서드
     public static ChatMessage enter(String nickname) {
@@ -113,6 +114,16 @@ public record ChatMessage(
         );
     }
 
+    public static ChatMessage leaderRoomExpired() {
+        return new ChatMessage(
+                MessageType.LEADER_ROOM_EXPIRED,
+                SYSTEM_NICKNAME,
+                LEADER_ROOM_EXPIRED_MESSAGE,
+                LocalDateTime.now(),
+                null
+        );
+    }
+
     public static ChatMessage keyEvent(String nickname, String keyEvent) {
         return new ChatMessage(
                 MessageType.KEY_EVENT,
@@ -127,6 +138,6 @@ public record ChatMessage(
     }
 
     public enum MessageType {
-        ENTER, REENTER, LEAVE, KEYWORD_RECEIVED, ANALYSIS_RESULT, ERROR, ROOM_EXPIRY_WARNING, ROOM_EXPIRED, KEY_EVENT
+        ENTER, REENTER, LEAVE, KEYWORD_RECEIVED, ANALYSIS_RESULT, ERROR, ROOM_EXPIRY_WARNING, ROOM_EXPIRED, LEADER_ROOM_EXPIRED, KEY_EVENT
     }
 }

@@ -24,4 +24,13 @@ public class RoomNotificationService {
         log.info("방 종료 알림 발송: {}", roomKey);
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", ChatMessage.roomExpired());
     }
+
+    public void leaderRoomClosedNotification(String roomKey) {
+        log.info("리더 방 종료 알림 발송: {}", roomKey);
+        messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", ChatMessage.leaderRoomExpired());
+    }
+
+
+
+
 }
