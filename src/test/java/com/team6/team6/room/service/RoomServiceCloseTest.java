@@ -88,6 +88,6 @@ class RoomServiceCloseTest {
 
         // then
         verify(roomExpiryManager).cancelAllTimers("roomKey3");
-        verify(roomNotificationService).sendClosedNotification("roomKey3");
+        verify(roomNotificationService).leaderRoomClosedNotification("roomKey3");
     }
 }

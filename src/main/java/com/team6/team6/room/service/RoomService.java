@@ -81,8 +81,8 @@ public class RoomService {
 
         room.closeRoom();
         roomRepository.save(room);
-        // 방 만료 알림 전송
-        roomNotificationService.sendClosedNotification(roomKey);
+        // 방장 방 종료 알림 전송
+        roomNotificationService.leaderRoomClosedNotification(roomKey);
 
         // 방 관련 모든 타이머 취소
         roomExpiryService.cancelRoomExpiry(roomKey);
