@@ -35,9 +35,9 @@ public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyse
         String promptText = String.format("""
                     다음은 여러 사용자가 입력한 관심사 목록입니다. 의미상 같은 것을 그룹으로 묶어주세요.
                 
-                    분석 기준:
-                    - 약어, 줄임말, 은어, 다국어 표현, 맞춤법 오류 등을 고려
-                    - 예: '롤', 'lol', '리그오브레전드'는 같은 게임으로 묶기
+                    규칙:
+                    - 약어, 줄임말, 은어, 다국어 표현, 맞춤법 오류 등을 고려해서 그룹화하세요.
+                    - 오직 입력된 키워드만 사용하세요. 새로운 키워드를 추가하지 마세요.
                 
                     입력:
                     %s
