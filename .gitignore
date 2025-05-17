@@ -16,7 +16,7 @@ build/
 .settings
 .springBeans
 .sts4-cache
-application*.properties
+application.properties
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
@@ -45,3 +45,6 @@ out/
 .vscode/
 
 .
+
+### pr제외 ###
+pr/
