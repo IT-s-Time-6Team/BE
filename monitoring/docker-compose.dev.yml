@@ -15,3 +15,4 @@ services:
 
 volumes:
   grafana-storage-dev:
+    name: monitoring_grafana-storage-dev
