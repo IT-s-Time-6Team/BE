@@ -1,11 +1,13 @@
 services:
   grafana:
+    container_name: grafana_dev
     ports:
       - "3001:3000"
     volumes:
       - grafana-storage-dev:/var/lib/grafana
 
   prometheus:
+    container_name: prometheus_dev
     ports:
       - "9091:9090"
     volumes:
