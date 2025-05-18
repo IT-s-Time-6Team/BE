@@ -6,7 +6,7 @@ on:
       - monitoring
 
 jobs:
-  deploy-monitoring-dev:
+  deploy-monitoring-prod:
     runs-on: macmini
 
     steps:
@@ -20,5 +20,7 @@ jobs:
           PROM_ROUTE_PREFIX: ${{ secrets.PROM_ROUTE_PREFIX }}
           PROM_WEB_EXTERNAL_URL: ${{ secrets.PROD_BASE_URL }}${{ secrets.PROM_ROUTE_PREFIX }}
         run: |
-          docker compose -f docker-compose.base.yml -f docker-compose.prod.yml down
-          docker compose -f docker-compose.base.yml -f docker-compose.prod.yml up -d
+          # 이전에 실행 중인 prod 컨테이너만 중지
+          docker compose -p monitoring_prod -f docker-compose.base.yml -f docker-compose.prod.yml down || true
+          # prod 환경 컨테이너 시작
+          docker compose -p monitoring_prod -f docker-compose.base.yml -f docker-compose.prod.yml up -d
