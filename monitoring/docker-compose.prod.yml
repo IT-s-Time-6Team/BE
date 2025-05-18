@@ -1,0 +1,19 @@
+services:
+  grafana:
+    container_name: grafana_prod
+    ports:
+      - "3002:3000"
+    volumes:
+      - grafana-storage-prod:/var/lib/grafana
+
+  prometheus:
+    container_name: prometheus_prod
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus_prod.yml:/etc/prometheus/prometheus.yml
+    command:
+      - --web.external-url=${PROM_WEB_EXTERNAL_URL}
+
+volumes:
+  grafana-storage-prod:
