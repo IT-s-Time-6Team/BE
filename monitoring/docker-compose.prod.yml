@@ -17,3 +17,4 @@ services:
 
 volumes:
   grafana-storage-prod:
+    name: monitoring_grafana-storage-prod
