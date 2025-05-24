@@ -92,7 +92,7 @@ class WebSocketSubscribeServiceTest {
         assertSoftly(softly -> {
             softly.assertThat(result.type()).isEqualTo(ChatMessage.MessageType.REENTER);
             softly.assertThat(result.nickname()).isEqualTo(nickname);
-            softly.assertThat(reenterData.userCount().userCount()).isEqualTo(2);
+            softly.assertThat(reenterData.userCount()).isEqualTo(2);
             softly.assertThat(reenterData.keywords()).isNotNull();
             softly.assertThat(reenterData.keywords()).hasSize(1);
             softly.assertThat(reenterData.keywords().get(0)).isEqualTo("test-keyword");
