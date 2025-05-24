@@ -174,14 +174,23 @@ stompClient.connect({},
 }</code></pre>
 
     <h4>REENTER 메시지</h4>
-    <p>사용자가 /topic/room/{roomKey}/messages을 재구독을 하면 REENTER 메시지가 전원에게 전달됩니다. 현재 접속자는 data를 통해 전달됩니다.</p>
+    <p>사용자가 /topic/room/{roomKey}/messages을 재구독을 하면 REENTER 메시지가 전원에게 전달됩니다. 현재 접속자 수와 재입장 사용자의 키워드 리스트가 data를 통해
+        전달됩니다.</p>
     <pre><code class="language-json">{
-    "type": "REENTER",
-    "nickname": "test2",
-    "content": "test2님이 재입장했습니다.",
-    "timestamp": "2025-05-04T19:01:35.882251",
-    "data": {
-    "userCount": 1
+  "type": "REENTER",
+  "nickname": "test2",
+  "content": "test2님이 재입장했습니다.",
+  "timestamp": "2025-05-24T17:07:35.031651",
+  "data": {
+    "userCount": {
+      "userCount": 1
+    },
+    "keywords": [
+      "dd",
+      "wwww",
+      "rrrrr",
+      "qqqq"
+    ]
   }
 }</code></pre>
 
@@ -460,13 +469,21 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
 
     <h4>REENTER 메시지</h4>
     <pre><code class="language-json">{
-    "type": "REENTER",
-    "nickname": "test2",
-    "content": "test2님이 재입장했습니다.",
-    "timestamp": "2025-05-04T19:01:35.882251",
-    "data": {
-    "userCount": 1
-    }
+  "type": "REENTER",
+  "nickname": "test2",
+  "content": "test2님이 재입장했습니다.",
+  "timestamp": "2025-05-24T17:07:35.031651",
+  "data": {
+    "userCount": {
+      "userCount": 1
+    },
+    "keywords": [
+      "dd",
+      "wwww",
+      "rrrrr",
+      "qqqq"
+    ]
+  }
 }</code></pre>
 
     <h4>LEAVE 메시지</h4>

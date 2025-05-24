@@ -3,6 +3,7 @@ package com.team6.team6.keyword.dto;
 import org.springframework.messaging.converter.MessageConversionException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record ChatMessage(
         MessageType type,
@@ -50,17 +51,14 @@ public record ChatMessage(
         );
     }
 
-    public static ChatMessage reenter(String nickname) {
-        return reenter(nickname, 0);
-    }
 
-    public static ChatMessage reenter(String nickname, int userCount) {
+    public static ChatMessage reenter(String nickname, int userCount, List<String> keywords) {
         return new ChatMessage(
                 MessageType.REENTER,
                 nickname,
                 String.format(REENTER_MESSAGE_FORMAT, nickname),
                 LocalDateTime.now(),
-                new UserCountData(userCount)
+                new ReenterData(new UserCountData(userCount), keywords)
         );
     }
 
@@ -132,6 +130,9 @@ public record ChatMessage(
                 LocalDateTime.now(),
                 null
         );
+    }
+
+    public record ReenterData(UserCountData userCount, List<String> keywords) {
     }
 
     public record UserCountData(int userCount) {
