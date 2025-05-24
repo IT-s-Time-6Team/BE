@@ -58,7 +58,7 @@ public record ChatMessage(
                 nickname,
                 String.format(REENTER_MESSAGE_FORMAT, nickname),
                 LocalDateTime.now(),
-                new ReenterData(new UserCountData(userCount), keywords)
+                new ReenterData(userCount, keywords)
         );
     }
 
@@ -132,7 +132,7 @@ public record ChatMessage(
         );
     }
 
-    public record ReenterData(UserCountData userCount, List<String> keywords) {
+    public record ReenterData(int userCount, List<String> keywords) {
     }
 
     public record UserCountData(int userCount) {
