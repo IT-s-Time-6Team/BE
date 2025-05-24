@@ -6,6 +6,8 @@ import com.team6.team6.keyword.entity.Keyword;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class KeywordService {
@@ -21,5 +23,10 @@ public class KeywordService {
         keywordAsyncProcessor.processKeywordAnalysisAsync(req.roomId(), req.roomKey(), req.keyword());
 
         return savedKeyword;
+    }
+
+    // 본인 키워드 가져오는 매서드
+    public List<Keyword> getUserKeywords(Long roomId, Long MemberId) {
+        return keywordRepository.findByRoomIdAndMemberId(roomId, MemberId);
     }
 }
