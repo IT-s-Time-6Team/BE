@@ -5,6 +5,8 @@ import com.team6.team6.keyword.domain.KeywordManager;
 import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.entity.Keyword;
+import com.team6.team6.keyword.service.KeywordService;
 import com.team6.team6.member.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +30,7 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
     private final MemberRegistryRepository memberRegistryRepository;
     private final KeywordManager keywordManager;
     private final MessagePublisher messagePublisher;
+    private final KeywordService keywordService;
 
     private static final Pattern ROOM_TOPIC_PATTERN = Pattern.compile("/topic/room/([^/]+)/messages");
 
@@ -44,6 +48,7 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
 
         String nickname = principal.getNickname();
         Long roomId = principal.getRoomId();
+        Long memberId = principal.getId();
 
         // 사용자가 이미 방에 있는지 확인
         boolean isReenter = memberRegistryRepository.isUserInRoom(roomKey, nickname);
@@ -58,10 +63,24 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
         // 현재 방에 있는 온라인 사용자 수 계산
         int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
 
+        ChatMessage message;
+
+
         // 입장 또는 재입장 메시지 생성
-        ChatMessage message = isReenter ?
-                ChatMessage.reenter(nickname, onlineUserCount) :
-                ChatMessage.enter(nickname, onlineUserCount);
+        if (isReenter) {
+            List<Keyword> keywords = keywordService.getUserKeywords(roomId, memberId);
+
+            // Keyword 객체에서 키워드 문자열만 추출하고 중복 제거
+            List<String> uniqueKeywords = keywords.stream()
+                    .map(Keyword::getKeyword)
+                    .distinct() // 중복 제거
+                    .collect(Collectors.toList());
+
+            // 단순 문자열 리스트를 포함하는 메시지 생성
+            message = ChatMessage.reenter(nickname, onlineUserCount, uniqueKeywords);
+        } else {
+            message = ChatMessage.enter(nickname, onlineUserCount);
+        }
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
