@@ -189,4 +189,50 @@ class KeywordManagerTest {
         verify(analysisResultStore).findByRoomId(roomId);
         verifyNoInteractions(keywordStore, analyser);
     }
+
+    @Test
+    void getAnalysisResult_저장된_결과_반환_테스트() {
+        // given
+        Long roomId = 1L;
+        List<AnalysisResult> expectedResults = List.of(
+                AnalysisResult.of("AI", List.of("AI", "Deep Learning")),
+                AnalysisResult.of("Java", List.of("Java", "JavaScript"))
+        );
+
+        when(analysisResultStore.findByRoomId(roomId)).thenReturn(expectedResults);
+
+        // when
+        List<AnalysisResult> results = keywordManager.getAnalysisResult(roomId);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(results).isEqualTo(expectedResults);
+            softly.assertThat(results).hasSize(2);
+            softly.assertThat(results.get(0).referenceName()).isEqualTo("AI");
+            softly.assertThat(results.get(1).referenceName()).isEqualTo("Java");
+        });
+
+        verify(analysisResultStore).findByRoomId(roomId);
+        verifyNoInteractions(keywordStore, analyser);
+    }
+
+    @Test
+    void getAnalysisResult_빈_결과_반환_테스트() {
+        // given
+        Long roomId = 1L;
+        List<AnalysisResult> emptyResults = List.of();
+
+        when(analysisResultStore.findByRoomId(roomId)).thenReturn(emptyResults);
+
+        // when
+        List<AnalysisResult> results = keywordManager.getAnalysisResult(roomId);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(results).isEmpty();
+        });
+
+        verify(analysisResultStore).findByRoomId(roomId);
+        verifyNoInteractions(keywordStore, analyser);
+    }
 }

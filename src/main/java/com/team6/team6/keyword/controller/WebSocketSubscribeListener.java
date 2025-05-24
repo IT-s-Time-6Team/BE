@@ -1,6 +1,9 @@
 package com.team6.team6.keyword.controller;
 
+import com.team6.team6.common.messaging.publisher.MessagePublisher;
+import com.team6.team6.keyword.domain.KeywordManager;
 import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
+import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.dto.ChatMessage;
 import com.team6.team6.member.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +25,8 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
 
     private final SimpMessageSendingOperations messagingTemplate;
     private final MemberRegistryRepository memberRegistryRepository;
+    private final KeywordManager keywordManager;
+    private final MessagePublisher messagePublisher;
 
     private static final Pattern ROOM_TOPIC_PATTERN = Pattern.compile("/topic/room/([^/]+)/messages");
 
@@ -37,6 +43,7 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
         if (principal == null) return;
 
         String nickname = principal.getNickname();
+        Long roomId = principal.getRoomId();
 
         // 사용자가 이미 방에 있는지 확인
         boolean isReenter = memberRegistryRepository.isUserInRoom(roomKey, nickname);
@@ -58,6 +65,12 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
+
+        // 마지막 키워드 분석 결과 전송
+        List<AnalysisResult> results = keywordManager.getAnalysisResult(roomId);
+        if (!results.isEmpty()) {
+            messagePublisher.publishKeywordAnalysisResult(roomKey, results);
+        }
     }
 
     /**
