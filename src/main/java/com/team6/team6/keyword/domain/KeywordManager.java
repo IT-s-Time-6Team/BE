@@ -21,6 +21,12 @@ public class KeywordManager {
         return analyzeAndSave(roomId);
     }
 
+    // 분석 결과를 가져온다.
+    public List<AnalysisResult> getAnalysisResult(Long roomId) {
+        return analysisResultStore.findByRoomId(roomId);
+    }
+
+
     public List<AnalysisResult> analyzeKeywords(Long roomId) {
         // 먼저 analysisResultStore에서 결과가 있는지 확인
         List<AnalysisResult> storedResults = analysisResultStore.findByRoomId(roomId);

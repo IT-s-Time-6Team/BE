@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.controller;
 
-import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.service.WebSocketSubscribeService;
 import com.team6.team6.member.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class WebSocketSubscribeListener implements ApplicationListener<SessionSubscribeEvent> {
 
     private final SimpMessageSendingOperations messagingTemplate;
-    private final MemberRegistryRepository memberRegistryRepository;
+    private final WebSocketSubscribeService webSocketSubscribeService;
 
     private static final Pattern ROOM_TOPIC_PATTERN = Pattern.compile("/topic/room/([^/]+)/messages");
 
@@ -37,27 +37,17 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
         if (principal == null) return;
 
         String nickname = principal.getNickname();
+        Long roomId = principal.getRoomId();
+        Long memberId = principal.getId();
 
-        // 사용자가 이미 방에 있는지 확인
-        boolean isReenter = memberRegistryRepository.isUserInRoom(roomKey, nickname);
-
-        // 사용자를 온라인으로 설정
-        if (isReenter) {
-            memberRegistryRepository.setUserOnline(roomKey, nickname);
-        } else {
-            memberRegistryRepository.registerUserInRoom(roomKey, nickname);
-        }
-
-        // 현재 방에 있는 온라인 사용자 수 계산
-        int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
-
-        // 입장 또는 재입장 메시지 생성
-        ChatMessage message = isReenter ?
-                ChatMessage.reenter(nickname, onlineUserCount) :
-                ChatMessage.enter(nickname, onlineUserCount);
+        // 서비스에 사용자 구독 처리 위임
+        ChatMessage message = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
+
+        // 키워드 분석 결과 발행
+        webSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
     }
 
     /**
