@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 @Profile("!test")
 public class RedisAnalysisResultStore implements AnalysisResultStore {
 
-    private final RedisTemplate<String, Object> redisTemplate;
     private static final String KEY_PREFIX = "analysis_result:";
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public RedisAnalysisResultStore(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
@@ -27,7 +27,6 @@ public class RedisAnalysisResultStore implements AnalysisResultStore {
         redisTemplate.opsForValue().set(key, new ArrayList<>(analysisResults));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<AnalysisResult> findByRoomId(Long roomId) {
         String key = generateKey(roomId);
