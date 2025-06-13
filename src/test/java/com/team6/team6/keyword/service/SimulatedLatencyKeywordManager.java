@@ -42,6 +42,10 @@ public class SimulatedLatencyKeywordManager extends KeywordManager {
         public List<String> getKeywords(Long roomId) {
             return List.of();
         }
+
+        @Override
+        public void deleteKeywordsByRoomId(Long roomId) {
+        }
     }
 
     private static class MockKeywordSimilarityAnalyser implements KeywordSimilarityAnalyser {
@@ -69,6 +73,11 @@ public class SimulatedLatencyKeywordManager extends KeywordManager {
         @Override
         public List<String> findReferenceNamesByRoomId(Long roomId, Integer limit) {
             return List.of();
+        }
+
+        @Override
+        public void deleteByRoomId(Long roomId) {
+            return;
         }
     }
 }
