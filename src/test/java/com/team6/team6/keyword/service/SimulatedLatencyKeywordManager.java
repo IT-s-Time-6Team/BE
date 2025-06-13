@@ -70,5 +70,10 @@ public class SimulatedLatencyKeywordManager extends KeywordManager {
         public List<String> findReferenceNamesByRoomId(Long roomId, Integer limit) {
             return List.of();
         }
+
+        @Override
+        public void deleteByRoomId(Long roomId) {
+            return;
+        }
     }
 }
