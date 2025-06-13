@@ -2,6 +2,7 @@ package com.team6.team6.keyword.infrastructure;
 
 import com.team6.team6.keyword.domain.AnalysisResultStore;
 import com.team6.team6.keyword.dto.AnalysisResult;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -12,14 +13,11 @@ import java.util.stream.Collectors;
 
 @Component
 @Profile("!test")
+@RequiredArgsConstructor
 public class RedisAnalysisResultStore implements AnalysisResultStore {
 
     private static final String KEY_PREFIX = "analysis_result:";
     private final RedisTemplate<String, Object> redisTemplate;
-
-    public RedisAnalysisResultStore(RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     @Override
     public void save(Long roomId, List<AnalysisResult> analysisResults) {
