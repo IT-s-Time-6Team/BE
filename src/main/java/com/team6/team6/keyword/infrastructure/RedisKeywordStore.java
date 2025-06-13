@@ -1,31 +1,26 @@
 package com.team6.team6.keyword.infrastructure;
 
 import com.team6.team6.keyword.domain.KeywordStore;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component
 @Profile("!test")
+@RequiredArgsConstructor
 public class RedisKeywordStore implements KeywordStore {
 
     private static final String KEY_PREFIX = "keywords:";
-    private final RedisTemplate<String, Object> redisTemplate;
-
-    public RedisKeywordStore(RedisTemplate<String, Object> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     public void saveKeyword(Long roomId, String keyword) {
         String key = generateKey(roomId);
-        List<String> keywords = getKeywordsFromRedis(roomId);
-        keywords.add(keyword);
-        redisTemplate.opsForValue().set(key, keywords);
+        redisTemplate.opsForList().rightPush(key, keyword);
     }
 
     @Override
@@ -45,7 +40,7 @@ public class RedisKeywordStore implements KeywordStore {
 
     private List<String> getKeywordsFromRedis(Long roomId) {
         String key = generateKey(roomId);
-        List<String> keywords = (List<String>) redisTemplate.opsForValue().get(key);
-        return keywords != null ? keywords : new ArrayList<>();
+        List<String> result = redisTemplate.opsForList().range(key, 0, -1);
+        return result != null ? result : new ArrayList<>();
     }
 }
