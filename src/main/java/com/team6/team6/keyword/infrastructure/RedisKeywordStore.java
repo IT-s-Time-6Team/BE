@@ -25,7 +25,9 @@ public class RedisKeywordStore implements KeywordStore {
 
     @Override
     public List<String> getKeywords(Long roomId) {
-        return getKeywordsFromRedis(roomId);
+        String key = generateKey(roomId);
+        List<String> result = redisTemplate.opsForList().range(key, 0, -1);
+        return result != null ? result : new ArrayList<>();
     }
 
     @Override
@@ -36,11 +38,5 @@ public class RedisKeywordStore implements KeywordStore {
 
     private String generateKey(Long roomId) {
         return KEY_PREFIX + roomId;
-    }
-
-    private List<String> getKeywordsFromRedis(Long roomId) {
-        String key = generateKey(roomId);
-        List<String> result = redisTemplate.opsForList().range(key, 0, -1);
-        return result != null ? result : new ArrayList<>();
     }
 }
