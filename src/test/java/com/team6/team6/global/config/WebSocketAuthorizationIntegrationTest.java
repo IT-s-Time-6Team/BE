@@ -1,6 +1,6 @@
 package com.team6.team6.global.config;
 
-import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.dto.KewordChatMessage;
 import com.team6.team6.member.domain.MemberRepository;
 import com.team6.team6.member.dto.MemberCreateOrLoginRequest;
 import com.team6.team6.room.entity.GameMode;
@@ -57,7 +57,7 @@ public class WebSocketAuthorizationIntegrationTest {
     private static StompFrameHandler getStompFrameHandler() {
         return new StompFrameHandler() {
             public Type getPayloadType(StompHeaders headers) {
-                return ChatMessage.class;
+                return KewordChatMessage.class;
             }
 
             public void handleFrame(StompHeaders headers, Object payload) {

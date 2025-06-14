@@ -1,6 +1,6 @@
 package com.team6.team6.keyword.controller;
 
-import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.dto.KewordChatMessage;
 import com.team6.team6.keyword.dto.KeyEventRequest;
 import com.team6.team6.keyword.dto.KeywordAddRequest;
 import com.team6.team6.keyword.service.KeywordService;
@@ -23,31 +23,31 @@ public class KeywordController {
 
     @MessageMapping("/room/{roomKey}/keyword")
     @SendToUser("/queue/keyword-confirmation")
-    public ChatMessage addKeyword(@DestinationVariable String roomKey,
-                                  @Payload @Valid KeywordAddRequest request,
-                                  Principal principal) {
+    public KewordChatMessage addKeyword(@DestinationVariable String roomKey,
+                                        @Payload @Valid KeywordAddRequest request,
+                                        Principal principal) {
 
         UserPrincipal userPrincipal = (UserPrincipal) ((Authentication) principal).getPrincipal();
 
         // 키워드 저장 및 분석 처리
         keywordService.addKeyword(request.toServiceRequest(roomKey, userPrincipal));
 
-        return ChatMessage.keywordReceived(userPrincipal.getNickname(), request.keyword());
+        return KewordChatMessage.keywordReceived(userPrincipal.getNickname(), request.keyword());
     }
 
     @MessageMapping("/room/{roomKey}/key-event")
     @SendTo("/topic/room/{roomKey}/messages")
-    public ChatMessage keyEvent(@Payload KeyEventRequest request, Principal principal) {
+    public KewordChatMessage keyEvent(@Payload KeyEventRequest request, Principal principal) {
 
         UserPrincipal userPrincipal = (UserPrincipal) ((Authentication) principal).getPrincipal();
 
-        return ChatMessage.keyEvent(userPrincipal.getNickname(), request.key());
+        return KewordChatMessage.keyEvent(userPrincipal.getNickname(), request.key());
     }
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
-    public ChatMessage handleException(Exception exception) {
+    public KewordChatMessage handleException(Exception exception) {
 
-        return ChatMessage.error(exception);
+        return KewordChatMessage.error(exception);
     }
 }

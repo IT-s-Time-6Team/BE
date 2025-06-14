@@ -5,7 +5,7 @@ import org.springframework.messaging.handler.annotation.support.MethodArgumentNo
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record ChatMessage(
+public record KewordChatMessage(
         MessageType type,
         String nickname,
         String content,
@@ -28,8 +28,8 @@ public record ChatMessage(
     private static final String SERVER_ERROR_MESSAGE = "서버 오류가 발생했습니다.";
 
 
-    public static ChatMessage error(Exception exception) {
-        return new ChatMessage(
+    public static KewordChatMessage error(Exception exception) {
+        return new KewordChatMessage(
                 MessageType.ERROR,
                 SYSTEM_NICKNAME,
                 ERROR_PREFIX + (exception instanceof MethodArgumentNotValidException
@@ -40,8 +40,8 @@ public record ChatMessage(
         );
     }
 
-    public static ChatMessage enter(String nickname, int userCount) {
-        return new ChatMessage(
+    public static KewordChatMessage enter(String nickname, int userCount) {
+        return new KewordChatMessage(
                 MessageType.ENTER,
                 nickname,
                 String.format(ENTER_MESSAGE_FORMAT, nickname),
@@ -51,8 +51,8 @@ public record ChatMessage(
     }
 
 
-    public static ChatMessage reenter(String nickname, int userCount, List<String> keywords) {
-        return new ChatMessage(
+    public static KewordChatMessage reenter(String nickname, int userCount, List<String> keywords) {
+        return new KewordChatMessage(
                 MessageType.REENTER,
                 nickname,
                 String.format(REENTER_MESSAGE_FORMAT, nickname),
@@ -61,8 +61,8 @@ public record ChatMessage(
         );
     }
 
-    public static ChatMessage leave(String nickname, int userCount) {
-        return new ChatMessage(
+    public static KewordChatMessage leave(String nickname, int userCount) {
+        return new KewordChatMessage(
                 MessageType.LEAVE,
                 nickname,
                 String.format(LEAVE_MESSAGE_FORMAT, nickname),
@@ -71,8 +71,8 @@ public record ChatMessage(
         );
     }
 
-    public static ChatMessage keywordReceived(String nickname, String keyword) {
-        return new ChatMessage(
+    public static KewordChatMessage keywordReceived(String nickname, String keyword) {
+        return new KewordChatMessage(
                 MessageType.KEYWORD_RECEIVED,
                 nickname,
                 String.format(KEYWORD_RECEIVED_FORMAT, keyword),
@@ -81,8 +81,8 @@ public record ChatMessage(
         );
     }
 
-    public static ChatMessage analysisResult(Object results) {
-        return new ChatMessage(
+    public static KewordChatMessage analysisResult(Object results) {
+        return new KewordChatMessage(
                 MessageType.ANALYSIS_RESULT,
                 SYSTEM_NICKNAME,
                 ANALYSIS_RESULT_MESSAGE,
@@ -91,8 +91,8 @@ public record ChatMessage(
         );
     }
 
-    public static ChatMessage roomExpiryWarning() {
-        return new ChatMessage(
+    public static KewordChatMessage roomExpiryWarning() {
+        return new KewordChatMessage(
                 MessageType.ROOM_EXPIRY_WARNING,
                 SYSTEM_NICKNAME,
                 ROOM_EXPIRY_WARNING_MESSAGE,
@@ -101,8 +101,8 @@ public record ChatMessage(
         );
     }
 
-    public static ChatMessage roomExpired() {
-        return new ChatMessage(
+    public static KewordChatMessage roomExpired() {
+        return new KewordChatMessage(
                 MessageType.ROOM_EXPIRED,
                 SYSTEM_NICKNAME,
                 ROOM_EXPIRED_MESSAGE,
@@ -111,8 +111,8 @@ public record ChatMessage(
         );
     }
 
-    public static ChatMessage leaderRoomExpired() {
-        return new ChatMessage(
+    public static KewordChatMessage leaderRoomExpired() {
+        return new KewordChatMessage(
                 MessageType.LEADER_ROOM_EXPIRED,
                 SYSTEM_NICKNAME,
                 LEADER_ROOM_EXPIRED_MESSAGE,
@@ -121,8 +121,8 @@ public record ChatMessage(
         );
     }
 
-    public static ChatMessage keyEvent(String nickname, String keyEvent) {
-        return new ChatMessage(
+    public static KewordChatMessage keyEvent(String nickname, String keyEvent) {
+        return new KewordChatMessage(
                 MessageType.KEY_EVENT,
                 nickname,
                 keyEvent,

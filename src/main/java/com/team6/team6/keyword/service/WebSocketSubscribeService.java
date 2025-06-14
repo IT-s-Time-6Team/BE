@@ -4,7 +4,7 @@ import com.team6.team6.common.messaging.publisher.MessagePublisher;
 import com.team6.team6.keyword.domain.KeywordManager;
 import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
-import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.dto.KewordChatMessage;
 import com.team6.team6.keyword.entity.Keyword;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class WebSocketSubscribeService {
     private final KeywordService keywordService;
 
 
-    public ChatMessage handleUserSubscription(String roomKey, String nickname, Long roomId, Long memberId) {
+    public KewordChatMessage handleUserSubscription(String roomKey, String nickname, Long roomId, Long memberId) {
         boolean isReenter = memberRegistryRepository.isUserInRoom(roomKey, nickname);
 
         return isReenter
@@ -33,13 +33,13 @@ public class WebSocketSubscribeService {
                 : handleEnter(roomKey, nickname);
     }
 
-    private ChatMessage handleEnter(String roomKey, String nickname) {
+    private KewordChatMessage handleEnter(String roomKey, String nickname) {
         memberRegistryRepository.registerUserInRoom(roomKey, nickname);
         int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
-        return ChatMessage.enter(nickname, onlineUserCount);
+        return KewordChatMessage.enter(nickname, onlineUserCount);
     }
 
-    private ChatMessage handleReenter(String roomKey, String nickname, Long roomId, Long memberId) {
+    private KewordChatMessage handleReenter(String roomKey, String nickname, Long roomId, Long memberId) {
         memberRegistryRepository.setUserOnline(roomKey, nickname);
         int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
         List<Keyword> keywords = keywordService.getUserKeywords(roomId, memberId);
@@ -47,7 +47,7 @@ public class WebSocketSubscribeService {
                 .map(Keyword::getKeyword)
                 .distinct()
                 .collect(Collectors.toList());
-        return ChatMessage.reenter(nickname, onlineUserCount, uniqueKeywords);
+        return KewordChatMessage.reenter(nickname, onlineUserCount, uniqueKeywords);
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.team6.team6.keyword.controller;
 
-import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.dto.KewordChatMessage;
 import com.team6.team6.keyword.service.WebSocketSubscribeService;
 import com.team6.team6.member.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
         Long memberId = principal.getId();
 
         // 서비스에 사용자 구독 처리 위임
-        ChatMessage message = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        KewordChatMessage message = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);

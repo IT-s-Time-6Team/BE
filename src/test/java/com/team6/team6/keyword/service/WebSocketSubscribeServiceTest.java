@@ -4,7 +4,7 @@ import com.team6.team6.common.messaging.publisher.MessagePublisher;
 import com.team6.team6.keyword.domain.KeywordManager;
 import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
-import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.dto.KewordChatMessage;
 import com.team6.team6.keyword.entity.Keyword;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ class WebSocketSubscribeServiceTest {
         when(memberRegistryRepository.getOnlineUserCount(roomKey)).thenReturn(1);
 
         // When
-        ChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        KewordChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // Then
         verify(memberRegistryRepository).registerUserInRoom(roomKey, nickname);
@@ -58,9 +58,9 @@ class WebSocketSubscribeServiceTest {
         verify(keywordService, never()).getUserKeywords(roomId, memberId);
 
         assertSoftly(softly -> {
-            softly.assertThat(result.type()).isEqualTo(ChatMessage.MessageType.ENTER);
+            softly.assertThat(result.type()).isEqualTo(KewordChatMessage.MessageType.ENTER);
             softly.assertThat(result.nickname()).isEqualTo(nickname);
-            softly.assertThat(((ChatMessage.UserCountData) result.data()).userCount()).isEqualTo(1);
+            softly.assertThat(((KewordChatMessage.UserCountData) result.data()).userCount()).isEqualTo(1);
             softly.assertThat(result.data()).isNotNull();
         });
     }
@@ -79,18 +79,18 @@ class WebSocketSubscribeServiceTest {
         when(keywordService.getUserKeywords(roomId, memberId)).thenReturn(List.of(keyword));
 
         // When
-        ChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        KewordChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // Then
         verify(memberRegistryRepository).setUserOnline(roomKey, nickname);
         verify(memberRegistryRepository, never()).registerUserInRoom(roomKey, nickname);
         verify(keywordService).getUserKeywords(roomId, memberId);
 
-        assertInstanceOf(ChatMessage.ReenterData.class, result.data());
-        ChatMessage.ReenterData reenterData = (ChatMessage.ReenterData) result.data();
+        assertInstanceOf(KewordChatMessage.ReenterData.class, result.data());
+        KewordChatMessage.ReenterData reenterData = (KewordChatMessage.ReenterData) result.data();
 
         assertSoftly(softly -> {
-            softly.assertThat(result.type()).isEqualTo(ChatMessage.MessageType.REENTER);
+            softly.assertThat(result.type()).isEqualTo(KewordChatMessage.MessageType.REENTER);
             softly.assertThat(result.nickname()).isEqualTo(nickname);
             softly.assertThat(reenterData.userCount()).isEqualTo(2);
             softly.assertThat(reenterData.keywords()).isNotNull();

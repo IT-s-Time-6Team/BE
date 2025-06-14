@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.controller;
 
 import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
-import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.dto.KewordChatMessage;
 import com.team6.team6.member.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
@@ -38,7 +38,7 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
         int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
 
         // 사용자 퇴장 메시지 생성
-        ChatMessage message = ChatMessage.leave(nickname, onlineUserCount);
+        KewordChatMessage message = KewordChatMessage.leave(nickname, onlineUserCount);
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
