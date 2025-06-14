@@ -5,8 +5,8 @@ import com.team6.team6.keyword.dto.KeyEventRequest;
 import com.team6.team6.keyword.dto.KeywordAddRequest;
 import com.team6.team6.keyword.service.KeywordService;
 import com.team6.team6.member.security.UserPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.converter.MessageConversionException;
 import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.core.Authentication;
@@ -24,7 +24,7 @@ public class KeywordController {
     @MessageMapping("/room/{roomKey}/keyword")
     @SendToUser("/queue/keyword-confirmation")
     public ChatMessage addKeyword(@DestinationVariable String roomKey,
-                                  @Payload KeywordAddRequest request,
+                                  @Payload @Valid KeywordAddRequest request,
                                   Principal principal) {
 
         UserPrincipal userPrincipal = (UserPrincipal) ((Authentication) principal).getPrincipal();
@@ -46,7 +46,7 @@ public class KeywordController {
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
-    public ChatMessage handleException(MessageConversionException exception) {
+    public ChatMessage handleException(Exception exception) {
 
         return ChatMessage.error(exception);
     }

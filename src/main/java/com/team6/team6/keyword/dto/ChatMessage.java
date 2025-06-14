@@ -1,6 +1,6 @@
 package com.team6.team6.keyword.dto;
 
-import org.springframework.messaging.converter.MessageConversionException;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,17 +25,16 @@ public record ChatMessage(
     private static final String REQUEST_FORMAT_ERROR_MESSAGE = "잘못된 요청 형식입니다. 올바른 형식 : { \"keyword\": \"키워드\" }";
     private static final String ROOM_EXPIRED_MESSAGE = "방이 종료되었습니다.";
     private static final String LEADER_ROOM_EXPIRED_MESSAGE = "방장이 방을 종료했습니다.";
+    private static final String SERVER_ERROR_MESSAGE = "서버 오류가 발생했습니다.";
 
-    // 빌더 메서드
-    public static ChatMessage enter(String nickname) {
-        return enter(nickname, 0);
-    }
 
-    public static ChatMessage error(MessageConversionException exception) {
+    public static ChatMessage error(Exception exception) {
         return new ChatMessage(
                 MessageType.ERROR,
                 SYSTEM_NICKNAME,
-                ERROR_PREFIX + REQUEST_FORMAT_ERROR_MESSAGE,
+                ERROR_PREFIX + (exception instanceof MethodArgumentNotValidException
+                        ? REQUEST_FORMAT_ERROR_MESSAGE
+                        : SERVER_ERROR_MESSAGE),
                 LocalDateTime.now(),
                 null
         );
