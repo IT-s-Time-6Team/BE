@@ -1,12 +1,14 @@
 package com.team6.team6.question.infrastructure;
 
 import com.team6.team6.question.domain.KeywordLockManager;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Component
+@Profile("test")
 public class InMemoryKeywordLockManager implements KeywordLockManager {
 
     private final ConcurrentMap<String, Boolean> lockMap = new ConcurrentHashMap<>();

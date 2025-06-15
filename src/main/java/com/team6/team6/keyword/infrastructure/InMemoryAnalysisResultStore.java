@@ -2,6 +2,7 @@ package com.team6.team6.keyword.infrastructure;
 
 import com.team6.team6.keyword.domain.AnalysisResultStore;
 import com.team6.team6.keyword.dto.AnalysisResult;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Component
+@Profile("test")
 public class InMemoryAnalysisResultStore implements AnalysisResultStore {
 
     // 방 ID를 키로 하고, 해당 방의 분석 결과 리스트를 값으로 하는 맵
@@ -48,5 +50,10 @@ public class InMemoryAnalysisResultStore implements AnalysisResultStore {
                 .map(AnalysisResult::referenceName)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteByRoomId(Long roomId) {
+        resultStore.remove(roomId);
     }
 }

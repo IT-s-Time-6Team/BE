@@ -7,4 +7,6 @@ public interface KeywordStore {
     void saveKeyword(Long roomId, String keyword);
 
     List<String> getKeywords(Long roomId);
+
+    void deleteKeywordsByRoomId(Long roomId);
 }
