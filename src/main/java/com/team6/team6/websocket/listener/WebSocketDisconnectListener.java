@@ -1,8 +1,9 @@
-package com.team6.team6.keyword.controller;
+package com.team6.team6.websocket.listener;
 
 import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
-import com.team6.team6.keyword.dto.KewordChatMessage;
+import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.member.security.UserPrincipal;
+import com.team6.team6.websocket.dto.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -37,8 +38,8 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
         // 현재 방에 있는 온라인 사용자 수 계산
         int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
 
-        // 사용자 퇴장 메시지 생성
-        KewordChatMessage message = KewordChatMessage.leave(nickname, onlineUserCount);
+        // 사용자 퇴장 메시지 생성 (키워드 도메인이므로 KeywordChatMessage 사용)
+        ChatMessage message = KeywordChatMessage.leave(nickname, onlineUserCount);
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
@@ -56,5 +57,4 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
                 .map(UserPrincipal.class::cast)
                 .orElse(null);
     }
-
-}
+} 

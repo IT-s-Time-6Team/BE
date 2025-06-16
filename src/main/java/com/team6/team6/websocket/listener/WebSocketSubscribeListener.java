@@ -1,8 +1,8 @@
-package com.team6.team6.keyword.controller;
+package com.team6.team6.websocket.listener;
 
-import com.team6.team6.keyword.dto.KewordChatMessage;
 import com.team6.team6.keyword.service.WebSocketSubscribeService;
 import com.team6.team6.member.security.UserPrincipal;
+import com.team6.team6.websocket.dto.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -19,10 +19,9 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class WebSocketSubscribeListener implements ApplicationListener<SessionSubscribeEvent> {
 
+    private static final Pattern ROOM_TOPIC_PATTERN = Pattern.compile("/topic/room/([^/]+)/messages");
     private final SimpMessageSendingOperations messagingTemplate;
     private final WebSocketSubscribeService webSocketSubscribeService;
-
-    private static final Pattern ROOM_TOPIC_PATTERN = Pattern.compile("/topic/room/([^/]+)/messages");
 
     @Override
     public void onApplicationEvent(SessionSubscribeEvent event) {
@@ -41,7 +40,7 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
         Long memberId = principal.getId();
 
         // 서비스에 사용자 구독 처리 위임
-        KewordChatMessage message = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        ChatMessage message = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
@@ -72,4 +71,4 @@ public class WebSocketSubscribeListener implements ApplicationListener<SessionSu
                 .map(UserPrincipal.class::cast)
                 .orElse(null);
     }
-}
+} 

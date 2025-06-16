@@ -4,8 +4,9 @@ import com.team6.team6.common.messaging.publisher.MessagePublisher;
 import com.team6.team6.keyword.domain.KeywordManager;
 import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
-import com.team6.team6.keyword.dto.KewordChatMessage;
+import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.keyword.entity.Keyword;
+import com.team6.team6.websocket.dto.ChatMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +51,7 @@ class WebSocketSubscribeServiceTest {
         when(memberRegistryRepository.getOnlineUserCount(roomKey)).thenReturn(1);
 
         // When
-        KewordChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        ChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // Then
         verify(memberRegistryRepository).registerUserInRoom(roomKey, nickname);
@@ -58,10 +59,10 @@ class WebSocketSubscribeServiceTest {
         verify(keywordService, never()).getUserKeywords(roomId, memberId);
 
         assertSoftly(softly -> {
-            softly.assertThat(result.type()).isEqualTo(KewordChatMessage.MessageType.ENTER);
-            softly.assertThat(result.nickname()).isEqualTo(nickname);
-            softly.assertThat(((KewordChatMessage.UserCountData) result.data()).userCount()).isEqualTo(1);
-            softly.assertThat(result.data()).isNotNull();
+            softly.assertThat(result.getType()).isEqualTo("ENTER");
+            softly.assertThat(result.getNickname()).isEqualTo(nickname);
+            softly.assertThat(((KeywordChatMessage.UserCountData) result.getData()).userCount()).isEqualTo(1);
+            softly.assertThat(result.getData()).isNotNull();
         });
     }
 
@@ -79,19 +80,19 @@ class WebSocketSubscribeServiceTest {
         when(keywordService.getUserKeywords(roomId, memberId)).thenReturn(List.of(keyword));
 
         // When
-        KewordChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        ChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // Then
         verify(memberRegistryRepository).setUserOnline(roomKey, nickname);
         verify(memberRegistryRepository, never()).registerUserInRoom(roomKey, nickname);
         verify(keywordService).getUserKeywords(roomId, memberId);
 
-        assertInstanceOf(KewordChatMessage.ReenterData.class, result.data());
-        KewordChatMessage.ReenterData reenterData = (KewordChatMessage.ReenterData) result.data();
+        assertInstanceOf(KeywordChatMessage.ReenterData.class, result.getData());
+        KeywordChatMessage.ReenterData reenterData = (KeywordChatMessage.ReenterData) result.getData();
 
         assertSoftly(softly -> {
-            softly.assertThat(result.type()).isEqualTo(KewordChatMessage.MessageType.REENTER);
-            softly.assertThat(result.nickname()).isEqualTo(nickname);
+            softly.assertThat(result.getType()).isEqualTo("REENTER");
+            softly.assertThat(result.getNickname()).isEqualTo(nickname);
             softly.assertThat(reenterData.userCount()).isEqualTo(2);
             softly.assertThat(reenterData.keywords()).isNotNull();
             softly.assertThat(reenterData.keywords()).hasSize(1);

@@ -1,10 +1,11 @@
 package com.team6.team6.keyword.controller;
 
-import com.team6.team6.keyword.dto.KewordChatMessage;
 import com.team6.team6.keyword.dto.KeyEventRequest;
 import com.team6.team6.keyword.dto.KeywordAddRequest;
+import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.keyword.service.KeywordService;
 import com.team6.team6.member.security.UserPrincipal;
+import com.team6.team6.websocket.dto.ChatMessage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.*;
@@ -23,31 +24,31 @@ public class KeywordController {
 
     @MessageMapping("/room/{roomKey}/keyword")
     @SendToUser("/queue/keyword-confirmation")
-    public KewordChatMessage addKeyword(@DestinationVariable String roomKey,
-                                        @Payload @Valid KeywordAddRequest request,
-                                        Principal principal) {
+    public ChatMessage addKeyword(@DestinationVariable String roomKey,
+                                  @Payload @Valid KeywordAddRequest request,
+                                  Principal principal) {
 
         UserPrincipal userPrincipal = (UserPrincipal) ((Authentication) principal).getPrincipal();
 
         // 키워드 저장 및 분석 처리
         keywordService.addKeyword(request.toServiceRequest(roomKey, userPrincipal));
 
-        return KewordChatMessage.keywordReceived(userPrincipal.getNickname(), request.keyword());
+        return KeywordChatMessage.keywordReceived(userPrincipal.getNickname(), request.keyword());
     }
 
     @MessageMapping("/room/{roomKey}/key-event")
     @SendTo("/topic/room/{roomKey}/messages")
-    public KewordChatMessage keyEvent(@Payload KeyEventRequest request, Principal principal) {
+    public ChatMessage keyEvent(@Payload KeyEventRequest request, Principal principal) {
 
         UserPrincipal userPrincipal = (UserPrincipal) ((Authentication) principal).getPrincipal();
 
-        return KewordChatMessage.keyEvent(userPrincipal.getNickname(), request.key());
+        return KeywordChatMessage.keyEvent(userPrincipal.getNickname(), request.key());
     }
 
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
-    public KewordChatMessage handleException(Exception exception) {
+    public ChatMessage handleException(Exception exception) {
 
-        return KewordChatMessage.error(exception);
+        return KeywordChatMessage.keywordError(exception);
     }
 }

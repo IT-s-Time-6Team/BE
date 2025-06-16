@@ -1,7 +1,7 @@
 package com.team6.team6.common.messaging.stomp;
 
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
-import com.team6.team6.keyword.dto.KewordChatMessage;
+import com.team6.team6.keyword.dto.KeywordChatMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
@@ -14,6 +14,6 @@ public class StompMessagePublisher implements MessagePublisher {
 
     @Override
     public void publishKeywordAnalysisResult(String roomKey, Object results) {
-        messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", KewordChatMessage.analysisResult(results));
+        messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", KeywordChatMessage.analysisResult(results));
     }
 }
