@@ -12,7 +12,12 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus/prometheus_prod.yml:/etc/prometheus/prometheus.yml
+      - prometheus-storage-prod:/prometheus
+    command:
+      - --web.external-url=${PROM_WEB_EXTERNAL_URL}
 
 volumes:
   grafana-storage-prod:
     name: monitoring_grafana-storage-prod
+  prometheus-storage-prod:
+    name: monitoring_prometheus-storage-prod
