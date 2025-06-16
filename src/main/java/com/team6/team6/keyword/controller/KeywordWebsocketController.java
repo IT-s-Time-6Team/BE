@@ -18,7 +18,7 @@ import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
-public class KeywordController {
+public class KeywordWebsocketController {
 
     private final KeywordService keywordService;
 
