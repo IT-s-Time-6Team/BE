@@ -12,4 +12,6 @@ public interface AnalysisResultStore {
     List<String> findSharedKeywordsByRoomId(Long roomId, Integer requiredAgreements);
 
     List<String> findReferenceNamesByRoomId(Long roomId, Integer requiredAgreements);
+
+    void deleteByRoomId(Long roomId);
 }
