@@ -14,6 +14,6 @@ services:
     image: prom/prometheus:latest
     restart: unless-stopped
     command:
-      - --web.route-prefix=${PROM_ROUTE_PREFIX}
+      - --config.file=/etc/prometheus/prometheus.yml
       - --web.external-url=${PROM_WEB_EXTERNAL_URL}
       - --web.route-prefix=/
