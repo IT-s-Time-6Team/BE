@@ -13,8 +13,6 @@ services:
     volumes:
       - ./prometheus/prometheus_dev.yml:/etc/prometheus/prometheus.yml
       - prometheus-storage-dev:/prometheus
-    command:
-      - --web.external-url=${PROM_WEB_EXTERNAL_URL}
 
 volumes:
   grafana-storage-dev:
