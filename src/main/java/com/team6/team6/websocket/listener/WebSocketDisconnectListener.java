@@ -4,15 +4,12 @@ import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.member.security.UserPrincipal;
 import com.team6.team6.websocket.dto.ChatMessage;
+import com.team6.team6.websocket.util.WebSocketUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -23,10 +20,8 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
 
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-
         // 사용자 인증 정보 및 닉네임 추출
-        UserPrincipal principal = extractUserPrincipal(headerAccessor);
+        UserPrincipal principal = WebSocketUtil.extractUserPrincipalFromStompHeader(event);
         if (principal == null) return;
 
         String nickname = principal.getNickname();
@@ -43,18 +38,5 @@ public class WebSocketDisconnectListener implements ApplicationListener<SessionD
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
-    }
-
-    /**
-     * 헤더 접근자에서 사용자 정보 추출
-     */
-    private UserPrincipal extractUserPrincipal(StompHeaderAccessor headerAccessor) {
-        return Optional.ofNullable(headerAccessor.getUser())
-                .filter(Authentication.class::isInstance)
-                .map(Authentication.class::cast)
-                .map(Authentication::getPrincipal)
-                .filter(UserPrincipal.class::isInstance)
-                .map(UserPrincipal.class::cast)
-                .orElse(null);
     }
 } 
