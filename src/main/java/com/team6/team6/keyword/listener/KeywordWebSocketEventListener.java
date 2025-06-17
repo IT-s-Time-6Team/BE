@@ -1,9 +1,9 @@
 package com.team6.team6.keyword.listener;
 
-import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.keyword.service.WebSocketSubscribeService;
 import com.team6.team6.member.security.UserPrincipal;
+import com.team6.team6.websocket.domain.RoomMemberStateManager;
 import com.team6.team6.websocket.dto.ChatMessage;
 import com.team6.team6.websocket.event.WebSocketDisconnectEvent;
 import com.team6.team6.websocket.util.WebSocketUtil;
@@ -30,7 +30,7 @@ public class KeywordWebSocketEventListener {
 
     private final SimpMessageSendingOperations messagingTemplate;
     private final WebSocketSubscribeService webSocketSubscribeService;
-    private final MemberRegistryRepository memberRegistryRepository;
+    private final RoomMemberStateManager roomMemberStateManager;
 
     @EventListener
     public void handleSubscribe(SessionSubscribeEvent event) {
@@ -76,7 +76,7 @@ public class KeywordWebSocketEventListener {
         String nickname = principal.getNickname();
 
         // 유저 수 조회
-        int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
+        int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
 
         // 방 떠남 메시지 처리
         ChatMessage leaveMessage = KeywordChatMessage.leave(nickname, onlineUserCount);

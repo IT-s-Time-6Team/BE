@@ -2,10 +2,10 @@ package com.team6.team6.keyword.service;
 
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
 import com.team6.team6.keyword.domain.KeywordManager;
-import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.keyword.entity.Keyword;
+import com.team6.team6.websocket.domain.RoomMemberStateManager;
 import com.team6.team6.websocket.dto.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,29 +20,32 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WebSocketSubscribeService {
 
-    private final MemberRegistryRepository memberRegistryRepository;
+    private final RoomMemberStateManager roomMemberStateManager;
     private final KeywordManager keywordManager;
     private final MessagePublisher messagePublisher;
     private final KeywordService keywordService;
 
-
     public ChatMessage handleUserSubscription(String roomKey, String nickname, Long roomId, Long memberId) {
-        boolean isReenter = memberRegistryRepository.isUserInRoom(roomKey, nickname);
+        // 첫 연결인지 확인 (연결 시점에서 설정된 상태 확인)
+        boolean isFirstConnection = roomMemberStateManager.isFirstConnection(roomKey, nickname);
 
-        return isReenter
-                ? handleReenter(roomKey, nickname, roomId, memberId)
-                : handleEnter(roomKey, nickname);
+        // 구독 완료 표시
+//        roomMemberStateManager.markSubscriptionCompleted(roomKey, nickname);
+
+        return isFirstConnection
+                ? handleEnter(roomKey, nickname)
+                : handleReenter(roomKey, nickname, roomId, memberId);
     }
 
     private ChatMessage handleEnter(String roomKey, String nickname) {
-        memberRegistryRepository.registerUserInRoom(roomKey, nickname);
-        int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
+        // 첫 연결이므로 이미 등록되어 있음 (연결 시점에서 처리됨)
+        int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
         return KeywordChatMessage.enter(nickname, onlineUserCount);
     }
 
     private ChatMessage handleReenter(String roomKey, String nickname, Long roomId, Long memberId) {
-        memberRegistryRepository.setUserOnline(roomKey, nickname);
-        int onlineUserCount = memberRegistryRepository.getOnlineUserCount(roomKey);
+        // 재연결이므로 이미 온라인 상태임 (연결 시점에서 처리됨)
+        int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
         List<Keyword> keywords = keywordService.getUserKeywords(roomId, memberId);
         List<String> uniqueKeywords = keywords.stream()
                 .map(Keyword::getKeyword)

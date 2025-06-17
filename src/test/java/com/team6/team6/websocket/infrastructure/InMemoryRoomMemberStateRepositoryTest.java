@@ -1,4 +1,4 @@
-package com.team6.team6.keyword.infrastructure;
+package com.team6.team6.websocket.infrastructure;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,13 +7,13 @@ import java.util.Map;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-class InMemoryMemberRegistryRepositoryTest {
+class InMemoryRoomMemberStateRepositoryTest {
 
-    private InMemoryMemberRegistryRepository repository;
+    private InMemoryRoomMemberStateRepository repository;
 
     @BeforeEach
     void setUp() {
-        repository = new InMemoryMemberRegistryRepository();
+        repository = new InMemoryRoomMemberStateRepository();
     }
 
     @Test
@@ -35,7 +35,7 @@ class InMemoryMemberRegistryRepositoryTest {
     }
 
     @Test
-    void 사용자를_방에_등록한다() {
+    void 사용자를_방에_등록하면_첫_연결로_설정된다() {
         // given
         String roomKey = "room1";
         String nickname = "user1";
@@ -47,6 +47,50 @@ class InMemoryMemberRegistryRepositoryTest {
         assertSoftly(softly -> {
             softly.assertThat(repository.isUserInRoom(roomKey, nickname)).isTrue();
             softly.assertThat(repository.isUserOnline(roomKey, nickname)).isTrue();
+            softly.assertThat(repository.isFirstConnection(roomKey, nickname)).isTrue();
+        });
+    }
+
+    @Test
+    void 첫_연결_여부를_확인한다() {
+        // given
+        String roomKey = "room1";
+        String nickname = "user1";
+
+        // when & then
+        assertSoftly(softly -> {
+            // 등록 전에는 첫 연결
+            softly.assertThat(repository.isFirstConnection(roomKey, nickname)).isTrue();
+
+            // 등록 후에도 첫 연결
+            repository.registerUserInRoom(roomKey, nickname);
+            softly.assertThat(repository.isFirstConnection(roomKey, nickname)).isTrue();
+
+            // 첫 연결을 false로 설정
+            repository.setFirstConnection(roomKey, nickname, false);
+            softly.assertThat(repository.isFirstConnection(roomKey, nickname)).isFalse();
+
+            // 다시 true로 설정
+            repository.setFirstConnection(roomKey, nickname, true);
+            softly.assertThat(repository.isFirstConnection(roomKey, nickname)).isTrue();
+        });
+    }
+
+    @Test
+    void 사용자를_완전히_제거한다() {
+        // given
+        String roomKey = "room1";
+        String nickname = "user1";
+        repository.registerUserInRoom(roomKey, nickname);
+        repository.setFirstConnection(roomKey, nickname, false);
+
+        // when
+        repository.removeUser(roomKey, nickname);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(repository.isUserInRoom(roomKey, nickname)).isFalse();
+            softly.assertThat(repository.isFirstConnection(roomKey, nickname)).isTrue(); // 제거 후 다시 첫 연결
         });
     }
 
@@ -182,4 +226,4 @@ class InMemoryMemberRegistryRepositoryTest {
             softly.assertThat(onlineCount).isZero();
         });
     }
-}
+} 
