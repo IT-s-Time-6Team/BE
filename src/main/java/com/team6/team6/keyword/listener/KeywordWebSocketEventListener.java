@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.listener;
 
 import com.team6.team6.keyword.dto.KeywordChatMessage;
-import com.team6.team6.keyword.service.WebSocketSubscribeService;
+import com.team6.team6.keyword.service.KeywordWebSocketSubscribeService;
 import com.team6.team6.member.security.UserPrincipal;
 import com.team6.team6.websocket.domain.RoomMemberStateManager;
 import com.team6.team6.websocket.dto.ChatMessage;
@@ -29,7 +29,7 @@ public class KeywordWebSocketEventListener {
     private static final Pattern ROOM_TOPIC_PATTERN = Pattern.compile("/topic/room/([^/]+)/messages");
 
     private final SimpMessageSendingOperations messagingTemplate;
-    private final WebSocketSubscribeService webSocketSubscribeService;
+    private final KeywordWebSocketSubscribeService keywordWebSocketSubscribeService;
     private final RoomMemberStateManager roomMemberStateManager;
 
     @EventListener
@@ -53,13 +53,13 @@ public class KeywordWebSocketEventListener {
         Long memberId = principal.getId();
 
         // 서비스에 사용자 구독 처리 위임
-        ChatMessage message = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        ChatMessage message = keywordWebSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // 메시지 전송
         messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
 
         // 키워드 분석 결과 발행
-        webSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
+        keywordWebSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
 
         log.info("키워드 모드 구독 처리: roomKey={}, nickname={}", roomKey, nickname);
     }

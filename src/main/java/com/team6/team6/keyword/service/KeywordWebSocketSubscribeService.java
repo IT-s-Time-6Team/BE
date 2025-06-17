@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class WebSocketSubscribeService {
+public class KeywordWebSocketSubscribeService {
 
     private final RoomMemberStateManager roomMemberStateManager;
     private final KeywordManager keywordManager;
@@ -29,8 +29,6 @@ public class WebSocketSubscribeService {
         // 첫 연결인지 확인 (연결 시점에서 설정된 상태 확인)
         boolean isFirstConnection = roomMemberStateManager.isFirstConnection(roomKey, nickname);
 
-        // 구독 완료 표시
-//        roomMemberStateManager.markSubscriptionCompleted(roomKey, nickname);
 
         return isFirstConnection
                 ? handleEnter(roomKey, nickname)
@@ -38,13 +36,11 @@ public class WebSocketSubscribeService {
     }
 
     private ChatMessage handleEnter(String roomKey, String nickname) {
-        // 첫 연결이므로 이미 등록되어 있음 (연결 시점에서 처리됨)
         int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
         return KeywordChatMessage.enter(nickname, onlineUserCount);
     }
 
     private ChatMessage handleReenter(String roomKey, String nickname, Long roomId, Long memberId) {
-        // 재연결이므로 이미 온라인 상태임 (연결 시점에서 처리됨)
         int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
         List<Keyword> keywords = keywordService.getUserKeywords(roomId, memberId);
         List<String> uniqueKeywords = keywords.stream()

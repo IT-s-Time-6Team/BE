@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class WebSocketSubscribeServiceTest {
+class KeywordWebSocketSubscribeServiceTest {
 
     private final String roomKey = "test-room";
     private final String nickname = "test-user";
@@ -37,7 +37,7 @@ class WebSocketSubscribeServiceTest {
     @Mock
     private KeywordService keywordService;
     @InjectMocks
-    private WebSocketSubscribeService webSocketSubscribeService;
+    private KeywordWebSocketSubscribeService keywordWebSocketSubscribeService;
 
     @BeforeEach
     void setUp() {
@@ -51,7 +51,7 @@ class WebSocketSubscribeServiceTest {
         when(roomMemberStateManager.getOnlineUserCount(roomKey)).thenReturn(1);
 
         // When
-        ChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        ChatMessage result = keywordWebSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // Then
         verify(keywordService, never()).getUserKeywords(roomId, memberId);
@@ -78,7 +78,7 @@ class WebSocketSubscribeServiceTest {
         when(keywordService.getUserKeywords(roomId, memberId)).thenReturn(List.of(keyword));
 
         // When
-        ChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        ChatMessage result = keywordWebSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // Then
         verify(keywordService).getUserKeywords(roomId, memberId);
@@ -103,7 +103,7 @@ class WebSocketSubscribeServiceTest {
         when(keywordManager.getAnalysisResult(roomId)).thenReturn(List.of(result));
 
         // When
-        webSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
+        keywordWebSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
 
         // Then
         verify(messagePublisher).publishKeywordAnalysisResult(roomKey, List.of(result));
@@ -115,7 +115,7 @@ class WebSocketSubscribeServiceTest {
         when(keywordManager.getAnalysisResult(roomId)).thenReturn(Collections.emptyList());
 
         // When
-        webSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
+        keywordWebSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
 
         // Then
         verify(messagePublisher, never()).publishKeywordAnalysisResult(eq(roomKey), any());
