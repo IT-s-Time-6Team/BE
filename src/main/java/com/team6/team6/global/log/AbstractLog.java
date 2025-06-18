@@ -50,8 +50,9 @@ public abstract class AbstractLog {
     }
 
     private static String getCurrentUserId(Authentication authentication) {
-        if (authentication != null && authentication.isAuthenticated()) {
-            return authentication.getName();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+            return principal.getNickname();
         }
         return ANONYMOUS_USER;
     }
