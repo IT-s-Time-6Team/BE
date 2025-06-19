@@ -2,6 +2,7 @@ package com.team6.team6.keyword.domain;
 
 import com.team6.team6.keyword.dto.AnalysisResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
@@ -9,14 +10,23 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class KeywordManager {
 
     private final KeywordStore keywordStore;
     private final KeywordSimilarityAnalyser keywordSimilarityAnalyser;
     private final AnalysisResultStore analysisResultStore;
+    private final KeywordPreprocessor keywordPreprocessor;
 
     public List<AnalysisResult> addKeyword(Long roomId, String keyword) {
-        keywordStore.saveKeyword(roomId, keyword);
+        // 키워드 전처리
+        String preprocessed = keywordPreprocessor.preprocess(keyword);
+        if (preprocessed == null || preprocessed.isEmpty()) {
+            log.error("전처리된 키워드가 비어있거나 null입니다.: {}", keyword);
+            throw new IllegalArgumentException("올바른 키워드가 아닙니다.: " + keyword);
+        }
+
+        keywordStore.saveKeyword(roomId, preprocessed);
         // 키워드 추가 시에는 항상 새로 분석
         return analyzeAndSave(roomId);
     }
