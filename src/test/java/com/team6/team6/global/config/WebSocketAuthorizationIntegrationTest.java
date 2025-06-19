@@ -1,11 +1,11 @@
 package com.team6.team6.global.config;
 
-import com.team6.team6.keyword.dto.ChatMessage;
 import com.team6.team6.member.domain.MemberRepository;
 import com.team6.team6.member.dto.MemberCreateOrLoginRequest;
 import com.team6.team6.room.entity.GameMode;
 import com.team6.team6.room.entity.Room;
 import com.team6.team6.room.repository.RoomRepository;
+import com.team6.team6.websocket.dto.ChatMessage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

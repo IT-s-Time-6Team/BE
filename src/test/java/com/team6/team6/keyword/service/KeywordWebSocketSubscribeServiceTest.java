@@ -2,10 +2,11 @@ package com.team6.team6.keyword.service;
 
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
 import com.team6.team6.keyword.domain.KeywordManager;
-import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
-import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.keyword.entity.Keyword;
+import com.team6.team6.websocket.domain.RoomMemberStateManager;
+import com.team6.team6.websocket.dto.ChatMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,14 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class WebSocketSubscribeServiceTest {
+class KeywordWebSocketSubscribeServiceTest {
 
     private final String roomKey = "test-room";
     private final String nickname = "test-user";
     private final Long roomId = 1L;
     private final Long memberId = 1L;
     @Mock
-    private MemberRegistryRepository memberRegistryRepository;
+    private RoomMemberStateManager roomMemberStateManager;
     @Mock
     private KeywordManager keywordManager;
     @Mock
@@ -36,7 +37,7 @@ class WebSocketSubscribeServiceTest {
     @Mock
     private KeywordService keywordService;
     @InjectMocks
-    private WebSocketSubscribeService webSocketSubscribeService;
+    private KeywordWebSocketSubscribeService keywordWebSocketSubscribeService;
 
     @BeforeEach
     void setUp() {
@@ -44,32 +45,30 @@ class WebSocketSubscribeServiceTest {
     }
 
     @Test
-    void 새로운_사용자_입장_처리_테스트() {
+    void 첫_연결_사용자_입장_처리_테스트() {
         // Given
-        when(memberRegistryRepository.isUserInRoom(roomKey, nickname)).thenReturn(false);
-        when(memberRegistryRepository.getOnlineUserCount(roomKey)).thenReturn(1);
+        when(roomMemberStateManager.isFirstConnection(roomKey, nickname)).thenReturn(true);
+        when(roomMemberStateManager.getOnlineUserCount(roomKey)).thenReturn(1);
 
         // When
-        ChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        ChatMessage result = keywordWebSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // Then
-        verify(memberRegistryRepository).registerUserInRoom(roomKey, nickname);
-        verify(memberRegistryRepository, never()).setUserOnline(roomKey, nickname);
         verify(keywordService, never()).getUserKeywords(roomId, memberId);
 
         assertSoftly(softly -> {
-            softly.assertThat(result.type()).isEqualTo(ChatMessage.MessageType.ENTER);
-            softly.assertThat(result.nickname()).isEqualTo(nickname);
-            softly.assertThat(((ChatMessage.UserCountData) result.data()).userCount()).isEqualTo(1);
-            softly.assertThat(result.data()).isNotNull();
+            softly.assertThat(result.getType()).isEqualTo("ENTER");
+            softly.assertThat(result.getNickname()).isEqualTo(nickname);
+            softly.assertThat(((KeywordChatMessage.UserCountData) result.getData()).userCount()).isEqualTo(1);
+            softly.assertThat(result.getData()).isNotNull();
         });
     }
 
     @Test
-    void 재입장_사용자_처리_테스트() {
+    void 재연결_사용자_처리_테스트() {
         // Given
-        when(memberRegistryRepository.isUserInRoom(roomKey, nickname)).thenReturn(true);
-        when(memberRegistryRepository.getOnlineUserCount(roomKey)).thenReturn(2);
+        when(roomMemberStateManager.isFirstConnection(roomKey, nickname)).thenReturn(false);
+        when(roomMemberStateManager.getOnlineUserCount(roomKey)).thenReturn(2);
 
         Keyword keyword = Keyword.builder()
                 .keyword("test-keyword")
@@ -79,19 +78,17 @@ class WebSocketSubscribeServiceTest {
         when(keywordService.getUserKeywords(roomId, memberId)).thenReturn(List.of(keyword));
 
         // When
-        ChatMessage result = webSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+        ChatMessage result = keywordWebSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
         // Then
-        verify(memberRegistryRepository).setUserOnline(roomKey, nickname);
-        verify(memberRegistryRepository, never()).registerUserInRoom(roomKey, nickname);
         verify(keywordService).getUserKeywords(roomId, memberId);
 
-        assertInstanceOf(ChatMessage.ReenterData.class, result.data());
-        ChatMessage.ReenterData reenterData = (ChatMessage.ReenterData) result.data();
+        assertInstanceOf(KeywordChatMessage.ReenterData.class, result.getData());
+        KeywordChatMessage.ReenterData reenterData = (KeywordChatMessage.ReenterData) result.getData();
 
         assertSoftly(softly -> {
-            softly.assertThat(result.type()).isEqualTo(ChatMessage.MessageType.REENTER);
-            softly.assertThat(result.nickname()).isEqualTo(nickname);
+            softly.assertThat(result.getType()).isEqualTo("REENTER");
+            softly.assertThat(result.getNickname()).isEqualTo(nickname);
             softly.assertThat(reenterData.userCount()).isEqualTo(2);
             softly.assertThat(reenterData.keywords()).isNotNull();
             softly.assertThat(reenterData.keywords()).hasSize(1);
@@ -106,7 +103,7 @@ class WebSocketSubscribeServiceTest {
         when(keywordManager.getAnalysisResult(roomId)).thenReturn(List.of(result));
 
         // When
-        webSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
+        keywordWebSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
 
         // Then
         verify(messagePublisher).publishKeywordAnalysisResult(roomKey, List.of(result));
@@ -118,7 +115,7 @@ class WebSocketSubscribeServiceTest {
         when(keywordManager.getAnalysisResult(roomId)).thenReturn(Collections.emptyList());
 
         // When
-        webSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
+        keywordWebSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
 
         // Then
         verify(messagePublisher, never()).publishKeywordAnalysisResult(eq(roomKey), any());
