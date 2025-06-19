@@ -34,17 +34,31 @@ public class KeywordWebSocketEventListener {
 
     @EventListener
     public void handleSubscribe(SessionSubscribeEvent event) {
+        log.debug("키워드 모드 구독 이벤트 수신: sessionId={}", event.getMessage().getHeaders().get("simpSessionId"));
+
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        String destination = headerAccessor.getDestination();
+
+        log.debug("구독 대상 destination: {}", destination);
 
         // 대상 destination과 방 키 추출
-        String roomKey = extractRoomKeyIfRoomSubscription(headerAccessor.getDestination());
-        if (roomKey == null) return;
+        String roomKey = extractRoomKeyIfRoomSubscription(destination);
+        if (roomKey == null) {
+            log.debug("방 구독이 아니므로 처리하지 않음: destination={}", destination);
+            return;
+        }
+
+        log.debug("방 키 추출 성공: roomKey={}", roomKey);
 
         // 사용자 인증 정보 추출
         UserPrincipal principal = WebSocketUtil.extractUserPrincipalFromStompHeader(event);
 
+        log.debug("사용자 인증 정보 추출: memberId={}, nickname={}, roomId={}, gameMode={}",
+                principal.getId(), principal.getNickname(), principal.getRoomId(), principal.getGameMode());
+
         // NORMAL 게임 모드가 아니면 처리하지 않음
         if (!"NORMAL".equals(principal.getGameMode())) {
+            log.debug("NORMAL 게임 모드가 아니므로 처리하지 않음: gameMode={}", principal.getGameMode());
             return;
         }
 
@@ -52,22 +66,36 @@ public class KeywordWebSocketEventListener {
         Long roomId = principal.getRoomId();
         Long memberId = principal.getId();
 
+        log.debug("키워드 모드 구독 처리 시작: roomKey={}, nickname={}, roomId={}, memberId={}",
+                roomKey, nickname, roomId, memberId);
+
         // 서비스에 사용자 구독 처리 위임
         ChatMessage message = keywordWebSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
 
+        log.debug("구독 처리 메시지 생성: type={}, nickname={}, content={}",
+                message.getType(), message.getNickname(), message.getContent());
+
         // 메시지 전송
-        messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", message);
+        String topicDestination = "/topic/room/" + roomKey + "/messages";
+        messagingTemplate.convertAndSend(topicDestination, message);
+
+        log.debug("구독 처리 메시지 전송 완료: destination={}", topicDestination);
 
         // 키워드 분석 결과 발행
         keywordWebSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
+
+        log.debug("키워드 분석 결과 발행 완료: roomKey={}, roomId={}", roomKey, roomId);
 
         log.info("키워드 모드 구독 처리: roomKey={}, nickname={}", roomKey, nickname);
     }
 
     @EventListener
     public void handleDisconnect(WebSocketDisconnectEvent event) {
+        log.debug("키워드 모드 연결 해제 이벤트 수신: gameMode={}", event.getGameMode());
+
         // NORMAL 게임 모드가 아니면 처리하지 않음
         if (!"NORMAL".equals(event.getGameMode())) {
+            log.debug("NORMAL 게임 모드가 아니므로 처리하지 않음: gameMode={}", event.getGameMode());
             return;
         }
 
@@ -75,14 +103,25 @@ public class KeywordWebSocketEventListener {
         String roomKey = event.getRoomKey();
         String nickname = principal.getNickname();
 
+        log.debug("키워드 모드 연결 해제 처리 시작: roomKey={}, nickname={}, memberId={}",
+                roomKey, nickname, principal.getId());
+
         // 유저 수 조회
         int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
+
+        log.debug("현재 온라인 사용자 수: roomKey={}, onlineUserCount={}", roomKey, onlineUserCount);
 
         // 방 떠남 메시지 처리
         ChatMessage leaveMessage = KeywordChatMessage.leave(nickname, onlineUserCount);
 
+        log.debug("연결 해제 메시지 생성: type={}, nickname={}, content={}",
+                leaveMessage.getType(), leaveMessage.getNickname(), leaveMessage.getContent());
+
         // 메시지 전송
-        messagingTemplate.convertAndSend("/topic/room/" + roomKey + "/messages", leaveMessage);
+        String topicDestination = "/topic/room/" + roomKey + "/messages";
+        messagingTemplate.convertAndSend(topicDestination, leaveMessage);
+
+        log.debug("연결 해제 메시지 전송 완료: destination={}", topicDestination);
 
         log.info("키워드 모드 연결 해제 처리: roomKey={}, nickname={}", roomKey, nickname);
     }
@@ -91,9 +130,19 @@ public class KeywordWebSocketEventListener {
      * 대상 URL이 채팅방 구독 요청인지 확인하고, 방 키를 추출
      */
     private String extractRoomKeyIfRoomSubscription(String destination) {
-        if (destination == null) return null;
+        if (destination == null) {
+            log.debug("destination이 null이므로 방 키 추출 불가");
+            return null;
+        }
 
         Matcher matcher = ROOM_TOPIC_PATTERN.matcher(destination);
-        return matcher.matches() ? matcher.group(1) : null;
+        if (matcher.matches()) {
+            String roomKey = matcher.group(1);
+            log.debug("방 키 추출 성공: destination={}, roomKey={}", destination, roomKey);
+            return roomKey;
+        } else {
+            log.debug("방 구독 패턴과 일치하지 않음: destination={}", destination);
+            return null;
+        }
     }
 } 
