@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.service;
 
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
-import com.team6.team6.keyword.domain.KeywordManager;
+import com.team6.team6.keyword.domain.RoomKeywordManager;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.question.service.QuestionService;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 class KeywordAsyncProcessorTest {
 
     @Mock
-    private KeywordManager keywordManager;
+    private RoomKeywordManager roomKeywordManager;
 
     @Mock
     private MessagePublisher messagePublisher;
@@ -41,7 +41,7 @@ class KeywordAsyncProcessorTest {
         // keywordManager가 반환할 결과 설정
         List<String> variations = List.of("분석결과1", "분석결과2");
         AnalysisResult result = AnalysisResult.of("분석결과", variations);
-        when(keywordManager.addKeyword(roomId, keyword)).thenReturn(List.of(result));
+        when(roomKeywordManager.addKeyword(roomId, keyword)).thenReturn(List.of(result));
 
         // when
         keywordAsyncProcessor.processKeywordAnalysisAsync(roomId, roomKey, keyword);

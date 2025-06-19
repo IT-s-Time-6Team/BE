@@ -13,7 +13,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class KeywordManagerTest {
+class RoomKeywordManagerTest {
 
     @Mock
     private KeywordStore keywordStore;
@@ -25,7 +25,7 @@ class KeywordManagerTest {
     private AnalysisResultStore analysisResultStore;
 
     @InjectMocks
-    private KeywordManager keywordManager;
+    private RoomKeywordManager roomKeywordManager;
 
     @Test
     void 저장소와_분석기_협력_관계_테스트() {
@@ -41,7 +41,7 @@ class KeywordManagerTest {
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
-        keywordManager.addKeyword(roomId, keyword);
+        roomKeywordManager.addKeyword(roomId, keyword);
 
         // then
         verify(keywordStore).saveKeyword(roomId, keyword);
@@ -63,7 +63,7 @@ class KeywordManagerTest {
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
-        List<AnalysisResult> results = keywordManager.addKeyword(roomId, keyword);
+        List<AnalysisResult> results = roomKeywordManager.addKeyword(roomId, keyword);
 
         // then
         assertSoftly(softly -> {
@@ -88,7 +88,7 @@ class KeywordManagerTest {
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
-        List<AnalysisResult> results = keywordManager.addKeyword(roomId, keyword);
+        List<AnalysisResult> results = roomKeywordManager.addKeyword(roomId, keyword);
 
         // then
         assertSoftly(softly -> {
@@ -108,7 +108,7 @@ class KeywordManagerTest {
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
-        List<AnalysisResult> results = keywordManager.analyzeKeywords(roomId);
+        List<AnalysisResult> results = roomKeywordManager.analyzeKeywords(roomId);
 
         // then
         assertSoftly(softly -> {
@@ -134,7 +134,7 @@ class KeywordManagerTest {
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
-        List<AnalysisResult> results = keywordManager.analyzeKeywords(roomId);
+        List<AnalysisResult> results = roomKeywordManager.analyzeKeywords(roomId);
 
         // then
         assertSoftly(softly -> {
@@ -153,7 +153,7 @@ class KeywordManagerTest {
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
-        List<AnalysisResult> results = keywordManager.analyzeKeywords(roomId);
+        List<AnalysisResult> results = roomKeywordManager.analyzeKeywords(roomId);
 
         // then
         assertSoftly(softly -> {
@@ -179,7 +179,7 @@ class KeywordManagerTest {
         when(analysisResultStore.findByRoomId(roomId)).thenReturn(storedResults);
 
         // when
-        List<AnalysisResult> results = keywordManager.analyzeKeywords(roomId);
+        List<AnalysisResult> results = roomKeywordManager.analyzeKeywords(roomId);
 
         // then
         assertSoftly(softly -> {
@@ -202,7 +202,7 @@ class KeywordManagerTest {
         when(analysisResultStore.findByRoomId(roomId)).thenReturn(expectedResults);
 
         // when
-        List<AnalysisResult> results = keywordManager.getAnalysisResult(roomId);
+        List<AnalysisResult> results = roomKeywordManager.getAnalysisResult(roomId);
 
         // then
         assertSoftly(softly -> {
@@ -225,7 +225,7 @@ class KeywordManagerTest {
         when(analysisResultStore.findByRoomId(roomId)).thenReturn(emptyResults);
 
         // when
-        List<AnalysisResult> results = keywordManager.getAnalysisResult(roomId);
+        List<AnalysisResult> results = roomKeywordManager.getAnalysisResult(roomId);
 
         // then
         assertSoftly(softly -> {

@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.service;
 
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
-import com.team6.team6.keyword.domain.KeywordManager;
+import com.team6.team6.keyword.domain.RoomKeywordManager;
 import com.team6.team6.keyword.domain.repository.MemberRegistryRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.dto.ChatMessage;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class WebSocketSubscribeService {
 
     private final MemberRegistryRepository memberRegistryRepository;
-    private final KeywordManager keywordManager;
+    private final RoomKeywordManager roomKeywordManager;
     private final MessagePublisher messagePublisher;
     private final KeywordService keywordService;
 
@@ -58,7 +58,7 @@ public class WebSocketSubscribeService {
      */
     public void publishAnalysisResults(String roomKey, Long roomId) {
         // 마지막 키워드 분석 결과 전송
-        List<AnalysisResult> results = keywordManager.getAnalysisResult(roomId);
+        List<AnalysisResult> results = roomKeywordManager.getAnalysisResult(roomId);
         if (!results.isEmpty()) {
             messagePublisher.publishKeywordAnalysisResult(roomKey, results);
         }

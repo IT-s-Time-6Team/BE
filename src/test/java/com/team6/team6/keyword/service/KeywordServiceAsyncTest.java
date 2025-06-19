@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.service;
 
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
-import com.team6.team6.keyword.domain.KeywordManager;
+import com.team6.team6.keyword.domain.RoomKeywordManager;
 import com.team6.team6.keyword.domain.repository.KeywordRepository;
 import com.team6.team6.keyword.dto.KeywordAddServiceReq;
 import com.team6.team6.keyword.entity.Keyword;
@@ -27,8 +27,8 @@ class KeywordServiceAsyncTest {
     @EnableAsync
     static class TestConfig {
         @Bean
-        public KeywordManager keywordManager() {
-            return new SimulatedLatencyKeywordManager(2000);
+        public RoomKeywordManager keywordManager() {
+            return new SimulatedLatencyRoomKeywordManager(2000);
         }
     }
 

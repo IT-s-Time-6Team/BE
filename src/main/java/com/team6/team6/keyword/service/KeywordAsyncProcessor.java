@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.service;
 
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
-import com.team6.team6.keyword.domain.KeywordManager;
+import com.team6.team6.keyword.domain.RoomKeywordManager;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.question.service.QuestionService;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +14,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class KeywordAsyncProcessor {
 
-    private final KeywordManager keywordManager;
+    private final RoomKeywordManager roomKeywordManager;
     private final MessagePublisher messagePublisher;
     private final QuestionService questionService;
 
     @Async
     public void processKeywordAnalysisAsync(Long roomId,String roomKey, String keyword) {
         // 키워드 분석 실행
-        List<AnalysisResult> results = keywordManager.addKeyword(roomId, keyword);
+        List<AnalysisResult> results = roomKeywordManager.addKeyword(roomId, keyword);
 
         // 각 분석 결과의 referenceName으로 질문 생성
         for (AnalysisResult result : results) {
