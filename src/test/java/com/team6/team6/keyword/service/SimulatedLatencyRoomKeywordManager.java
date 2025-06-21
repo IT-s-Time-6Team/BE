@@ -13,7 +13,7 @@ public class SimulatedLatencyRoomKeywordManager extends RoomKeywordManager {
     private final long delayMillis;
 
     public SimulatedLatencyRoomKeywordManager(long delayMillis) {
-        super(new MockKeywordStore(), new MockKeywordSimilarityAnalyser(), new MockAnalysisResultStore(), new MockKeywordPreprocessor());
+        super(new MockKeywordStore(), new MockKeywordSimilarityAnalyser(), new MockAnalysisResultStore());
         this.delayMillis = delayMillis;
     }
 
@@ -78,7 +78,4 @@ public class SimulatedLatencyRoomKeywordManager extends RoomKeywordManager {
         }
     }
 
-    private static class MockKeywordPreprocessor extends KeywordPreprocessor {
-
-    }
 }
