@@ -67,7 +67,7 @@ public class GlobalKeywordManager {
             keywordGroupRepository.save(newGroup);
             GlobalKeyword newGlobalKeyword = GlobalKeyword.create(preprocessedNewKeyword, newGroup);
             globalKeywordRepository.save(newGlobalKeyword);
-            questionService.generateQuestions(preprocessedNewKeyword);
+            questionService.generateQuestions(preprocessedNewKeyword, newGroup);
         }
     }
 
