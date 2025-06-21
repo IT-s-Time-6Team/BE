@@ -1,6 +1,8 @@
 package com.team6.team6.question.service;
 
 import com.team6.team6.global.error.exception.NotFoundException;
+import com.team6.team6.keyword.domain.KeywordPreprocessor;
+import com.team6.team6.keyword.entity.KeywordGroup;
 import com.team6.team6.question.domain.KeywordLockManager;
 import com.team6.team6.question.domain.QuestionGenerator;
 import com.team6.team6.question.domain.QuestionRepository;
@@ -25,26 +27,28 @@ public class QuestionService {
     private final QuestionRepository questionRepository;
     private final QuestionGenerator questionGenerator;
     private final KeywordLockManager lockManager;
+    private final KeywordPreprocessor keywordPreprocessor;
 
     @Transactional
     @Async
-    public void generateQuestions(String keyword) {
+    public void generateQuestions(String keyword, KeywordGroup keywordGroup) {
         if (questionRepository.existsByKeyword(keyword) || !lockManager.tryLock(keyword)) {
             return;
         }
 
         List<String> generated = questionGenerator.generateQuestions(keyword);
         List<Question> questions = generated.stream()
-                .map(q -> Question.of(keyword, q))
+                .map(q -> Question.of(keyword, q, keywordGroup))
                 .toList();
         questionRepository.saveAll(questions);
         unlockAfterCommit(keyword);
     }
 
     public List<QuestionResponse> getRandomQuestions(String keyword) {
-        Questions questions = Questions.of(questionRepository.findAllByKeyword(keyword));
+        String preprocessedKeyword = keywordPreprocessor.preprocess(keyword);
+        Questions questions = Questions.of(questionRepository.findAllByKeyword(preprocessedKeyword));
         if (questions.isEmpty()) {
-            throw new NotFoundException("해당 키워드에 대한 질문이 존재하지 않습니다: " + keyword);
+            throw new NotFoundException("해당 키워드에 대한 질문이 존재하지 않습니다: " + preprocessedKeyword);
         }
         return questions.getRandomSubset(DEFAULT_QUESTION_COUNT).stream()
                 .map(QuestionResponse::from)
