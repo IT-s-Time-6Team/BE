@@ -66,7 +66,7 @@ class GlobalKeywordManagerTest {
 
         // then
         verify(globalKeywordRepository, never()).findByKeyword(anyString());
-        verify(questionService, never()).generateQuestions(anyString());
+        verify(questionService, never()).generateQuestions(anyString(), any(KeywordGroup.class));
     }
 
     @Test
@@ -95,7 +95,7 @@ class GlobalKeywordManagerTest {
             softly.assertThat(savedKeyword.getKeyword()).isEqualTo("java");
             softly.assertThat(savedKeyword.getKeywordGroup()).isEqualTo(frameworkGroup);
         });
-        verify(questionService, never()).generateQuestions(anyString());
+        verify(questionService, never()).generateQuestions(anyString(), any(KeywordGroup.class));
     }
 
     @Test
@@ -126,7 +126,7 @@ class GlobalKeywordManagerTest {
             softly.assertThat(savedKeyword.getKeyword()).isEqualTo("java");
             softly.assertThat(savedKeyword.getKeywordGroup().getRepresentativeKeyword()).isEqualTo("java");
         });
-        verify(questionService).generateQuestions("java");
+        verify(questionService).generateQuestions("java", savedGroup);
     }
 
     @Test
@@ -155,7 +155,7 @@ class GlobalKeywordManagerTest {
         verify(globalKeywordRepository, never()).bulkUpdateKeywordGroups(any(), anyCollection());
         // 키워드 저장도 발생하지 않음
         verify(globalKeywordRepository, never()).save(any(GlobalKeyword.class));
-        verify(questionService, never()).generateQuestions(anyString());
+        verify(questionService, never()).generateQuestions(anyString(), any(KeywordGroup.class));
     }
 
     @Test
@@ -180,6 +180,6 @@ class GlobalKeywordManagerTest {
 
         // then
         verify(globalKeywordRepository).bulkUpdateKeywordGroups(javaGroup, Set.of(springGroup));
-        verify(questionService, never()).generateQuestions(anyString());
+        verify(questionService, never()).generateQuestions(anyString(), any(KeywordGroup.class));
     }
 }

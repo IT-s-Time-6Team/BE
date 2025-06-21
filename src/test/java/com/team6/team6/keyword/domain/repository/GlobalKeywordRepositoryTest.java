@@ -80,7 +80,7 @@ class GlobalKeywordRepositoryTest {
         );
 
         // then
-        List<GlobalKeyword> allKeywords = List.of(keyword1, keyword2, keyword3, keyword4);
+        List<GlobalKeyword> allKeywords = globalKeywordRepository.findAll();
         assertSoftly(softly -> {
             softly.assertThat(updatedCount).isEqualTo(3); // 3개의 레코드가 업데이트되어야 함
             allKeywords.forEach(keyword ->

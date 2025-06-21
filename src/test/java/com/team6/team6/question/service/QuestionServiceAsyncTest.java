@@ -47,7 +47,7 @@ class QuestionServiceAsyncTest {
 
         // when
         long startTime = System.currentTimeMillis();
-        questionService.generateQuestions(keyword);
+        questionService.generateQuestions(keyword, null);
         long elapsed = System.currentTimeMillis() - startTime;
 
         // then
@@ -68,7 +68,7 @@ class QuestionServiceAsyncTest {
             try {
                 ready.countDown(); // 준비 완료
                 start.await();     // 시작 신호 대기
-                questionService.generateQuestions(keyword);
+                questionService.generateQuestions(keyword, null);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
