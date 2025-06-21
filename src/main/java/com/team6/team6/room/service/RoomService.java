@@ -4,6 +4,7 @@ import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.keyword.domain.AnalysisResultStore;
 import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.member.security.UserPrincipal;
+import com.team6.team6.room.domain.RoomExpiryManager;
 import com.team6.team6.room.dto.MemberKeywordCount;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
@@ -35,7 +36,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final RoomKeyGenerator roomKeyGenerator;
-    private final RoomExpiryService roomExpiryService;
+    private final RoomExpiryManager roomExpiryManager;
     private final AnalysisResultStore analysisResultStore;
     private final RoomNotificationService roomNotificationService;
 
@@ -47,9 +48,20 @@ public class RoomService {
         Room savedRoom = roomRepository.save(room);
 
         // 방 만료 타이머 설정
-        roomExpiryService.scheduleRoomExpiry(
+        int durationMinutes = request.durationMinutes();
+
+        // 방 종료 5분 전 알림 타이머 설정
+        if (durationMinutes > 5) {
+            roomExpiryManager.scheduleExpiryWarning(
+                    roomKey,
+                    Duration.ofMinutes(durationMinutes - 5)
+            );
+        }
+
+        // 방 종료 타이머 설정
+        roomExpiryManager.scheduleRoomClosure(
                 roomKey,
-                request.durationMinutes()
+                Duration.ofMinutes(durationMinutes)
         );
 
         return RoomResponse.from(savedRoom);
@@ -85,7 +97,7 @@ public class RoomService {
         roomNotificationService.leaderRoomClosedNotification(roomKey);
 
         // 방 관련 모든 타이머 취소
-        roomExpiryService.cancelRoomExpiry(roomKey);
+        roomExpiryManager.cancelAllTimers(roomKey);
     }
 
 
