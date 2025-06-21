@@ -5,6 +5,7 @@ import com.team6.team6.keyword.domain.repository.KeywordGroupRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.entity.GlobalKeyword;
 import com.team6.team6.keyword.entity.KeywordGroup;
+import com.team6.team6.question.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ public class GlobalKeywordManager {
     private final KeywordPreprocessor keywordPreprocessor;
     private final GlobalKeywordRepository globalKeywordRepository;
     private final KeywordGroupRepository keywordGroupRepository;
+    private final QuestionService questionService;
 
     // 키워드 정규화: 분석 결과의 키워드를 전처리하여 일관된 형식으로 저장
     @Transactional
@@ -65,6 +67,7 @@ public class GlobalKeywordManager {
             keywordGroupRepository.save(newGroup);
             GlobalKeyword newGlobalKeyword = GlobalKeyword.create(preprocessedNewKeyword, newGroup);
             globalKeywordRepository.save(newGlobalKeyword);
+            questionService.generateQuestions(preprocessedNewKeyword);
         }
     }
 
