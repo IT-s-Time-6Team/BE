@@ -5,6 +5,7 @@ import com.team6.team6.keyword.domain.repository.KeywordGroupRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.entity.GlobalKeyword;
 import com.team6.team6.keyword.entity.KeywordGroup;
+import com.team6.team6.question.service.QuestionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +33,9 @@ class GlobalKeywordManagerTest {
     @Mock
     private KeywordGroupRepository keywordGroupRepository;
 
+    @Mock
+    private QuestionService questionService;
+
     private GlobalKeywordManager globalKeywordManager;
 
     @Captor
@@ -46,7 +50,8 @@ class GlobalKeywordManagerTest {
         globalKeywordManager = new GlobalKeywordManager(
                 keywordPreprocessor,
                 globalKeywordRepository,
-                keywordGroupRepository
+                keywordGroupRepository,
+                questionService
         );
     }
 
@@ -61,10 +66,11 @@ class GlobalKeywordManagerTest {
 
         // then
         verify(globalKeywordRepository, never()).findByKeyword(anyString());
+        verify(questionService, never()).generateQuestions(anyString());
     }
 
     @Test
-    void new_keyword가_global_keyword에_존재하지_않을_때_테스트() {
+    void new_keyword가_global_keyword에_존재하지만_같은_그룹내_다른_키워드가_있을_때_테스트() {
         // given
         AnalysisResult result = AnalysisResult.of("Spring", Arrays.asList("Spring", "spring boot"));
         String newKeyword = "java";
@@ -89,6 +95,7 @@ class GlobalKeywordManagerTest {
             softly.assertThat(savedKeyword.getKeyword()).isEqualTo("java");
             softly.assertThat(savedKeyword.getKeywordGroup()).isEqualTo(frameworkGroup);
         });
+        verify(questionService, never()).generateQuestions(anyString());
     }
 
     @Test
@@ -119,6 +126,7 @@ class GlobalKeywordManagerTest {
             softly.assertThat(savedKeyword.getKeyword()).isEqualTo("java");
             softly.assertThat(savedKeyword.getKeywordGroup().getRepresentativeKeyword()).isEqualTo("java");
         });
+        verify(questionService).generateQuestions("java");
     }
 
     @Test
@@ -147,6 +155,7 @@ class GlobalKeywordManagerTest {
         verify(globalKeywordRepository, never()).bulkUpdateKeywordGroups(any(), anyCollection());
         // 키워드 저장도 발생하지 않음
         verify(globalKeywordRepository, never()).save(any(GlobalKeyword.class));
+        verify(questionService, never()).generateQuestions(anyString());
     }
 
     @Test
@@ -171,5 +180,6 @@ class GlobalKeywordManagerTest {
 
         // then
         verify(globalKeywordRepository).bulkUpdateKeywordGroups(javaGroup, Set.of(springGroup));
+        verify(questionService, never()).generateQuestions(anyString());
     }
 }
