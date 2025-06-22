@@ -37,9 +37,11 @@ public class GlobalKeywordManager {
                 .toList();
         // 새 키워드 전처리
         String preprocessedNewKeyword = keywordPreprocessor.preprocess(newKeyword);
+        log.debug("전처리된 키워드 목록: {}, 새 키워드: {}", preprocessedKeywords, preprocessedNewKeyword);
 
         // newKeyword와 동일한 키워드가 입력된 적 있다면, 메서드 종료
         if (alreadyProcessed(preprocessedKeywords, preprocessedNewKeyword)) {
+            log.info("이미 처리된 중복 키워드: {}", preprocessedNewKeyword);
             return;
         }
 
@@ -52,11 +54,14 @@ public class GlobalKeywordManager {
             // global keyword에 존재하지 않을 때 처리
             handleNewKeyword(preprocessedKeywords, preprocessedNewKeyword);
         }
+        log.info("키워드 정규화 완료: {}", newKeyword);
     }
 
     private void handleNewKeyword(List<String> preprocessedKeywords, String preprocessedNewKeyword) {
         // 그룹화된 키워드 내 global keyword 조회
+        log.debug("새 키워드 처리 시작: {}", preprocessedNewKeyword);
         List<GlobalKeyword> others = globalKeywordRepository.findByKeywordIn(preprocessedKeywords);
+        log.debug("연관 키워드 수: {}", others.size());
 
         if (!others.isEmpty()) {
             // 그룹화된 키워드 내 global keyword가 존재하면 해당 그룹에 새 키워드 추가

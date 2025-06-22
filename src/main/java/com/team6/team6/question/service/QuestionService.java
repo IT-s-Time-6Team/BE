@@ -10,6 +10,7 @@ import com.team6.team6.question.domain.Questions;
 import com.team6.team6.question.dto.QuestionResponse;
 import com.team6.team6.question.entity.Question;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionService {
 
     private static final int DEFAULT_QUESTION_COUNT = 10;
@@ -32,15 +34,20 @@ public class QuestionService {
     @Transactional
     @Async
     public void generateQuestions(String keyword, KeywordGroup keywordGroup) {
+        log.info("질문 생성 시작: 키워드={}, 그룹ID={}", keyword, keywordGroup.getId());
+
         if (questionRepository.existsByKeyword(keyword) || !lockManager.tryLock(keyword)) {
             return;
         }
 
+        log.debug("질문 생성 API 호출 시작: {}", keyword);
         List<String> generated = questionGenerator.generateQuestions(keyword);
+        log.debug("생성된 질문 수: {}", generated.size());
         List<Question> questions = generated.stream()
                 .map(q -> Question.of(keyword, q, keywordGroup))
                 .toList();
         questionRepository.saveAll(questions);
+        log.info("질문 생성 완료: 키워드={}, 생성된 질문 수={}", keyword, questions.size());
         unlockAfterCommit(keyword);
     }
 
