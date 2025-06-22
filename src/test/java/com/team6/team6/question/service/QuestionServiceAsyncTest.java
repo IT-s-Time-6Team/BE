@@ -1,6 +1,7 @@
 package com.team6.team6.question.service;
 
 import com.team6.team6.global.error.exception.NotFoundException;
+import com.team6.team6.keyword.entity.KeywordGroup;
 import com.team6.team6.question.domain.QuestionGenerator;
 import com.team6.team6.question.domain.QuestionRepository;
 import com.team6.team6.question.domain.SimulatedLatencyQuestionGenerator;
@@ -60,15 +61,19 @@ class QuestionServiceAsyncTest {
         String keyword = "LOL";
         given(questionRepository.existsByKeyword(keyword)).willReturn(false);
 
+        // 모의 KeywordGroup 객체 생성
+        KeywordGroup mockGroup = mock(KeywordGroup.class);
+        when(mockGroup.getId()).thenReturn(1L);  // 또는 적절한 ID 값 설정
+
         ExecutorService executor = Executors.newFixedThreadPool(2);
         CountDownLatch ready = new CountDownLatch(2);
         CountDownLatch start = new CountDownLatch(1);
 
         Runnable task = () -> {
             try {
-                ready.countDown(); // 준비 완료
-                start.await();     // 시작 신호 대기
-                questionService.generateQuestions(keyword, null);
+                ready.countDown();
+                start.await();
+                questionService.generateQuestions(keyword, mockGroup);  // mock 전달
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

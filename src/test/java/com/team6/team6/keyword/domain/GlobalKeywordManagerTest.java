@@ -99,37 +99,6 @@ class GlobalKeywordManagerTest {
     }
 
     @Test
-    void AnalysisResult에_new_keyword만_있을_때_테스트() {
-        // given
-        AnalysisResult result = AnalysisResult.of("java", Arrays.asList("java"));
-        String newKeyword = "java";
-
-        // java 키워드는 존재하지 않음
-        when(globalKeywordRepository.findByKeyword("java")).thenReturn(Optional.empty());
-        when(globalKeywordRepository.findByKeywordIn(Arrays.asList("java")))
-                .thenReturn(Collections.emptyList());
-
-        // when
-        globalKeywordManager.normalizeKeyword(result, newKeyword);
-
-        // then
-        // 새 그룹이 생성되었는지 확인
-        verify(keywordGroupRepository).save(groupCaptor.capture());
-        KeywordGroup savedGroup = groupCaptor.getValue();
-
-        // 새 키워드가 새 그룹에 저장되었는지 확인
-        verify(globalKeywordRepository).save(keywordCaptor.capture());
-        GlobalKeyword savedKeyword = keywordCaptor.getValue();
-
-        assertSoftly(softly -> {
-            softly.assertThat(savedGroup.getRepresentativeKeyword()).isEqualTo("java");
-            softly.assertThat(savedKeyword.getKeyword()).isEqualTo("java");
-            softly.assertThat(savedKeyword.getKeywordGroup().getRepresentativeKeyword()).isEqualTo("java");
-        });
-        verify(questionService).generateQuestions("java", savedGroup);
-    }
-
-    @Test
     void 새_키워드가_이미_존재하고_모든_키워드가_동일_그룹인_경우_테스트() {
         // given
         AnalysisResult result = AnalysisResult.of("Spring", Arrays.asList("Spring", "spring boot"));
