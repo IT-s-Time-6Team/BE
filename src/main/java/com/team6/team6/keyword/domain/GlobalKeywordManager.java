@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,8 +69,18 @@ public class GlobalKeywordManager {
             keywordGroupRepository.save(newGroup);
             GlobalKeyword newGlobalKeyword = GlobalKeyword.create(preprocessedNewKeyword, newGroup);
             globalKeywordRepository.save(newGlobalKeyword);
-            questionService.generateQuestions(preprocessedNewKeyword, newGroup);
+            log.info("새 키워드 '{}'와 그룹 '{}'이 생성되었습니다..", preprocessedNewKeyword, newGroup.getId());
+            generateQuestionsAfterCommit(preprocessedNewKeyword, newGroup);
         }
+    }
+
+    private void generateQuestionsAfterCommit(String preprocessedNewKeyword, KeywordGroup newGroup) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                questionService.generateQuestions(preprocessedNewKeyword, newGroup);
+            }
+        });
     }
 
     private void handleExistingKeyword(List<String> preprocessedKeywords, GlobalKeyword globalKeyword) {
