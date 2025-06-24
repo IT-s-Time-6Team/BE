@@ -9,10 +9,10 @@ import java.util.List;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-class RoomResultTest {
+class KeywordRoomResultTest {
 
     @Test
-    void RoomResult_생성_테스트() {
+    void KeywordRoomResult_생성_테스트() {
         // given
         List<String> sharedKeywords = List.of("여행", "음악", "영화");
         Duration totalDuration = Duration.ofHours(1).plusMinutes(30).plusSeconds(45);
@@ -31,7 +31,7 @@ class RoomResultTest {
         CharacterType requestMemberCharacter = CharacterType.RABBIT;
 
         // when
-        RoomResult result = RoomResult.of(
+        KeywordRoomResult result = KeywordRoomResult.of(
                 sharedKeywords,
                 totalDuration,
                 topKeywordContributors,
@@ -62,7 +62,7 @@ class RoomResultTest {
         CharacterType requestMemberCharacter = CharacterType.RABBIT;
 
         // when - 초만 있는 경우
-        RoomResult secondsOnly = RoomResult.of(
+        KeywordRoomResult secondsOnly = KeywordRoomResult.of(
                 sharedKeywords,
                 Duration.ofSeconds(45),
                 contributors,
@@ -72,7 +72,7 @@ class RoomResultTest {
         );
 
         // when - 분과 초만 있는 경우
-        RoomResult minutesAndSeconds = RoomResult.of(
+        KeywordRoomResult minutesAndSeconds = KeywordRoomResult.of(
                 sharedKeywords,
                 Duration.ofMinutes(25).plusSeconds(30),
                 contributors,
@@ -82,7 +82,7 @@ class RoomResultTest {
         );
 
         // when - 시간, 분, 초가 모두 있는 경우
-        RoomResult hoursMinutesSeconds = RoomResult.of(
+        KeywordRoomResult hoursMinutesSeconds = KeywordRoomResult.of(
                 sharedKeywords,
                 Duration.ofHours(2).plusMinutes(15).plusSeconds(10),
                 contributors,
@@ -109,7 +109,7 @@ class RoomResultTest {
         CharacterType requestMemberCharacter = CharacterType.RABBIT;
 
         // when
-        RoomResult result = RoomResult.of(
+        KeywordRoomResult result = KeywordRoomResult.of(
                 emptyKeywords,
                 duration,
                 emptyContributors,
@@ -130,4 +130,4 @@ class RoomResultTest {
             softly.assertThat(result.requestMemberCharacter()).isEqualTo(CharacterType.RABBIT);
         });
     }
-}
+} 

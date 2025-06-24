@@ -1,9 +1,10 @@
 package com.team6.team6.room.controller;
 
 import com.team6.team6.global.ApiResponse;
+import com.team6.team6.room.dto.KeywordRoomResult;
 import com.team6.team6.room.dto.RoomCreateRequest;
 import com.team6.team6.room.dto.RoomResponse;
-import com.team6.team6.room.dto.RoomResult;
+import com.team6.team6.room.service.ResultService;
 import com.team6.team6.room.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class RoomController {
 
     private final RoomService roomService;
+    private final ResultService resultService;
 
     // 방 생성
     @PostMapping
@@ -41,9 +43,10 @@ public class RoomController {
         return ApiResponse.of(HttpStatus.OK, "방이 종료되었습니다", null);
     }
 
+    // 키워드 결과 조회
     @GetMapping("/{roomKey}/result")
-    public ApiResponse<RoomResult> getRoomResult(@PathVariable String roomKey) {
-        RoomResult roomResult = roomService.getRoomResult(roomKey);
-        return ApiResponse.of(HttpStatus.OK, "방 결과 조회 성공", roomResult);
+    public ApiResponse<KeywordRoomResult> getKeywordResult(@PathVariable String roomKey) {
+        KeywordRoomResult roomResult = resultService.getKeywordResult(roomKey);
+        return ApiResponse.of(HttpStatus.OK, "키워드 결과 조회 성공", roomResult);
     }
 }

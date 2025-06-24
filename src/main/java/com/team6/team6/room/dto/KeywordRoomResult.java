@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public record RoomResult(
+public record KeywordRoomResult(
         List<String> sharedKeywords,
         String totalDuration,
         List<String> topKeywordContributorNames,
@@ -17,7 +17,7 @@ public record RoomResult(
         CharacterType requestMemberCharacter
 ) {
 
-    public static RoomResult of(
+    public static KeywordRoomResult of(
             List<String> sharedKeywords,
             Duration totalDuration,
             List<MemberKeywordCount> topKeywordContributors,
@@ -35,7 +35,7 @@ public record RoomResult(
         int matchedHobbyCount = mostSharedKeywordUsers.isEmpty() ? 0 : mostSharedKeywordUsers.get(0).keywordCount();
         List<String> mostMatchedHobbyUserNames = getMemberNames(mostSharedKeywordUsers);
 
-        return new RoomResult(
+        return new KeywordRoomResult(
                 sharedKeywords,
                 formattedDuration,
                 topKeywordContributorNames,
@@ -67,4 +67,4 @@ public record RoomResult(
             return String.format("%d초", seconds);
         }
     }
-}
+} 
