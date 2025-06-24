@@ -3,10 +3,11 @@ package com.team6.team6.room.controller;
 import com.team6.team6.global.CustomRestDocsHandler;
 import com.team6.team6.global.RestDocsSupport;
 import com.team6.team6.member.entity.CharacterType;
+import com.team6.team6.room.dto.KeywordRoomResult;
 import com.team6.team6.room.dto.RoomCreateRequest;
 import com.team6.team6.room.dto.RoomResponse;
-import com.team6.team6.room.dto.RoomResult;
 import com.team6.team6.room.entity.GameMode;
+import com.team6.team6.room.service.ResultService;
 import com.team6.team6.room.service.RoomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,10 +31,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RoomControllerDocsTest extends RestDocsSupport {
 
     private final RoomService roomService = mock(RoomService.class);
+    private final ResultService resultService = mock(ResultService.class);
 
     @Override
     protected Object initController() {
-        return new RoomController(roomService);
+        return new RoomController(roomService, resultService);
     }
 
     @DisplayName("방 생성 API")
@@ -175,15 +177,15 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                 ));
     }
 
-    @DisplayName("방 결과 조회 API")
+    @DisplayName("키워드 결과 조회 API")
     @Test
-    void getRoomResult() throws Exception {
-        // 가짜 RoomResult 객체 생성
+    void getKeywordResult() throws Exception {
+        // 가짜 KeywordRoomResult 객체 생성
         List<String> sharedKeywords = List.of("LOL", "애니");
         List<String> topContributors = List.of("하나");
         List<String> mostMatchedUsers = List.of("하나");
 
-        RoomResult mockResult = new RoomResult(
+        KeywordRoomResult mockResult = new KeywordRoomResult(
                 sharedKeywords,
                 "30분 12초",
                 topContributors,
@@ -194,7 +196,7 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                 CharacterType.RABBIT
         );
 
-        given(roomService.getRoomResult("abc123")).willReturn(mockResult);
+        given(resultService.getKeywordResult("abc123")).willReturn(mockResult);
 
         mockMvc.perform(get("/rooms/{roomKey}/result", "abc123")
                         .accept(MediaType.APPLICATION_JSON))
