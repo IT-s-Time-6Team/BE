@@ -1,9 +1,6 @@
 package com.team6.team6.keyword.service;
 
-import com.team6.team6.keyword.domain.AnalysisResultStore;
-import com.team6.team6.keyword.domain.KeywordManager;
-import com.team6.team6.keyword.domain.KeywordSimilarityAnalyser;
-import com.team6.team6.keyword.domain.KeywordStore;
+import com.team6.team6.keyword.domain.*;
 import com.team6.team6.keyword.dto.AnalysisResult;
 
 import java.util.List;
@@ -12,10 +9,10 @@ import java.util.List;
  * SimulatedLatencyKeywordManager는 KeywordManager를 상속받아
  * addKeyword 메서드에 인위적인 지연을 추가하여 테스트 환경에서 사용됩니다.
  */
-public class SimulatedLatencyKeywordManager extends KeywordManager {
+public class SimulatedLatencyRoomKeywordManager extends RoomKeywordManager {
     private final long delayMillis;
 
-    public SimulatedLatencyKeywordManager(long delayMillis) {
+    public SimulatedLatencyRoomKeywordManager(long delayMillis) {
         super(new MockKeywordStore(), new MockKeywordSimilarityAnalyser(), new MockAnalysisResultStore());
         this.delayMillis = delayMillis;
     }
@@ -80,4 +77,5 @@ public class SimulatedLatencyKeywordManager extends KeywordManager {
             return;
         }
     }
+
 }

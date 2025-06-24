@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.service;
 
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
-import com.team6.team6.keyword.domain.KeywordManager;
+import com.team6.team6.keyword.domain.RoomKeywordManager;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.keyword.entity.Keyword;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class KeywordWebSocketSubscribeService {
 
     private final RoomMemberStateManager roomMemberStateManager;
-    private final KeywordManager keywordManager;
+    private final RoomKeywordManager keywordManager;
     private final MessagePublisher messagePublisher;
     private final KeywordService keywordService;
 

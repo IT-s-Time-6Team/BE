@@ -34,6 +34,14 @@ public class StandardLog extends AbstractLog {
         return new StandardLog(ERROR, message, exception);
     }
 
+    public static StandardLog debug(String message) {
+        return new StandardLog(LogType.DEBUG, message, null);
+    }
+
+    public static StandardLog warn(String message) {
+        return new StandardLog(LogType.WARN, message, null);
+    }
+
     @Override
     public void output() {
         switch (getType()) {
@@ -42,6 +50,12 @@ public class StandardLog extends AbstractLog {
                 break;
             case ERROR:
                 log.error(getLogMessage());
+                break;
+            case DEBUG:
+                log.debug(getLogMessage());
+                break;
+            case WARN:
+                log.warn(getLogMessage());
                 break;
             default:
                 log.warn("Unknown log type: {}", getType());

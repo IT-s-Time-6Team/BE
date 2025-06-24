@@ -17,6 +17,16 @@ public class LogUtil {
         StandardLog.error(message, exception).output();
     }
 
+    // 디버그 로그
+    public static void debugLog(String message) {
+        StandardLog.debug(message).output();
+    }
+
+    // 경고 로그
+    public static void warnLog(String message) {
+        StandardLog.warn(message).output();
+    }
+
     // 요청 로그
     public static void requestLog(ContentCachingRequestWrapper request,
                                   ContentCachingResponseWrapper response,

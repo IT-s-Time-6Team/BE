@@ -1,7 +1,7 @@
 package com.team6.team6.keyword.service;
 
 import com.team6.team6.common.messaging.publisher.MessagePublisher;
-import com.team6.team6.keyword.domain.KeywordManager;
+import com.team6.team6.keyword.domain.RoomKeywordManager;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.keyword.entity.Keyword;
@@ -31,7 +31,7 @@ class KeywordWebSocketSubscribeServiceTest {
     @Mock
     private RoomMemberStateManager roomMemberStateManager;
     @Mock
-    private KeywordManager keywordManager;
+    private RoomKeywordManager roomKeywordManager;
     @Mock
     private MessagePublisher messagePublisher;
     @Mock
@@ -100,7 +100,7 @@ class KeywordWebSocketSubscribeServiceTest {
     void 키워드_분석_결과_발행_테스트_결과_있음() {
         // Given
         AnalysisResult result = mock(AnalysisResult.class);
-        when(keywordManager.getAnalysisResult(roomId)).thenReturn(List.of(result));
+        when(roomKeywordManager.getAnalysisResult(roomId)).thenReturn(List.of(result));
 
         // When
         keywordWebSocketSubscribeService.publishAnalysisResults(roomKey, roomId);
@@ -112,7 +112,7 @@ class KeywordWebSocketSubscribeServiceTest {
     @Test
     void 키워드_분석_결과_발행_테스트_결과_없음() {
         // Given
-        when(keywordManager.getAnalysisResult(roomId)).thenReturn(Collections.emptyList());
+        when(roomKeywordManager.getAnalysisResult(roomId)).thenReturn(Collections.emptyList());
 
         // When
         keywordWebSocketSubscribeService.publishAnalysisResults(roomKey, roomId);

@@ -1,7 +1,6 @@
-package com.team6.team6.question.entity;
+package com.team6.team6.keyword.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
-import com.team6.team6.keyword.entity.KeywordGroup;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -11,29 +10,28 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Question extends BaseEntity {
+public class GlobalKeyword extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String keyword;
-    private String question;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private KeywordGroup keywordGroup;
 
     @Builder
-    private Question(String keyword, String question, KeywordGroup keywordGroup) {
-        this.question = question;
+    private GlobalKeyword(String keyword, KeywordGroup keywordGroup) {
         this.keyword = keyword;
         this.keywordGroup = keywordGroup;
     }
 
-    public static Question of(String keyword, String question, KeywordGroup keywordGroup) {
-        return Question.builder()
+    public static GlobalKeyword create(String keyword, KeywordGroup keywordGroup) {
+        return GlobalKeyword.builder()
                 .keyword(keyword)
-                .question(question)
                 .keywordGroup(keywordGroup)
                 .build();
     }
