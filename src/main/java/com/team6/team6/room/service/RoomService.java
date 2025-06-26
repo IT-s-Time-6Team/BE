@@ -4,9 +4,11 @@ import com.team6.team6.global.error.exception.NotFoundException;
 import com.team6.team6.room.domain.RoomExpiryManager;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
+import com.team6.team6.room.entity.GameMode;
 import com.team6.team6.room.entity.Room;
 import com.team6.team6.room.repository.RoomRepository;
 import com.team6.team6.room.util.RoomKeyGenerator;
+import com.team6.team6.tmi.service.TmiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Recover;
@@ -26,6 +28,7 @@ public class RoomService {
     private final RoomKeyGenerator roomKeyGenerator;
     private final RoomExpiryManager roomExpiryManager;
     private final RoomNotificationService roomNotificationService;
+    private final TmiService tmiService;
 
     @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
     @Transactional
@@ -33,6 +36,11 @@ public class RoomService {
         String roomKey = roomKeyGenerator.generateRoomKey();
         Room room = Room.create(roomKey, request);
         Room savedRoom = roomRepository.save(room);
+
+        // TMI 모드인 경우 게임 세션 생성
+        if (request.gameMode() == GameMode.TMI) {
+            tmiService.createTmiGameSession(savedRoom.getId(), request.maxMember());
+        }
 
         // 방 만료 타이머 설정
         int durationMinutes = request.durationMinutes();
