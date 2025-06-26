@@ -20,9 +20,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Transactional
 class RoomServiceTest {
 
+    private final static Integer TMI_DURATION_MINUTES = 1440; // 24시간
+
     @Autowired
     private RoomService roomService;
-
 
     @Autowired
     private RoomRepository roomRepository;
@@ -48,6 +49,48 @@ class RoomServiceTest {
         assertThat(room.getGameMode()).isEqualTo(request.gameMode());
     }
 
+    @Test
+    void TMI_모드_방_생성_성공() {
+        // given
+        RoomCreateServiceRequest request = new RoomCreateServiceRequest(
+                null, 6, TMI_DURATION_MINUTES, GameMode.TMI  // requiredAgreements는 null, durationMinutes는 24시간
+        );
+
+        // when
+        RoomResponse response = roomService.createRoom(request);
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(response.roomKey()).isNotNull();
+
+        // 실제 DB에서 조회해서 확인
+        Room room = roomRepository.findByRoomKey(response.roomKey()).orElseThrow();
+        assertThat(room.getRequiredAgreements()).isNull(); // TMI 모드에서는 null
+        assertThat(room.getMaxMember()).isEqualTo(request.maxMember());
+        assertThat(room.getDurationMinutes()).isEqualTo(TMI_DURATION_MINUTES); // 24시간
+        assertThat(room.getGameMode()).isEqualTo(GameMode.TMI);
+    }
+
+    @Test
+    void TMI_모드_방_조회_성공() {
+        // given
+        RoomCreateServiceRequest request = new RoomCreateServiceRequest(
+                null, 6, TMI_DURATION_MINUTES, GameMode.TMI
+        );
+        RoomResponse createdRoom = roomService.createRoom(request);
+        String roomKey = createdRoom.roomKey();
+
+        // when
+        RoomResponse response = roomService.getRoom(roomKey);
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(response.roomKey()).isEqualTo(roomKey);
+        assertThat(response.requiredAgreements()).isNull(); // TMI 모드에서는 null
+        assertThat(response.maxMember()).isEqualTo(request.maxMember());
+        assertThat(response.durationMinutes()).isEqualTo(TMI_DURATION_MINUTES); // 24시간
+        assertThat(response.gameMode()).isEqualTo(GameMode.TMI);
+    }
 
     @Test
     void 존재하는_방_조회_성공() {

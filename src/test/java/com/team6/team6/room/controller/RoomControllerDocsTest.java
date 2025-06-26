@@ -64,14 +64,14 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                 .andDo(CustomRestDocsHandler.customDocument("create",
                         requestFields(
                                 fieldWithPath("requiredAgreements").type(JsonFieldType.NUMBER)
-                                        .description("공감 기준 인원 (필수, 최소 2명, 최대 20명)"),
+                                        .description("공감 기준 인원 (TMI 모드에서는 불필요)"),
                                 fieldWithPath("maxMember").type(JsonFieldType.NUMBER)
                                         .description("최대 입장 인원 (필수, 최소 2명, 최대 20명)"),
                                 fieldWithPath("durationMinutes").type(JsonFieldType.NUMBER)
                                         .optional()
-                                        .description("시간 제한(분), 미입력 시 기본 30분 (최소 5분, 최대 360분)"),
+                                        .description("시간 제한(분), 미입력 시 기본 30분 (최소 5분, 최대 360분), TMI 모드에서는 자동으로 24시간 설정"),
                                 fieldWithPath("gameMode").type(JsonFieldType.STRING)
-                                        .description("게임 모드 (필수, NORMAL)")
+                                        .description("게임 모드 (필수, NORMAL 또는 TMI)")
                         ),
                         responseFields(
                                 fieldWithPath("code").type(JsonFieldType.NUMBER)
@@ -83,11 +83,11 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                                 fieldWithPath("data.roomKey").type(JsonFieldType.STRING)
                                         .description("방 키"),
                                 fieldWithPath("data.requiredAgreements").type(JsonFieldType.NUMBER)
-                                        .description("공감 기준 인원"),
+                                        .description("공감 기준 인원 (TMI 모드에서는 null)"),
                                 fieldWithPath("data.maxMember").type(JsonFieldType.NUMBER)
                                         .description("최대 입장 인원"),
                                 fieldWithPath("data.durationMinutes").type(JsonFieldType.NUMBER)
-                                        .description("시간 제한(분)"),
+                                        .description("시간 제한(분) - TMI 모드에서는 1440분(24시간)"),
                                 fieldWithPath("data.gameMode").type(JsonFieldType.STRING)
                                         .description("게임 모드"),
                                 fieldWithPath("data.createdAt").type(JsonFieldType.STRING)
