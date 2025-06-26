@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TmiService {
+public class TmiSubmitService {
 
     private final TmiSessionRepository tmiSessionRepository;
     private final TmiSubmissionRepository tmiSubmissionRepository;

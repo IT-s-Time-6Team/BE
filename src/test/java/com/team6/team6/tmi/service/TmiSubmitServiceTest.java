@@ -4,10 +4,8 @@ import com.team6.team6.tmi.domain.TmiMessagePublisher;
 import com.team6.team6.tmi.domain.repository.TmiSessionRepository;
 import com.team6.team6.tmi.domain.repository.TmiSubmissionRepository;
 import com.team6.team6.tmi.dto.TmiSubmitServiceReq;
-import com.team6.team6.tmi.entity.TmiGameStep;
 import com.team6.team6.tmi.entity.TmiSession;
 import com.team6.team6.tmi.entity.TmiSubmission;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,10 +21,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TmiServiceTest {
+class TmiSubmitServiceTest {
 
     @InjectMocks
-    private TmiService tmiService;
+    private TmiSubmitService tmiSubmitService;
 
     @Mock
     private TmiSessionRepository tmiSessionRepository;
@@ -44,7 +42,7 @@ class TmiServiceTest {
         int totalMembers = 4;
 
         // when
-        tmiService.createTmiGameSession(roomId, totalMembers);
+        tmiSubmitService.createTmiGameSession(roomId, totalMembers);
 
         // then
         verify(tmiSessionRepository).save(any(TmiSession.class));
@@ -63,7 +61,7 @@ class TmiServiceTest {
                 .willReturn(false);
 
         // when
-        tmiService.submitTmi(request);
+        tmiSubmitService.submitTmi(request);
 
         // then
         verify(tmiSubmissionRepository).save(any(TmiSubmission.class));
@@ -79,7 +77,7 @@ class TmiServiceTest {
                 .willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> tmiService.submitTmi(request))
+        assertThatThrownBy(() -> tmiSubmitService.submitTmi(request))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("TMI 게임 세션을 찾을 수 없습니다: 1");
     }
@@ -96,7 +94,7 @@ class TmiServiceTest {
                 .willReturn(Optional.of(session));
 
         // when & then
-        assertThatThrownBy(() -> tmiService.submitTmi(request))
+        assertThatThrownBy(() -> tmiSubmitService.submitTmi(request))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("TMI 수집 단계가 아닙니다");
     }
@@ -114,7 +112,7 @@ class TmiServiceTest {
                 .willReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> tmiService.submitTmi(request))
+        assertThatThrownBy(() -> tmiSubmitService.submitTmi(request))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("이미 TMI를 제출했습니다");
     }
@@ -132,7 +130,7 @@ class TmiServiceTest {
                 .willReturn(false);
 
         // when
-        tmiService.submitTmi(request);
+        tmiSubmitService.submitTmi(request);
 
         // then
         verify(tmiMessagePublisher).publishTmiCollectionCompleted("test-room");

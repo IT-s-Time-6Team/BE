@@ -3,7 +3,7 @@ package com.team6.team6.tmi.controller;
 import com.team6.team6.member.security.UserPrincipal;
 import com.team6.team6.tmi.dto.TmiChatMessage;
 import com.team6.team6.tmi.dto.TmiSubmitRequest;
-import com.team6.team6.tmi.service.TmiService;
+import com.team6.team6.tmi.service.TmiSubmitService;
 import com.team6.team6.websocket.dto.ChatMessage;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.security.Principal;
 @Slf4j
 public class TmiWebsocketController {
 
-    private final TmiService tmiService;
+    private final TmiSubmitService tmiSubmitService;
 
     @MessageMapping("/room/{roomKey}/tmi/submit")
     @SendToUser("/queue/tmi-confirmation")
@@ -38,7 +38,7 @@ public class TmiWebsocketController {
                 userPrincipal.getId(), userPrincipal.getNickname(), userPrincipal.getRoomId());
 
         // TMI 제출 처리
-        tmiService.submitTmi(request.toServiceRequest(userPrincipal));
+        tmiSubmitService.submitTmi(request.toServiceRequest(userPrincipal));
 
         log.debug("TMI 서비스 처리 완료: roomKey={}, memberName={}, content={}",
                 roomKey, userPrincipal.getNickname(), request.tmiContent());
