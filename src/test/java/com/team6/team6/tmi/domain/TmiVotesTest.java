@@ -1,29 +1,18 @@
 package com.team6.team6.tmi.domain;
 
 import com.team6.team6.tmi.entity.TmiVote;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 class TmiVotesTest {
 
     @Test
-    @DisplayName("빈 투표 목록으로 TmiVotes를 생성할 수 있다")
-    void createFromEmptyList() {
-        // when
-        TmiVotes tmiVotes = TmiVotes.from(null);
-
-        // then
-        assertThat(tmiVotes).isNotNull();
-    }
-
-    @Test
-    @DisplayName("투표자의 투표를 조회할 수 있다")
-    void getMyVote() {
+    void 투표자의_투표_조회_테스트() {
         // given
         List<TmiVote> votes = List.of(
                 createTmiVote("voter1", "member1"),
@@ -33,16 +22,32 @@ class TmiVotesTest {
         TmiVotes tmiVotes = TmiVotes.from(votes);
 
         // when
-        TmiVote myVote = tmiVotes.getMyVote("voter2");
+        TmiVote myVote = tmiVotes.findVoteByName("voter2");
 
         // then
-        assertThat(myVote.getVoterName()).isEqualTo("voter2");
-        assertThat(myVote.getVotedMemberName()).isEqualTo("member2");
+        assertSoftly(softly->{
+            softly.assertThat(myVote.getVoterName()).isEqualTo("voter2");
+            softly.assertThat(myVote.getVotedMemberName()).isEqualTo("member2");
+        });
     }
 
     @Test
-    @DisplayName("투표 결과를 집계할 수 있다")
-    void getVotingResults() {
+    void 투표자의_투표_조회_예외_테스트() {
+        // given
+        List<TmiVote> votes = List.of(
+                createTmiVote("voter1", "member1"),
+                createTmiVote("voter2", "member2")
+        );
+        TmiVotes tmiVotes = TmiVotes.from(votes);
+
+        // when & then
+        assertThatThrownBy(() -> tmiVotes.findVoteByName("nonExistentVoter"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("투표자 이름으로 투표를 찾을 수 없습니다: nonExistentVoter");
+    }
+
+    @Test
+    void 투표_결과_집계_테스트() {
         // given
         List<TmiVote> votes = List.of(
                 createTmiVote("voter1", "member1"),
@@ -56,9 +61,11 @@ class TmiVotesTest {
         Map<String, Long> results = tmiVotes.getVotingResults();
 
         // then
-        assertThat(results).hasSize(2);
-        assertThat(results.get("member1")).isEqualTo(3L);
-        assertThat(results.get("member2")).isEqualTo(1L);
+        assertSoftly(softly->{
+            softly.assertThat(results).hasSize(2);
+            softly.assertThat(results.get("member1")).isEqualTo(3L);
+            softly.assertThat(results.get("member2")).isEqualTo(1L);
+        });
     }
 
     private TmiVote createTmiVote(String voterName, String votedMemberName) {
