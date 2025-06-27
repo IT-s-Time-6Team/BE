@@ -77,9 +77,9 @@ public class TmiSubmitService {
     private void publishProgressMessage(String roomKey, int progress, boolean isCompleted) {
         if (isCompleted) {
             log.debug("모든 TMI 수집 완료. 투표 단계 준비: roomKey={}", roomKey);
-            tmiMessagePublisher.publishTmiCollectionCompleted(roomKey);
+            tmiMessagePublisher.notifyTmiCollectionCompleted(roomKey);
         } else {
-            tmiMessagePublisher.publishTmiCollectionProgress(roomKey, progress);
+            tmiMessagePublisher.notifyTmiCollectionProgress(roomKey, progress);
         }
     }
 }

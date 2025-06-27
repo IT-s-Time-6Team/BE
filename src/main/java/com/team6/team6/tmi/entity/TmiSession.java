@@ -69,4 +69,38 @@ public class TmiSession extends BaseEntity {
     public boolean isAllTmiCollected() {
         return submittedTmiCount.equals(totalMembers);
     }
+
+    // TMI 투표 관련 메서드들
+    public void startVotingPhase() {
+        this.currentStep = TmiGameStep.VOTING;
+        this.currentVotingTmiIndex = 0;
+        this.currentVotedMemberCount = 0;
+    }
+
+    public void incrementVotedMemberCount() {
+        this.currentVotedMemberCount++;
+    }
+
+    public boolean isCurrentRoundVotingCompleted() {
+        return currentVotedMemberCount >= totalMembers;
+    }
+
+    public void moveToNextTmi() {
+        this.currentVotingTmiIndex++;
+        this.currentVotedMemberCount = 0;
+    }
+
+    public boolean isLastTmiIndex() {
+        return currentVotingTmiIndex == (totalMembers - 1);
+    }
+
+    public void completeVoting() {
+        this.currentStep = TmiGameStep.COMPLETED;
+        this.closedAt = LocalDateTime.now();
+    }
+
+    public int getCurrentRoundVotingProgress() {
+        if (totalMembers == 0) return 0;
+        return (currentVotedMemberCount * 100) / totalMembers;
+    }
 }

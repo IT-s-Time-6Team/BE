@@ -2,11 +2,13 @@ package com.team6.team6.member.security;
 
 import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.member.entity.Member;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.io.Serializable;
 
 @Getter
+@AllArgsConstructor
 public class UserPrincipal implements Serializable {
     private final Long id;
     private final String nickname;

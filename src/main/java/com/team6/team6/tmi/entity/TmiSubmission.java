@@ -6,9 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Builder;
 
 @Entity
 @Getter
@@ -19,21 +20,25 @@ public class TmiSubmission extends BaseEntity {
     private Long id;
     private Long roomId;
     private Long memberId;
+    private String memberName;
     private String tmiContent;
+    @Setter
     private Integer displayOrder;  // 랜덤 순서로 배정
 
     @Builder
-    private TmiSubmission(Long roomId, Long memberId, String tmiContent, Integer displayOrder) {
+    private TmiSubmission(Long roomId, Long memberId, String memberName, String tmiContent, Integer displayOrder) {
         this.roomId = roomId;
         this.memberId = memberId;
+        this.memberName = memberName;
         this.tmiContent = tmiContent;
         this.displayOrder = displayOrder;
     }
 
-    public static TmiSubmission create(Long roomId, Long memberId, String tmiContent) {
+    public static TmiSubmission create(Long roomId, Long memberId, String memberName, String tmiContent) {
         return TmiSubmission.builder()
                 .roomId(roomId)
                 .memberId(memberId)
+                .memberName(memberName)
                 .tmiContent(tmiContent)
                 .displayOrder(null)
                 .build();
