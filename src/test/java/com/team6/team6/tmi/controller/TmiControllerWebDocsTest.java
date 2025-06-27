@@ -1,0 +1,190 @@
+package com.team6.team6.tmi.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.team6.team6.global.security.AuthUtil;
+import com.team6.team6.member.entity.CharacterType;
+import com.team6.team6.member.security.UserPrincipal;
+import com.team6.team6.tmi.dto.TmiVoteRequest;
+import com.team6.team6.tmi.dto.TmiVotingPersonalResult;
+import com.team6.team6.tmi.dto.TmiVotingStartResponse;
+import com.team6.team6.tmi.service.TmiVoteService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(TmiController.class)
+@AutoConfigureRestDocs
+class TmiControllerWebDocsTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private JpaMetamodelMappingContext jpaMetamodelMappingContext;
+
+    @MockitoBean
+    private TmiVoteService tmiVoteService;
+
+    private UserPrincipal createMockUser() {
+        return new UserPrincipal(1L, "testUser", 1L, "room123", CharacterType.RABBIT, "TMI");
+    }
+
+    @Test
+    @DisplayName("TMI 투표 제출 API 문서화")
+    void submitVote() throws Exception {
+        // given
+        TmiVoteRequest request = new TmiVoteRequest("member1");
+        UserPrincipal mockUser = createMockUser();
+
+        try (MockedStatic<AuthUtil> authUtilMock = mockStatic(AuthUtil.class)) {
+            authUtilMock.when(AuthUtil::getCurrentUser).thenReturn(mockUser);
+
+            // when & then
+            mockMvc.perform(post("/tmi/rooms/{roomKey}/vote", "room123")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andDo(document("tmi-vote-submit",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            pathParameters(
+                                    parameterWithName("roomKey").description("방 키")
+                            ),
+                            requestFields(
+                                    fieldWithPath("votedMemberName").type(JsonFieldType.STRING).description("투표할 멤버 이름")
+                            ),
+                            responseFields(
+                                    fieldWithPath("code").type(JsonFieldType.NUMBER).description("응답 코드"),
+                                    fieldWithPath("status").type(JsonFieldType.STRING).description("HTTP 상태"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+                                    fieldWithPath("data").type(JsonFieldType.STRING).description("성공 메시지")
+                            )
+                    ));
+
+            verify(tmiVoteService).submitVote(any());
+        }
+    }
+
+    @Test
+    @DisplayName("현재 투표 정보 조회 API 문서화")
+    void getCurrentVotingInfo() throws Exception {
+        // given
+        TmiVotingStartResponse response = new TmiVotingStartResponse(
+                "누가 가장 늦게 잠들까요?", 0, List.of("member1", "member2", "member3"));
+        UserPrincipal mockUser = createMockUser();
+
+        try (MockedStatic<AuthUtil> authUtilMock = mockStatic(AuthUtil.class)) {
+            authUtilMock.when(AuthUtil::getCurrentUser).thenReturn(mockUser);
+            given(tmiVoteService.getCurrentVotingInfo(1L)).willReturn(response);
+
+            // when & then
+            mockMvc.perform(get("/tmi/rooms/{roomKey}/voting/current", "room123"))
+                    .andExpect(status().isOk())
+                    .andDo(document("tmi-voting-current",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            pathParameters(
+                                    parameterWithName("roomKey").description("방 키")
+                            ),
+                            responseFields(
+                                    fieldWithPath("code").type(JsonFieldType.NUMBER).description("응답 코드"),
+                                    fieldWithPath("status").type(JsonFieldType.STRING).description("HTTP 상태"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+                                    fieldWithPath("data.tmiContent").type(JsonFieldType.STRING).description("TMI 내용"),
+                                    fieldWithPath("data.round").type(JsonFieldType.NUMBER).description("라운드"),
+                                    fieldWithPath("data.members").type(JsonFieldType.ARRAY).description("투표 가능한 멤버 목록")
+                            )
+                    ));
+        }
+    }
+
+    @Test
+    @DisplayName("최신 투표 결과 조회 API 문서화")
+    void getLatestVotingResult() throws Exception {
+        // given
+        TmiVotingPersonalResult result = new TmiVotingPersonalResult(
+                "누가 가장 늦게 잠들까요?",
+                "member1",
+                "testUser",
+                true,
+                Map.of("member1", 2L, "member2", 1L),
+                0
+        );
+        UserPrincipal mockUser = createMockUser();
+
+        try (MockedStatic<AuthUtil> authUtilMock = mockStatic(AuthUtil.class)) {
+            authUtilMock.when(AuthUtil::getCurrentUser).thenReturn(mockUser);
+            given(tmiVoteService.getLatestVotingResult(1L, "testUser")).willReturn(result);
+
+            // when & then
+            mockMvc.perform(get("/tmi/rooms/{roomKey}/voting/result", "room123"))
+                    .andExpect(status().isOk())
+                    .andDo(document("tmi-voting-result",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            pathParameters(
+                                    parameterWithName("roomKey").description("방 키")
+                            ),
+                            responseFields(
+                                    fieldWithPath("code").type(JsonFieldType.NUMBER).description("응답 코드"),
+                                    fieldWithPath("status").type(JsonFieldType.STRING).description("HTTP 상태"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+                                    fieldWithPath("data.tmiContent").type(JsonFieldType.STRING).description("TMI 내용"),
+                                    fieldWithPath("data.correctAnswer").type(JsonFieldType.STRING).description("정답"),
+                                    fieldWithPath("data.myVote").type(JsonFieldType.STRING).description("내 투표"),
+                                    fieldWithPath("data.isCorrect").type(JsonFieldType.BOOLEAN).description("정답 여부"),
+                                    fieldWithPath("data.votingResults").type(JsonFieldType.OBJECT).description("투표 결과"),
+                                    fieldWithPath("data.votingResults.*").type(JsonFieldType.NUMBER).description("각 멤버별 득표 수"),
+                                    fieldWithPath("data.round").type(JsonFieldType.NUMBER).description("라운드")
+                            )
+                    ));
+        }
+    }
+
+    @TestConfiguration
+    static class TestConfig {
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            return http
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .authorizeHttpRequests(auth -> auth
+                            .anyRequest().permitAll()
+                    )
+                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .build();
+        }
+    }
+}

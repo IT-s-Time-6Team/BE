@@ -65,7 +65,7 @@ class TmiSubmitServiceTest {
 
         // then
         verify(tmiSubmissionRepository).save(any(TmiSubmission.class));
-        verify(tmiMessagePublisher).publishTmiCollectionProgress(eq("test-room"), anyInt());
+        verify(tmiMessagePublisher).notifyTmiCollectionProgress(eq("test-room"), anyInt());
     }
 
     @Test
@@ -88,10 +88,10 @@ class TmiSubmitServiceTest {
         TmiSubmitServiceReq request = createTmiRequest();
 
         TmiSession session = TmiSession.createInitialSession(1L, 4);
-        // 수집 단계로 변경하지 않음 (WAITING 상태)
 
         given(tmiSessionRepository.findByRoomIdWithLock(1L))
                 .willReturn(Optional.of(session));
+        session.startVotingPhase();
 
         // when & then
         assertThatThrownBy(() -> tmiSubmitService.submitTmi(request))
@@ -133,14 +133,14 @@ class TmiSubmitServiceTest {
         tmiSubmitService.submitTmi(request);
 
         // then
-        verify(tmiMessagePublisher).publishTmiCollectionCompleted("test-room");
-        verify(tmiMessagePublisher, never()).publishTmiCollectionProgress(anyString(), anyInt());
+        verify(tmiMessagePublisher).notifyTmiCollectionCompleted("test-room");
+        verify(tmiMessagePublisher, never()).notifyTmiCollectionProgress(anyString(), anyInt());
         assertThat(session.isAllTmiCollected()).isTrue();
     }
 
     private TmiSubmitServiceReq createTmiRequest() {
         return new TmiSubmitServiceReq(
-                "저는 고양이를 키워요", "test-room", 1L, 1L
+                "저는 고양이를 키워요", "test-room", 1L, 1L, "test-member"
         );
     }
 }
