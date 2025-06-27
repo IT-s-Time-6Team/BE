@@ -70,10 +70,8 @@ public class TmiVoteService {
         );
         vote.changeIsCorrect(currentTmi.getMemberName());
         tmiVoteRepository.save(vote);
-
         // 세션 투표 카운트 증가
         session.incrementVotedMemberCount();
-
         boolean isRoundCompleted = session.isCurrentRoundVotingCompleted();
 
         log.debug("TMI 투표 제출: roomKey={}, voter={}, voted={}, round={}, isRoundCompleted={}",
@@ -130,8 +128,7 @@ public class TmiVoteService {
         // 해당 라운드의 모든 투표 조회
         List<TmiVote> voteList = tmiVoteRepository.findByRoomIdAndVotingRound(roomId, latestCompletedRound);
         TmiVotes votes = TmiVotes.from(voteList);
-
-        TmiVote myVote = votes.getMyVote(memberName);
+        TmiVote myVote = votes.findVoteByName(memberName);
 
         return TmiVotingPersonalResult.of(
                 tmi.getTmiContent(),

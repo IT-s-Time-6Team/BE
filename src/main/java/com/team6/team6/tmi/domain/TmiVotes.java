@@ -19,11 +19,11 @@ public class TmiVotes {
         return new TmiVotes(votes);
     }
 
-    public TmiVote getMyVote(String memberName) {
+    public TmiVote findVoteByName(String memberName) {
         return votes.stream()
                 .filter(vote -> vote.getVoterName().equals(memberName))
                 .findFirst()
-                .get();
+                .orElseThrow(() -> new IllegalArgumentException("투표자 이름으로 투표를 찾을 수 없습니다: " + memberName));
     }
 
     public Map<String, Long> getVotingResults() {
