@@ -25,12 +25,14 @@ public class TmiSessionService {
         TmiSession session = findTmiSession(roomId);
         TmiGameStep currentStep = session.getCurrentStep();
         boolean hasUserSubmitted = false;
+        int progress = 100;
 
         // 현재 단계에 따른 처리
         switch (currentStep) {
             case COLLECTING_TMI -> {
                 // TMI 수집 단계: 유저가 TMI를 제출했는지 확인
                 hasUserSubmitted = tmiSubmissionRepository.existsByRoomIdAndMemberName(roomId, memberName);
+                progress = session.calculateCollectionProgress();
             }
             case HINT -> {
                 // 힌트 단계: TMI는 이미 수집 완료된 상태
@@ -41,6 +43,7 @@ public class TmiSessionService {
                 Integer currentVotingTmiIndex = session.getCurrentVotingTmiIndex();
                 hasUserSubmitted = tmiVoteRepository.existsByRoomIdAndVoterNameAndVotingRound(
                         roomId, memberName, currentVotingTmiIndex);
+                progress = session.getCurrentRoundVotingProgress();
             }
             case COMPLETED -> {
                 // 게임 완료 단계
@@ -51,6 +54,7 @@ public class TmiSessionService {
         return TmiSessionStatusResponse.builder()
                 .currentStep(currentStep)
                 .hasUserSubmitted(hasUserSubmitted)
+                .progress(progress)
                 .build();
     }
 
