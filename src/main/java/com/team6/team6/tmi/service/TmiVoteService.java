@@ -3,13 +3,13 @@ package com.team6.team6.tmi.service;
 import com.team6.team6.tmi.domain.TmiMessagePublisher;
 import com.team6.team6.tmi.domain.TmiSubmissions;
 import com.team6.team6.tmi.domain.TmiVotes;
+import com.team6.team6.tmi.domain.VoteResult;
 import com.team6.team6.tmi.domain.repository.TmiSessionRepository;
 import com.team6.team6.tmi.domain.repository.TmiSubmissionRepository;
 import com.team6.team6.tmi.domain.repository.TmiVoteRepository;
 import com.team6.team6.tmi.dto.TmiVoteServiceReq;
 import com.team6.team6.tmi.dto.TmiVotingPersonalResult;
 import com.team6.team6.tmi.dto.TmiVotingStartResponse;
-import com.team6.team6.tmi.entity.TmiGameStep;
 import com.team6.team6.tmi.entity.TmiSession;
 import com.team6.team6.tmi.entity.TmiSubmission;
 import com.team6.team6.tmi.entity.TmiVote;
@@ -34,7 +34,8 @@ public class TmiVoteService {
     public void startVotingPhase(String roomKey, Long roomId) {
         TmiSession session = findTmiSession(roomId);
 
-        validateCanStartVoting(session);
+        // 상태 검증
+        session.validateCanStartVoting();
 
         // TMI 목록을 일급 컬렉션으로 관리하고 랜덤 배치
         List<TmiSubmission> submissions = tmiSubmissionRepository.findByRoomId(roomId);
@@ -54,7 +55,8 @@ public class TmiVoteService {
     public void submitVote(TmiVoteServiceReq req) {
         TmiSession session = findTmiSession(req.roomId());
 
-        validateVotingPhase(session);
+        // 상태 검증
+        session.requireVotingPhase();
         validateDuplicateVote(req.roomId(), req.voterName(), session.getCurrentVotingTmiIndex());
 
         // 현재 투표 중인 TMI
@@ -70,28 +72,28 @@ public class TmiVoteService {
         );
         vote.changeIsCorrect(currentTmi.getMemberName());
         tmiVoteRepository.save(vote);
-        // 세션 투표 카운트 증가
-        session.incrementVotedMemberCount();
-        boolean isRoundCompleted = session.isCurrentRoundVotingCompleted();
 
-        log.debug("TMI 투표 제출: roomKey={}, voter={}, voted={}, round={}, isRoundCompleted={}",
-                req.roomKey(), req.voterName(), req.votedMemberName(), session.getCurrentVotingTmiIndex(), isRoundCompleted);
+        // 투표 처리 및 상태 전환 (TmiSession 내부에서 처리)
+        VoteResult result = session.processVote();
 
-        if (isRoundCompleted) {
-            if (session.isLastTmiIndex()) {
-                // 모든 TMI 투표 완료
-                session.completeVoting();
-                messagePublisher.notifyTmiAllVotingCompleted(req.roomKey());
-            } else {
-                // 다음 TMI 투표 시작
-                messagePublisher.notifyTmiRoundCompleted(req.roomKey(), session.getCurrentVotingTmiIndex());
-                session.moveToNextTmi();
+        log.debug("TMI 투표 제출: roomKey={}, voter={}, voted={}, round={}, result={}",
+                req.roomKey(), req.voterName(), req.votedMemberName(), session.getCurrentVotingTmiIndex(), result);
+
+        switch (result) {
+            case IN_PROGRESS -> {
+                // 현재 라운드 진행률 알림
+                int progress = session.getCurrentRoundVotingProgress();
+                messagePublisher.notifyTmiVotingProgress(req.roomKey(), progress);
+            }
+            case ROUND_COMPLETED -> {
+                // 현재 라운드 완료, 다음 TMI로 이동
+                messagePublisher.notifyTmiRoundCompleted(req.roomKey(), session.getCurrentVotingTmiIndex() - 1);
                 messagePublisher.notifyTmiVotingStarted(req.roomKey());
             }
-        } else {
-            // 현재 라운드 진행률 알림
-            int progress = session.getCurrentRoundVotingProgress();
-            messagePublisher.notifyTmiVotingProgress(req.roomKey(), progress);
+            case ALL_COMPLETED -> {
+                // 모든 TMI 투표 완료
+                messagePublisher.notifyTmiAllVotingCompleted(req.roomKey());
+            }
         }
     }
 
@@ -99,7 +101,8 @@ public class TmiVoteService {
     public TmiVotingStartResponse getCurrentVotingInfo(Long roomId) {
         TmiSession session = findTmiSession(roomId);
 
-        validateVotingPhase(session);
+        // 상태 검증
+        session.requireVotingPhase();
 
         TmiSubmission currentTmi = getCurrentVotingTmiByDisplayOrder(roomId, session.getCurrentVotingTmiIndex());
         List<String> memberNames = getMemberNamesFromRoom(roomId);
@@ -116,7 +119,7 @@ public class TmiVoteService {
         TmiSession session = findTmiSession(roomId);
 
         // 가장 마지막에 끝난 투표 라운드 찾기
-        int latestCompletedRound = getLatestCompletedRound(session);
+        int latestCompletedRound = session.getLatestCompletedRound();
 
         if (latestCompletedRound < 0) {
             throw new IllegalStateException("완료된 투표가 없습니다");
@@ -146,36 +149,9 @@ public class TmiVoteService {
                 .toList();
     }
 
-
-    private int getLatestCompletedRound(TmiSession session) {
-        if (session.getCurrentStep() == TmiGameStep.COMPLETED) {
-            // 모든 투표가 완료된 경우 마지막 라운드
-            return session.getCurrentVotingTmiIndex();
-        } else if (session.getCurrentStep() == TmiGameStep.VOTING && session.getCurrentVotingTmiIndex() > 0) {
-            // 투표 중이지만 이전 라운드가 있는 경우
-            return session.getCurrentVotingTmiIndex() - 1;
-        }
-        return -1; // 완료된 투표가 없음
-    }
-
     private TmiSession findTmiSession(Long roomId) {
         return tmiSessionRepository.findByRoomIdWithLock(roomId)
                 .orElseThrow(() -> new IllegalStateException("TMI 게임 세션을 찾을 수 없습니다: " + roomId));
-    }
-
-    private void validateCanStartVoting(TmiSession session) {
-        if (session.getCurrentStep() != TmiGameStep.COLLECTING_TMI) {
-            throw new IllegalStateException("TMI 수집이 완료되지 않았습니다");
-        }
-        if (!session.isAllTmiCollected()) {
-            throw new IllegalStateException("모든 TMI가 수집되지 않았습니다");
-        }
-    }
-
-    private void validateVotingPhase(TmiSession session) {
-        if (session.getCurrentStep() != TmiGameStep.VOTING) {
-            throw new IllegalStateException("투표 단계가 아닙니다");
-        }
     }
 
     private void validateDuplicateVote(Long roomId, String voterName, int votingRound) {

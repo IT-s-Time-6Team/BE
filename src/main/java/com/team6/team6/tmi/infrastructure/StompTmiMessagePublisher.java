@@ -75,4 +75,34 @@ public class StompTmiMessagePublisher implements TmiMessagePublisher {
 
         log.debug("TMI 전체 투표 완료 브로드캐스트 완료: destination={}", destination);
     }
+
+    @Override
+    public void notifyTmiHintStarted(String roomKey, String remainingTime) {
+        log.debug("TMI 힌트 시작 브로드캐스트: roomKey={}, remainingTime={}", roomKey, remainingTime);
+
+        String destination = "/topic/room/" + roomKey + "/messages";
+        messagingTemplate.convertAndSend(destination, TmiChatMessage.tmiHintStarted(remainingTime));
+
+        log.debug("TMI 힌트 시작 브로드캐스트 완료: destination={}, remainingTime={}", destination, remainingTime);
+    }
+
+    @Override
+    public void notifyTmiHintTimeRemaining(String roomKey, String remainingTime) {
+        log.debug("TMI 힌트 타임 남은 시간 브로드캐스트: roomKey={}, remainingTime={}", roomKey, remainingTime);
+
+        String destination = "/topic/room/" + roomKey + "/messages";
+        messagingTemplate.convertAndSend(destination, TmiChatMessage.tmiHintTimeRemaining(remainingTime));
+
+        log.debug("TMI 힌트 타임 남은 시간 브로드캐스트 완료: destination={}, remainingTime={}", destination, remainingTime);
+    }
+
+    @Override
+    public void notifyTmiHintEnded(String roomKey) {
+        log.debug("TMI 힌트 종료 브로드캐스트: roomKey={}", roomKey);
+
+        String destination = "/topic/room/" + roomKey + "/messages";
+        messagingTemplate.convertAndSend(destination, TmiChatMessage.tmiHintEnded());
+
+        log.debug("TMI 힌트 종료 브로드캐스트 완료: destination={}", destination);
+    }
 }

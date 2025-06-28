@@ -16,6 +16,9 @@ public class TmiChatMessage extends ChatMessage {
     public static final String TYPE_TMI_VOTING_PROGRESS = "TMI_VOTING_PROGRESS";
     public static final String TYPE_TMI_ROUND_COMPLETED = "TMI_ROUND_COMPLETED";
     public static final String TYPE_TMI_ALL_COMPLETED = "TMI_ALL_COMPLETED";
+    public static final String TYPE_TMI_HINT_STARTED = "TMI_HINT_STARTED";
+    public static final String TYPE_TMI_HINT_TIME_REMAINING = "TMI_HINT_TIME_REMAINING";
+    public static final String TYPE_TMI_HINT_ENDED = "TMI_HINT_ENDED";
 
     private static final String TMI_RECEIVED_FORMAT = "TMI '%s'가 성공적으로 제출되었습니다.";
     private static final String TMI_COLLECTION_PROGRESS_FORMAT = "TMI 수집 진행률: %d";
@@ -24,6 +27,9 @@ public class TmiChatMessage extends ChatMessage {
     private static final String TMI_VOTING_PROGRESS_FORMAT = "현재 라운드 투표 진행률: %d%%";
     private static final String TMI_ROUND_COMPLETED_FORMAT = "%d번째 TMI 투표가 완료되었습니다.";
     private static final String TMI_ALL_COMPLETED_MESSAGE = "모든 TMI 투표가 완료되었습니다! 결과를 확인해주세요.";
+    private static final String TMI_HINT_STARTED_FORMAT = "TMI 힌트 타임이 시작되었습니다. 남은 시간: %s";
+    private static final String TMI_HINT_TIME_REMAINING_FORMAT = "힌트 타임 남은 시간: %s";
+    private static final String TMI_HINT_ENDED_MESSAGE = "힌트 타임이 종료되었습니다. 곧 투표가 시작됩니다.";
 
     public TmiChatMessage(String type, String nickname, String content, LocalDateTime timestamp, Object data) {
         super(type, nickname, content, timestamp, data);
@@ -106,6 +112,44 @@ public class TmiChatMessage extends ChatMessage {
         ChatMessage message = of(TYPE_TMI_ALL_COMPLETED, SYSTEM_NICKNAME, TMI_ALL_COMPLETED_MESSAGE);
 
         log.debug("TMI 전체 투표 완료 메시지 생성 완료: type={}, content={}",
+                message.getType(), message.getContent());
+
+        return message;
+    }
+
+    // 힌트 시작 메시지 생성 메서드
+    public static ChatMessage tmiHintStarted(String remainingTime) {
+        log.debug("TMI 힌트 시작 메시지 생성: remainingTime={}", remainingTime);
+
+        String content = String.format(TMI_HINT_STARTED_FORMAT, remainingTime);
+        ChatMessage message = of(TYPE_TMI_HINT_STARTED, SYSTEM_NICKNAME, content, remainingTime);
+
+        log.debug("TMI 힌트 시작 메시지 생성 완료: type={}, content={}, remainingTime={}",
+                message.getType(), message.getContent(), remainingTime);
+
+        return message;
+    }
+
+    // 힌트 타임 남은 시간 메시지 생성 메서드
+    public static ChatMessage tmiHintTimeRemaining(String remainingTime) {
+        log.debug("TMI 힌트 타임 남은 시간 메시지 생성: remainingTime={}", remainingTime);
+
+        String content = String.format(TMI_HINT_TIME_REMAINING_FORMAT, remainingTime);
+        ChatMessage message = of(TYPE_TMI_HINT_TIME_REMAINING, SYSTEM_NICKNAME, content, remainingTime);
+
+        log.debug("TMI 힌트 타임 남은 시간 메시지 생성 완료: type={}, content={}, remainingTime={}",
+                message.getType(), message.getContent(), remainingTime);
+
+        return message;
+    }
+
+    // 힌트 종료 메시지 생성 메서드
+    public static ChatMessage tmiHintEnded() {
+        log.debug("TMI 힌트 종료 메시지 생성");
+
+        ChatMessage message = of(TYPE_TMI_HINT_ENDED, SYSTEM_NICKNAME, TMI_HINT_ENDED_MESSAGE);
+
+        log.debug("TMI 힌트 종료 메시지 생성 완료: type={}, content={}",
                 message.getType(), message.getContent());
 
         return message;

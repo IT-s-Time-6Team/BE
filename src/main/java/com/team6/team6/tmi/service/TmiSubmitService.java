@@ -4,7 +4,6 @@ import com.team6.team6.tmi.domain.TmiMessagePublisher;
 import com.team6.team6.tmi.domain.repository.TmiSessionRepository;
 import com.team6.team6.tmi.domain.repository.TmiSubmissionRepository;
 import com.team6.team6.tmi.dto.TmiSubmitServiceReq;
-import com.team6.team6.tmi.entity.TmiGameStep;
 import com.team6.team6.tmi.entity.TmiSession;
 import com.team6.team6.tmi.entity.TmiSubmission;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class TmiSubmitService {
 
+    private final TmiHintService tmiHintService;
     private final TmiSessionRepository tmiSessionRepository;
     private final TmiSubmissionRepository tmiSubmissionRepository;
     private final TmiMessagePublisher tmiMessagePublisher;
@@ -32,7 +32,8 @@ public class TmiSubmitService {
     public void submitTmi(TmiSubmitServiceReq req) {
         TmiSession session = findTmiSessionWithLock(req.roomId());
 
-        validateTmiCollectionPhase(session);
+        // 상태 검증
+        session.requireCollectingTmiPhase();
         validateDuplicateSubmission(req.roomId(), req.memberId());
 
         saveTmiSubmission(req);
@@ -44,12 +45,6 @@ public class TmiSubmitService {
     private TmiSession findTmiSessionWithLock(Long roomId) {
         return tmiSessionRepository.findByRoomIdWithLock(roomId)
                 .orElseThrow(() -> new IllegalStateException("TMI 게임 세션을 찾을 수 없습니다: " + roomId));
-    }
-
-    private void validateTmiCollectionPhase(TmiSession session) {
-        if (session.getCurrentStep() != TmiGameStep.COLLECTING_TMI) {
-            throw new IllegalStateException("TMI 수집 단계가 아닙니다");
-        }
     }
 
     private void validateDuplicateSubmission(Long roomId, Long memberId) {
@@ -70,8 +65,11 @@ public class TmiSubmitService {
         boolean isCompleted = session.isAllTmiCollected();
 
         log.debug("TMI 수집 진행률: progress={}, isCompleted={}", progress, isCompleted);
-
         publishProgressMessage(roomKey, progress, isCompleted);
+
+        if (isCompleted) {
+            tmiHintService.startHintTime(roomKey, session.getRoomId());
+        }
     }
 
     private void publishProgressMessage(String roomKey, int progress, boolean isCompleted) {

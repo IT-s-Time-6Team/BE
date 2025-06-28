@@ -3,9 +3,11 @@ package com.team6.team6.tmi.controller;
 import com.team6.team6.global.ApiResponse;
 import com.team6.team6.global.security.AuthUtil;
 import com.team6.team6.member.security.UserPrincipal;
+import com.team6.team6.tmi.dto.TmiSubmitRequest;
 import com.team6.team6.tmi.dto.TmiVoteRequest;
 import com.team6.team6.tmi.dto.TmiVotingPersonalResult;
 import com.team6.team6.tmi.dto.TmiVotingStartResponse;
+import com.team6.team6.tmi.service.TmiSubmitService;
 import com.team6.team6.tmi.service.TmiVoteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +23,28 @@ import jakarta.validation.Valid;
 public class TmiController {
 
     private final TmiVoteService tmiVoteService;
+    private final TmiSubmitService tmiSubmitService;
 
-    @PostMapping("/rooms/{roomKey}/vote")
+    @PostMapping("/rooms/{roomKey}/submit")
+    public ApiResponse<String> submitTmi(
+            @PathVariable String roomKey,
+            @Valid @RequestBody TmiSubmitRequest request) {
+        UserPrincipal userPrincipal = AuthUtil.getCurrentUser();
+
+        log.debug("TMI 제출 요청: roomKey={}, tmi={}", roomKey, request.tmiContent());
+        log.debug("사용자 정보: memberId={}, nickname={}, roomId={}",
+                userPrincipal.getId(), userPrincipal.getNickname(), userPrincipal.getRoomId());
+
+        // TMI 제출 처리
+        tmiSubmitService.submitTmi(request.toServiceRequest(userPrincipal));
+
+        log.debug("TMI 서비스 처리 완료: roomKey={}, memberName={}, content={}",
+                roomKey, userPrincipal.getNickname(), request.tmiContent());
+
+        return ApiResponse.of(HttpStatus.OK, "TMI가 성공적으로 제출되었습니다.");
+    }
+
+    @PostMapping("/rooms/{roomKey}/votes")
     public ApiResponse<String> submitVote(
             @PathVariable String roomKey,
             @Valid @RequestBody TmiVoteRequest request) {
@@ -39,7 +61,7 @@ public class TmiController {
         return ApiResponse.of(HttpStatus.OK, "투표가 성공적으로 제출되었습니다.");
     }
 
-    @GetMapping("/rooms/{roomKey}/voting/current")
+    @GetMapping("/rooms/{roomKey}/votes")
     public ApiResponse<TmiVotingStartResponse> getCurrentVotingInfo(
             @PathVariable String roomKey) {
         UserPrincipal userPrincipal = AuthUtil.getCurrentUser();
@@ -54,7 +76,7 @@ public class TmiController {
         return ApiResponse.ok(response);
     }
 
-    @GetMapping("/rooms/{roomKey}/voting/result")
+    @GetMapping("/rooms/{roomKey}/votes/result")
     public ApiResponse<TmiVotingPersonalResult> getLatestVotingResult(
             @PathVariable String roomKey) {
         UserPrincipal userPrincipal = AuthUtil.getCurrentUser();
