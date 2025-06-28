@@ -1,6 +1,5 @@
 package com.team6.team6.keyword.listener;
 
-import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.keyword.service.KeywordWebSocketSubscribeService;
 import com.team6.team6.member.security.UserPrincipal;
 import com.team6.team6.websocket.domain.RoomMemberStateManager;
@@ -102,17 +101,13 @@ public class KeywordWebSocketEventListener {
         UserPrincipal principal = event.getPrincipal();
         String roomKey = event.getRoomKey();
         String nickname = principal.getNickname();
+        Long roomId = principal.getRoomId();
 
-        log.debug("키워드 모드 연결 해제 처리 시작: roomKey={}, nickname={}, memberId={}",
-                roomKey, nickname, principal.getId());
+        log.debug("키워드 모드 연결 해제 처리 시작: roomKey={}, nickname={}, memberId={}, roomId={}",
+                roomKey, nickname, principal.getId(), roomId);
 
-        // 유저 수 조회
-        int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
-
-        log.debug("현재 온라인 사용자 수: roomKey={}, onlineUserCount={}", roomKey, onlineUserCount);
-
-        // 방 떠남 메시지 처리
-        ChatMessage leaveMessage = KeywordChatMessage.leave(nickname, onlineUserCount);
+        // 서비스에 연결 해제 처리 위임
+        ChatMessage leaveMessage = keywordWebSocketSubscribeService.handleUserDisconnection(roomKey, nickname, roomId);
 
         log.debug("연결 해제 메시지 생성: type={}, nickname={}, content={}",
                 leaveMessage.getType(), leaveMessage.getNickname(), leaveMessage.getContent());

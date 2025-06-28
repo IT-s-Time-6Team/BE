@@ -1,5 +1,6 @@
 package com.team6.team6.keyword.dto;
 
+import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.websocket.dto.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
@@ -29,24 +30,28 @@ public class KeywordChatMessage extends ChatMessage {
     }
 
     // 키워드 도메인에서 필요한 enter/leave - UserCountData 추가
-    public static ChatMessage enter(String nickname, int userCount) {
-        log.debug("키워드 입장 메시지 생성: nickname={}, userCount={}", nickname, userCount);
+    public static ChatMessage enter(String nickname, int userCount, List<RoomMemberInfo> roomMembers) {
+        log.debug("키워드 입장 메시지 생성: nickname={}, userCount={}, memberCount={}",
+                nickname, userCount, roomMembers.size());
 
-        ChatMessage message = of(TYPE_ENTER, nickname, String.format("%s님이 입장했습니다.", nickname), new UserCountData(userCount));
+        ChatMessage message = of(TYPE_ENTER, nickname, String.format("%s님이 입장했습니다.", nickname),
+                new UserCountData(userCount, roomMembers));
 
-        log.debug("키워드 입장 메시지 생성 완료: type={}, nickname={}, content={}, userCount={}",
-                message.getType(), message.getNickname(), message.getContent(), userCount);
+        log.debug("키워드 입장 메시지 생성 완료: type={}, nickname={}, content={}, userCount={}, memberCount={}",
+                message.getType(), message.getNickname(), message.getContent(), userCount, roomMembers.size());
 
         return message;
     }
 
-    public static ChatMessage leave(String nickname, int userCount) {
-        log.debug("키워드 퇴장 메시지 생성: nickname={}, userCount={}", nickname, userCount);
+    public static ChatMessage leave(String nickname, int userCount, List<RoomMemberInfo> roomMembers) {
+        log.debug("키워드 퇴장 메시지 생성: nickname={}, userCount={}, memberCount={}",
+                nickname, userCount, roomMembers.size());
 
-        ChatMessage message = of(TYPE_LEAVE, nickname, String.format("%s님이 퇴장했습니다.", nickname), new UserCountData(userCount));
+        ChatMessage message = of(TYPE_LEAVE, nickname, String.format("%s님이 퇴장했습니다.", nickname),
+                new UserCountData(userCount, roomMembers));
 
-        log.debug("키워드 퇴장 메시지 생성 완료: type={}, nickname={}, content={}, userCount={}",
-                message.getType(), message.getNickname(), message.getContent(), userCount);
+        log.debug("키워드 퇴장 메시지 생성 완료: type={}, nickname={}, content={}, userCount={}, memberCount={}",
+                message.getType(), message.getNickname(), message.getContent(), userCount, roomMembers.size());
 
         return message;
     }
@@ -76,15 +81,15 @@ public class KeywordChatMessage extends ChatMessage {
         return message;
     }
 
-    public static ChatMessage reenter(String nickname, int userCount, List<String> keywords) {
-        log.debug("키워드 재입장 메시지 생성: nickname={}, userCount={}, keywordCount={}",
-                nickname, userCount, keywords != null ? keywords.size() : 0);
+    public static ChatMessage reenter(String nickname, int userCount, List<String> keywords, List<RoomMemberInfo> roomMembers) {
+        log.debug("키워드 재입장 메시지 생성: nickname={}, userCount={}, keywordCount={}, memberCount={}",
+                nickname, userCount, keywords != null ? keywords.size() : 0, roomMembers.size());
 
         String content = String.format(REENTER_MESSAGE_FORMAT, nickname);
-        ChatMessage message = of(TYPE_REENTER, nickname, content, new ReenterData(userCount, keywords));
+        ChatMessage message = of(TYPE_REENTER, nickname, content, new ReenterData(userCount, keywords, roomMembers));
 
-        log.debug("키워드 재입장 메시지 생성 완료: type={}, nickname={}, content={}, userCount={}, keywords={}",
-                message.getType(), message.getNickname(), message.getContent(), userCount, keywords);
+        log.debug("키워드 재입장 메시지 생성 완료: type={}, nickname={}, content={}, userCount={}, keywords={}, memberCount={}",
+                message.getType(), message.getNickname(), message.getContent(), userCount, keywords, roomMembers.size());
 
         return message;
     }
@@ -108,9 +113,13 @@ public class KeywordChatMessage extends ChatMessage {
     }
 
     // 키워드 도메인에서 필요한 데이터 클래스들
-    public record UserCountData(int userCount) {
+    public record UserCountData(int userCount, List<RoomMemberInfo> roomMembers) {
     }
 
-    public record ReenterData(int userCount, List<String> keywords) {
+    public record ReenterData(int userCount, List<String> keywords, List<RoomMemberInfo> roomMembers) {
+    }
+
+    // 방 멤버 정보를 담는 클래스
+    public record RoomMemberInfo(String nickname, CharacterType character, boolean isLeader) {
     }
 } 
