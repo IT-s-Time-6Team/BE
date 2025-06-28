@@ -23,6 +23,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class TmiVoteService {
 
     private final TmiSessionRepository tmiSessionRepository;
@@ -97,7 +98,6 @@ public class TmiVoteService {
         }
     }
 
-    @Transactional(readOnly = true)
     public TmiVotingStartResponse getCurrentVotingInfo(Long roomId) {
         TmiSession session = findTmiSession(roomId);
 
@@ -114,7 +114,6 @@ public class TmiVoteService {
         );
     }
 
-    @Transactional(readOnly = true)
     public TmiVotingPersonalResult getLatestVotingResult(Long roomId, String memberName) {
         TmiSession session = findTmiSession(roomId);
 

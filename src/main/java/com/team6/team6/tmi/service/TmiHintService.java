@@ -25,11 +25,11 @@ public class TmiHintService {
     private final StringRedisTemplate redisTemplate;
     private final TmiMessagePublisher messagePublisher;
     private final TmiVoteService tmiVoteService;
-    private final TmiSessionRepository tmiSessionRepository;
+    private final TmiSessionService tmiSessionService;
 
     @Transactional
     public void startHintTime(String roomKey, Long roomId) {
-        TmiSession session = findTmiSessionWithLock(roomId);
+        TmiSession session = tmiSessionService.findTmiSession(roomId);
 
         // 상태 검증
         session.validateCanStartHint();
@@ -84,10 +84,5 @@ public class TmiHintService {
         long secs = seconds % 60;
 
         return String.format("%02d:%02d:%02d", hours, minutes, secs);
-    }
-
-    private TmiSession findTmiSessionWithLock(Long roomId) {
-        return tmiSessionRepository.findByRoomIdWithLock(roomId)
-                .orElseThrow(() -> new IllegalStateException("TMI 게임 세션을 찾을 수 없습니다: " + roomId));
     }
 }

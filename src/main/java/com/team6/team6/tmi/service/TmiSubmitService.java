@@ -1,7 +1,6 @@
 package com.team6.team6.tmi.service;
 
 import com.team6.team6.tmi.domain.TmiMessagePublisher;
-import com.team6.team6.tmi.domain.repository.TmiSessionRepository;
 import com.team6.team6.tmi.domain.repository.TmiSubmissionRepository;
 import com.team6.team6.tmi.dto.TmiSubmitServiceReq;
 import com.team6.team6.tmi.entity.TmiSession;
@@ -17,20 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class TmiSubmitService {
 
     private final TmiHintService tmiHintService;
-    private final TmiSessionRepository tmiSessionRepository;
+    private final TmiSessionService tmiSessionService;
     private final TmiSubmissionRepository tmiSubmissionRepository;
     private final TmiMessagePublisher tmiMessagePublisher;
 
     @Transactional
-    public void createTmiGameSession(Long roomId, int totalMembers) {
-        TmiSession session = TmiSession.createInitialSession(roomId, totalMembers);
-        tmiSessionRepository.save(session);
-        log.info("TMI 게임 세션 생성: roomId={}, totalMembers={}", roomId, totalMembers);
-    }
-
-    @Transactional
     public void submitTmi(TmiSubmitServiceReq req) {
-        TmiSession session = findTmiSessionWithLock(req.roomId());
+        TmiSession session = tmiSessionService.findTmiSession(req.roomId());
 
         // 상태 검증
         session.requireCollectingTmiPhase();
@@ -40,11 +32,6 @@ public class TmiSubmitService {
         updateSessionAndNotify(session, req.roomKey());
 
         log.info("TMI 제출 완료: roomId={}, memberId={}", req.roomId(), req.memberId());
-    }
-
-    private TmiSession findTmiSessionWithLock(Long roomId) {
-        return tmiSessionRepository.findByRoomIdWithLock(roomId)
-                .orElseThrow(() -> new IllegalStateException("TMI 게임 세션을 찾을 수 없습니다: " + roomId));
     }
 
     private void validateDuplicateSubmission(Long roomId, Long memberId) {
