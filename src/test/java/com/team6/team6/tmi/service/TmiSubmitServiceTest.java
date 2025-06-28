@@ -27,7 +27,7 @@ class TmiSubmitServiceTest {
     private TmiSubmitService tmiSubmitService;
 
     @Mock
-    private TmiSessionRepository tmiSessionRepository;
+    private TmiSessionService tmiSessionService;
 
     @Mock
     private TmiSubmissionRepository tmiSubmissionRepository;
@@ -39,27 +39,14 @@ class TmiSubmitServiceTest {
     private TmiHintService tmiHintService;
 
     @Test
-    void TMI_게임_세션_생성_테스트() {
-        // given
-        Long roomId = 1L;
-        int totalMembers = 4;
-
-        // when
-        tmiSubmitService.createTmiGameSession(roomId, totalMembers);
-
-        // then
-        verify(tmiSessionRepository).save(any(TmiSession.class));
-    }
-
-    @Test
     void TMI_제출_테스트() {
         // given
         TmiSubmitServiceReq request = createTmiRequest();
 
         TmiSession session = TmiSession.createInitialSession(1L, 4);
 
-        given(tmiSessionRepository.findByRoomIdWithLock(1L))
-                .willReturn(Optional.of(session));
+        given(tmiSessionService.findTmiSession(1L))
+                .willReturn(session);
         given(tmiSubmissionRepository.existsByRoomIdAndMemberId(1L, 1L))
                 .willReturn(false);
 
@@ -72,28 +59,14 @@ class TmiSubmitServiceTest {
     }
 
     @Test
-    void 존재하지_않는_세션에_TMI_제출시_예외_테스트() {
-        // given
-        TmiSubmitServiceReq request = createTmiRequest();
-
-        given(tmiSessionRepository.findByRoomIdWithLock(1L))
-                .willReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> tmiSubmitService.submitTmi(request))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("TMI 게임 세션을 찾을 수 없습니다: 1");
-    }
-
-    @Test
     void TMI_재제출시_예외_테스트() {
         // given
         TmiSubmitServiceReq request = createTmiRequest();
 
         TmiSession session = TmiSession.createInitialSession(1L, 4);
 
-        given(tmiSessionRepository.findByRoomIdWithLock(1L))
-                .willReturn(Optional.of(session));
+        given(tmiSessionService.findTmiSession(1L))
+                .willReturn(session);
         given(tmiSubmissionRepository.existsByRoomIdAndMemberId(1L, 1L))
                 .willReturn(true);
 
@@ -110,8 +83,8 @@ class TmiSubmitServiceTest {
 
         TmiSession session = TmiSession.createInitialSession(1L, 1); // 총 1명
 
-        given(tmiSessionRepository.findByRoomIdWithLock(1L))
-                .willReturn(Optional.of(session));
+        given(tmiSessionService.findTmiSession(1L))
+                .willReturn(session);
         given(tmiSubmissionRepository.existsByRoomIdAndMemberId(1L, 1L))
                 .willReturn(false);
 

@@ -4,10 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team6.team6.global.security.AuthUtil;
 import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.member.security.UserPrincipal;
-import com.team6.team6.tmi.dto.TmiSubmitRequest;
-import com.team6.team6.tmi.dto.TmiVoteRequest;
-import com.team6.team6.tmi.dto.TmiVotingPersonalResult;
-import com.team6.team6.tmi.dto.TmiVotingStartResponse;
+import com.team6.team6.tmi.dto.*;
+import com.team6.team6.tmi.entity.TmiGameStep;
+import com.team6.team6.tmi.service.TmiSessionService;
 import com.team6.team6.tmi.service.TmiSubmitService;
 import com.team6.team6.tmi.service.TmiVoteService;
 import org.junit.jupiter.api.DisplayName;
@@ -61,6 +60,9 @@ class TmiControllerWebDocsTest {
 
     @MockitoBean
     private TmiSubmitService tmiSubmitService;
+
+    @MockitoBean
+    private TmiSessionService tmiSessionService;
 
     private UserPrincipal createMockUser() {
         return new UserPrincipal(1L, "testUser", 1L, "room123", CharacterType.RABBIT, "TMI");
@@ -209,6 +211,40 @@ class TmiControllerWebDocsTest {
                                     fieldWithPath("data.votingResults").type(JsonFieldType.OBJECT).description("투표 결과"),
                                     fieldWithPath("data.votingResults.*").type(JsonFieldType.NUMBER).description("각 멤버별 득표 수"),
                                     fieldWithPath("data.round").type(JsonFieldType.NUMBER).description("라운드")
+                            )
+                    ));
+        }
+    }
+
+    @Test
+    @DisplayName("TMI 게임 상태 조회 API 문서화")
+    void getGameStatus() throws Exception {
+        // given
+        TmiSessionStatusResponse response = TmiSessionStatusResponse.builder()
+                .currentStep(TmiGameStep.COLLECTING_TMI)
+                .hasUserSubmitted(true)
+                .build();
+        UserPrincipal mockUser = createMockUser();
+
+        try (MockedStatic<AuthUtil> authUtilMock = mockStatic(AuthUtil.class)) {
+            authUtilMock.when(AuthUtil::getCurrentUser).thenReturn(mockUser);
+            given(tmiSessionService.getSessionStatus(1L, "testUser")).willReturn(response);
+
+            // when & then
+            mockMvc.perform(get("/tmi/rooms/{roomKey}/status", "room123"))
+                    .andExpect(status().isOk())
+                    .andDo(document("tmi-game-status",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            pathParameters(
+                                    parameterWithName("roomKey").description("방 키")
+                            ),
+                            responseFields(
+                                    fieldWithPath("code").type(JsonFieldType.NUMBER).description("응답 코드"),
+                                    fieldWithPath("status").type(JsonFieldType.STRING).description("HTTP 상태"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+                                    fieldWithPath("data.currentStep").type(JsonFieldType.STRING).description("현재 게임 단계"),
+                                    fieldWithPath("data.hasUserSubmitted").type(JsonFieldType.BOOLEAN).description("사용자 제출 여부")
                             )
                     ));
         }

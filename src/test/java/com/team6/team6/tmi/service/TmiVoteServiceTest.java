@@ -34,6 +34,9 @@ class TmiVoteServiceTest {
     private TmiVoteService tmiVoteService;
 
     @Autowired
+    private TmiSessionService tmiSessionService;
+
+    @Autowired
     private TmiSessionRepository tmiSessionRepository;
 
     @Autowired
