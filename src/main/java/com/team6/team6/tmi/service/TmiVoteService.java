@@ -3,7 +3,7 @@ package com.team6.team6.tmi.service;
 import com.team6.team6.tmi.domain.TmiMessagePublisher;
 import com.team6.team6.tmi.domain.TmiSubmissions;
 import com.team6.team6.tmi.domain.TmiVotes;
-import com.team6.team6.tmi.domain.VoteResult;
+import com.team6.team6.tmi.domain.VoteStatus;
 import com.team6.team6.tmi.domain.repository.TmiSessionRepository;
 import com.team6.team6.tmi.domain.repository.TmiSubmissionRepository;
 import com.team6.team6.tmi.domain.repository.TmiVoteRepository;
@@ -75,7 +75,7 @@ public class TmiVoteService {
         tmiVoteRepository.save(vote);
 
         // 투표 처리 및 상태 전환 (TmiSession 내부에서 처리)
-        VoteResult result = session.processVote();
+        VoteStatus result = session.processVote();
 
         log.debug("TMI 투표 제출: roomKey={}, voter={}, voted={}, round={}, result={}",
                 req.roomKey(), req.voterName(), req.votedMemberName(), session.getCurrentVotingTmiIndex(), result);
