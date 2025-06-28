@@ -50,6 +50,7 @@ class TmiSessionServiceTest {
         assertSoftly(softly -> {
             softly.assertThat(response.currentStep()).isEqualTo(TmiGameStep.COLLECTING_TMI);
             softly.assertThat(response.hasUserSubmitted()).isTrue();
+            softly.assertThat(response.progress()).isEqualTo(0);
         });
     }
 
@@ -70,6 +71,7 @@ class TmiSessionServiceTest {
         assertSoftly(softly -> {
             softly.assertThat(response.currentStep()).isEqualTo(TmiGameStep.COLLECTING_TMI);
             softly.assertThat(response.hasUserSubmitted()).isFalse();
+            softly.assertThat(response.progress()).isEqualTo(0);
         });
     }
 
@@ -96,6 +98,7 @@ class TmiSessionServiceTest {
         assertSoftly(softly -> {
             softly.assertThat(response.currentStep()).isEqualTo(TmiGameStep.VOTING);
             softly.assertThat(response.hasUserSubmitted()).isFalse();
+            softly.assertThat(response.progress()).isEqualTo(0);
         });
     }
 
@@ -121,6 +124,7 @@ class TmiSessionServiceTest {
         assertSoftly(softly -> {
             softly.assertThat(response.currentStep()).isEqualTo(TmiGameStep.VOTING);
             softly.assertThat(response.hasUserSubmitted()).isTrue();
+            softly.assertThat(response.progress()).isEqualTo(0);
         });
     }
 
@@ -144,6 +148,7 @@ class TmiSessionServiceTest {
         assertSoftly(softly -> {
             softly.assertThat(response.currentStep()).isEqualTo(TmiGameStep.COMPLETED);
             softly.assertThat(response.hasUserSubmitted()).isTrue();
+            softly.assertThat(response.progress()).isEqualTo(100);
         });
     }
 }

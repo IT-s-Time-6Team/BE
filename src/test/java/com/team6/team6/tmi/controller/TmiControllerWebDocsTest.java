@@ -244,7 +244,8 @@ class TmiControllerWebDocsTest {
                                     fieldWithPath("status").type(JsonFieldType.STRING).description("HTTP 상태"),
                                     fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
                                     fieldWithPath("data.currentStep").type(JsonFieldType.STRING).description("현재 게임 단계"),
-                                    fieldWithPath("data.hasUserSubmitted").type(JsonFieldType.BOOLEAN).description("사용자 제출 여부")
+                                    fieldWithPath("data.hasUserSubmitted").type(JsonFieldType.BOOLEAN).description("사용자 제출 여부"),
+                                    fieldWithPath("data.progress").type(JsonFieldType.NUMBER).description("진행 상태 (TMI 수집, 투표 단계 외에는 100%로 고정)")
                             )
                     ));
         }
