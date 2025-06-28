@@ -3,10 +3,8 @@ package com.team6.team6.tmi.controller;
 import com.team6.team6.global.ApiResponse;
 import com.team6.team6.global.security.AuthUtil;
 import com.team6.team6.member.security.UserPrincipal;
-import com.team6.team6.tmi.dto.TmiSubmitRequest;
-import com.team6.team6.tmi.dto.TmiVoteRequest;
-import com.team6.team6.tmi.dto.TmiVotingPersonalResult;
-import com.team6.team6.tmi.dto.TmiVotingStartResponse;
+import com.team6.team6.tmi.dto.*;
+import com.team6.team6.tmi.service.TmiSessionService;
 import com.team6.team6.tmi.service.TmiSubmitService;
 import com.team6.team6.tmi.service.TmiVoteService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +22,7 @@ public class TmiController {
 
     private final TmiVoteService tmiVoteService;
     private final TmiSubmitService tmiSubmitService;
+    private final TmiSessionService tmiSessionService;
 
     @PostMapping("/rooms/{roomKey}/submit")
     public ApiResponse<String> submitTmi(
@@ -91,5 +90,21 @@ public class TmiController {
                 roomKey, userPrincipal.getNickname(), result.isCorrect());
 
         return ApiResponse.ok(result);
+    }
+
+    @GetMapping("/rooms/{roomKey}/status")
+    public ApiResponse<TmiSessionStatusResponse> getGameStatus(@PathVariable String roomKey) {
+        UserPrincipal userPrincipal = AuthUtil.getCurrentUser();
+
+        log.debug("TMI 게임 상태 조회 요청: roomKey={}, memberName={}",
+                roomKey, userPrincipal.getNickname());
+
+        TmiSessionStatusResponse response = tmiSessionService.getSessionStatus(
+                userPrincipal.getRoomId(), userPrincipal.getNickname());
+
+        log.debug("TMI 게임 상태 조회 완료: roomKey={}, currentStep={}, hasSubmitted={}",
+                roomKey, response.currentStep(), response.hasUserSubmitted());
+
+        return ApiResponse.ok(response);
     }
 }
