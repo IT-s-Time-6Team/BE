@@ -251,6 +251,57 @@ class TmiControllerWebDocsTest {
         }
     }
 
+    @Test
+    @DisplayName("TMI 게임 최종 결과 조회 API 문서화")
+    void getSessionResults() throws Exception {
+        // given
+        List<TopVoter> topVoters = List.of(
+                new TopVoter("member1", 3),
+                new TopVoter("member2", 3)
+        );
+
+        List<MostIncorrectTmi> mostIncorrectTmis = List.of(
+                new MostIncorrectTmi("저는 사실 감자를 싫어해요", 4)
+        );
+
+        TmiSessionResultResponse response = new TmiSessionResultResponse(
+                3, 2, topVoters, mostIncorrectTmis
+        );
+
+        UserPrincipal mockUser = createMockUser();
+
+        try (MockedStatic<AuthUtil> authUtilMock = mockStatic(AuthUtil.class)) {
+            authUtilMock.when(AuthUtil::getCurrentUser).thenReturn(mockUser);
+            given(tmiSessionService.getSessionResults(1L, "testUser")).willReturn(response);
+
+            // when & then
+            mockMvc.perform(get("/tmi/rooms/{roomKey}/results", "room123"))
+                    .andExpect(status().isOk())
+                    .andDo(document("tmi-game-results",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            pathParameters(
+                                    parameterWithName("roomKey").description("방 키")
+                            ),
+                            responseFields(
+                                    fieldWithPath("code").type(JsonFieldType.NUMBER).description("응답 코드"),
+                                    fieldWithPath("status").type(JsonFieldType.STRING).description("HTTP 상태"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+                                    fieldWithPath("data.correctCount").type(JsonFieldType.NUMBER).description("맞춘 TMI 개수"),
+                                    fieldWithPath("data.incorrectCount").type(JsonFieldType.NUMBER).description("틀린 TMI 개수"),
+                                    fieldWithPath("data.topVoters").type(JsonFieldType.ARRAY).description("가장 많은 TMI를 맞춘 사람들"),
+                                    fieldWithPath("data.topVoters[].memberName").type(JsonFieldType.STRING).description("멤버 이름"),
+                                    fieldWithPath("data.topVoters[].correctCount").type(JsonFieldType.NUMBER).description("맞춘 개수"),
+                                    fieldWithPath("data.mostIncorrectTmis").type(JsonFieldType.ARRAY).description("가장 많이 틀린 TMI 목록"),
+                                    fieldWithPath("data.mostIncorrectTmis[].tmiContent").type(JsonFieldType.STRING).description("TMI 내용"),
+                                    fieldWithPath("data.mostIncorrectTmis[].incorrectVoteCount").type(JsonFieldType.NUMBER).description("틀린 투표 수")
+                            )
+                    ));
+
+            verify(tmiSessionService).getSessionResults(1L, "testUser");
+        }
+    }
+
     @TestConfiguration
     static class TestConfig {
 
