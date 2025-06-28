@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>STOMP WebSocket API 명세서</title>
     <style>
         body {
@@ -10,7 +10,9 @@
             line-height: 1.6;
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             color: #333;
             margin-top: 1.5em;
         }
@@ -21,7 +23,8 @@
             margin: 1em 0;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px 12px;
             text-align: left;
@@ -71,27 +74,27 @@
 <h1>STOMP WebSocket API 명세서</h1>
 <p><a href="stomp-test.html">STOMP 테스트 페이지 바로 가기</a></p>
 
-
 <div class="section">
     <h2>1. 개요</h2>
     <p>
-        이 API는 STOMP(Simple Text Oriented Messaging Protocol) 프로토콜을 사용하여 실시간 메시지를 교환합니다.
-        채팅방 입장, 키워드 제출 및 분석 결과 조회 등의 기능을 제공합니다.
+        이 API는 STOMP(Simple Text Oriented Messaging Protocol) 프로토콜을
+        사용하여 실시간 메시지를 교환합니다. 채팅방 입장, 키워드 제출 및 분석
+        결과 조회 등의 기능을 제공합니다.
     </p>
     <p class="note">
-        <strong>중요:</strong> 웹소켓 테스트 페이지를 통해 API를 테스트할 수 있습니다.
-        사전에 연결을 해본 뒤, 이 문서를 읽으면 더욱 쉽게 이해 가능합니다.
-
+        <strong>중요:</strong> 웹소켓 테스트 페이지를 통해 API를 테스트할 수
+        있습니다. 사전에 연결을 해본 뒤, 이 문서를 읽으면 더욱 쉽게 이해
+        가능합니다.
     </p>
     <p class="note">
-        <strong>중요:</strong> WebSocket 연결하기 전에 반드시 REST API를 통한 로그인이 필요합니다.
-        로그인 시 생성된 세션 쿠키를 통해 사용자 인증이 이루어집니다. 별도로 토큰을 전달할 필요가 없습니다.
-
+        <strong>중요:</strong> WebSocket 연결하기 전에 반드시 REST API를 통한
+        로그인이 필요합니다. 로그인 시 생성된 세션 쿠키를 통해 사용자 인증이
+        이루어집니다. 별도로 토큰을 전달할 필요가 없습니다.
     </p>
     <p class="note">
         <strong>중요:</strong>
-        인증이 없으면 웹소켓 연결이 실패합니다.
-        또한 로그인한 방이 아닌 다른 방 구독 및 메시지 전송시, 웹소켓 연결이 끊어집니다.
+        인증이 없으면 웹소켓 연결이 실패합니다. 또한 로그인한 방이 아닌 다른 방
+        구독 및 메시지 전송시, 웹소켓 연결이 끊어집니다.
     </p>
 </div>
 
@@ -145,7 +148,9 @@ stompClient.connect({},
 
 <div class="section">
     <h2>4. 메시지 구독</h2>
-    <p>연결 성공 후, 다음 채널들을 전부 구독하여 메시지를 수신할 수 있습니다.</p>
+    <p>
+        연결 성공 후, 다음 채널들을 전부 구독하여 메시지를 수신할 수 있습니다.
+    </p>
     <p>/topic/room/{roomKey}/messages</p>
     <p>/user/queue/keyword-confirmation</p>
     <p>/user/queue/errors</p>
@@ -158,55 +163,100 @@ stompClient.connect({},
         </tr>
         <tr>
             <th>설명</th>
-            <td>채팅방 내 모든 메시지(입장, 재입장, 퇴장, 분석 결과, 방 종료 5분 전/종료 알림,방장 방 종료 알림, 키 이벤트) 수신</td>
+            <td>
+                채팅방 내 모든 메시지(입장, 재입장, 퇴장, 분석 결과, 방 종료 5분
+                전/종료 알림,방장 방 종료 알림, 키 이벤트) 수신
+            </td>
         </tr>
     </table>
     <h4>ENTER 메시지</h4>
-    <p>사용자가 /topic/room/{roomKey}/messages을 처음 구독을 하면 ENTER 메시지가 전원에게 전달됩니다. 현재 접속자는 data를 통해 전달됩니다.</p>
+    <p>
+        사용자가 /topic/room/{roomKey}/messages을 처음 구독을 하면 ENTER
+        메시지가 전원에게 전달됩니다. 현재 접속자는 data를 통해 전달됩니다.
+    </p>
     <pre><code class="language-json">{
   "type": "ENTER",
   "nickname": "test2",
   "content": "test2님이 입장했습니다.",
   "timestamp": "2025-05-04T19:01:28.30981",
   "data": {
-    "userCount": 1
+    "userCount": 2,
+    "roomMembers": [
+      {
+        "nickname": "test1",
+        "character": "RABBIT",
+        "isLeader": true
+      },
+      {
+        "nickname": "test2",
+        "character": "CHICK",
+        "isLeader": false
+      }
+    ]
   }
 }</code></pre>
 
     <h4>REENTER 메시지</h4>
-    <p>사용자가 /topic/room/{roomKey}/messages을 재구독을 하면 REENTER 메시지가 전원에게 전달됩니다. 현재 접속자 수와 재입장 사용자의 키워드 리스트가 data를 통해
-        전달됩니다.</p>
+    <p>
+        사용자가 /topic/room/{roomKey}/messages을 재구독을 하면 REENTER 메시지가
+        전원에게 전달됩니다. 현재 접속자 수와 재입장 사용자의 키워드 리스트가
+        data를 통해 전달됩니다.
+    </p>
     <pre><code class="language-json">{
   "type": "REENTER",
   "nickname": "test2",
   "content": "test2님이 재입장했습니다.",
   "timestamp": "2025-05-24T17:07:35.031651",
   "data": {
-    "userCount": 1,
+    "userCount": 2,
     "keywords": [
       "dd",
       "wwww",
       "rrrrr",
       "qqqq"
+    ],
+    "roomMembers": [
+      {
+        "nickname": "test1",
+        "character": "RABBIT",
+        "isLeader": true
+      },
+      {
+        "nickname": "test2",
+        "character": "CHICK",
+        "isLeader": false
+      }
     ]
   }
 }</code></pre>
 
     <h4>LEAVE</h4>
-    <p>사용자가 stomp 연결을 끊으면 LEAVE 메시지가 전원에게 전달됩니다. 현재 접속자는 data를 통해 전달됩니다.</p>
+    <p>
+        사용자가 stomp 연결을 끊으면 LEAVE 메시지가 전원에게 전달됩니다. 현재
+        접속자는 data를 통해 전달됩니다.
+    </p>
     <pre><code class="language-json">{
     "type": "LEAVE",
     "nickname": "test2",
     "content": "test2님이 퇴장했습니다.",
     "timestamp": "2025-05-04T19:01:35.882251",
     "data": {
-    "userCount": 1
+    "userCount": 1,
+    "roomMembers": [
+      {
+        "nickname": "test1",
+        "character": "RABBIT",
+        "isLeader": true
+      }
+    ]
     }
 }</code></pre>
 
-
     <h4>ANALYSIS_RESULT 메시지</h4>
-    <p>사용자가 /app/room/{roomKey}/keyword을 통해 키워드 전달 후, 서버에서 분석이 완료되면 해달 결과를 전원에게 전달됩니다.</p>
+    <p>
+        사용자가 /app/room/{roomKey}/keyword을 통해 키워드 전달 후, 서버에서
+        분석이 완료되면 해달 결과를 전원에게 전달됩니다.
+    </p>
 
     <pre><code class="language-json">{
   "type": "ANALYSIS_RESULT",
@@ -243,7 +293,9 @@ stompClient.connect({},
 }</code></pre>
 
     <h4>LEADER_ROOM_EXPIRED 메시지</h4>
-    <p>방장이 방을 종료하면 방에 있는 모든 사용자에게 방 종료 알림을 보냅니다.</p>
+    <p>
+        방장이 방을 종료하면 방에 있는 모든 사용자에게 방 종료 알림을 보냅니다.
+    </p>
     <pre><code class="language-json">{
   "type": "LEADER_ROOM_EXPIRED",
   "nickname": "@시스템",
@@ -254,7 +306,10 @@ stompClient.connect({},
 </code></pre>
 
     <h4>KEY_EVENT 메시지</h4>
-    <p>사용자가 키보드 입력 상태 이벤트(typing, cancel 등등)를 전송하면, 해당 이벤트가 전원에게 전달됩니다.</p>
+    <p>
+        사용자가 키보드 입력 상태 이벤트(typing, cancel 등등)를 전송하면, 해당
+        이벤트가 전원에게 전달됩니다.
+    </p>
     <pre><code class="language-json">{
   "type": "KEY_EVENT",
   "nickname": "test2",
@@ -297,7 +352,10 @@ stompClient.connect({},
     </table>
 
     <h4>ERROR 메시지</h4>
-    <p>사용자가 /app/room/{roomKey}/keyword에 잘못된 형식의 메시지를 전달한 경우, 해당 사용자에게 에러 메시지를 보냅니다.</p>
+    <p>
+        사용자가 /app/room/{roomKey}/keyword에 잘못된 형식의 메시지를 전달한
+        경우, 해당 사용자에게 에러 메시지를 보냅니다.
+    </p>
 
     <pre><code class="language-json">{
   "type": "ERROR",
@@ -344,11 +402,16 @@ stompClient.subscribe('/user/queue/errors', function(message) {
         </tr>
         <tr>
             <th>결과1</th>
-            <td>/user/queue/keyword-confirmation을 통해 해당 유저에게 KEYWORD_RECEIVED 전달</td>
+            <td>
+                /user/queue/keyword-confirmation을 통해 해당 유저에게
+                KEYWORD_RECEIVED 전달
+            </td>
         </tr>
         <tr>
             <th>결과2</th>
-            <td>/topic/room/{roomKey}/messages을 통해 ANALYSIS_RESULT 전부 전달</td>
+            <td>
+                /topic/room/{roomKey}/messages을 통해 ANALYSIS_RESULT 전부 전달
+            </td>
         </tr>
         <tr>
             <th>에러1</th>
@@ -374,7 +437,9 @@ stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예�
         </tr>
         <tr>
             <th>결과</th>
-            <td>/topic/room/{roomKey}/messages을 통해 KEY_EVENT 메시지 전부 전달</td>
+            <td>
+                /topic/room/{roomKey}/messages을 통해 KEY_EVENT 메시지 전부 전달
+            </td>
         </tr>
     </table>
     <pre><code class="language-js">// 키보드 입력 상태 이벤트 전송
@@ -461,7 +526,19 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
   "content": "test2님이 입장했습니다.",
   "timestamp": "2025-05-04T19:01:28.30981",
   "data": {
-    "userCount": 1
+    "userCount": 2,
+    "roomMembers": [
+      {
+        "nickname": "test1",
+        "character": "RABBIT",
+        "isLeader": true
+      },
+      {
+        "nickname": "test2",
+        "character": "CHICK",
+        "isLeader": false
+      }
+    ]
   }
 }</code></pre>
 
@@ -472,12 +549,24 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
   "content": "test2님이 재입장했습니다.",
   "timestamp": "2025-05-24T17:07:35.031651",
   "data": {
-    "userCount": 1,
+    "userCount": 2,
     "keywords": [
       "dd",
       "wwww",
       "rrrrr",
       "qqqq"
+    ],
+    "roomMembers": [
+      {
+        "nickname": "test1",
+        "character": "RABBIT",
+        "isLeader": true
+      },
+      {
+        "nickname": "test2",
+        "character": "CHICK",
+        "isLeader": false
+      }
     ]
   }
 }</code></pre>
@@ -489,9 +578,15 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
     "content": "test2님이 퇴장했습니다.",
     "timestamp": "2025-05-04T19:01:35.882251",
     "data": {
-    "userCount": 1
+    "userCount": 1,
+    "roomMembers": [
+      {
+        "nickname": "test1",
+        "character": "RABBIT",
+        "isLeader": true
+      }
+    ]
     }
-
 }</code></pre>
 
     <h4>KEYWORD_RECEIVED 메시지</h4>
@@ -572,23 +667,33 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
         <li>REST API로 로그인 (/rooms/{roomKey}/member)</li>
         <li>WebSocket 연결 (/connect)</li>
         <li>채팅방 메시지 구독 (/topic/room/{roomKey}/messages)</li>
-        <li>개인 메시지 구독 (/user/queue/keyword-confirmation, /user/queue/errors)</li>
+        <li>
+            개인 메시지 구독 (/user/queue/keyword-confirmation,
+            /user/queue/errors)
+        </li>
     </ol>
 
     <h3>7.2. 키워드 전송 및 결과 수신</h3>
     <ol>
         <li>키워드 전송 (/app/room/{roomKey}/keyword)</li>
         <li>개인 확인 메시지 수신 (/user/queue/keyword-confirmation)</li>
-        <li>분석 결과 수신 (/topic/room/{roomKey}/messages, type: ANALYSIS_RESULT)</li>
+        <li>
+            분석 결과 수신 (/topic/room/{roomKey}/messages, type: ANALYSIS_RESULT)
+        </li>
     </ol>
 
     <h3>7.3. 방 종료 알림 시나리오</h3>
     <ol>
         <li>방 생성 시, 만료 시간이 설정됨</li>
-        <li>방 종료 5분 전 <code>ROOM_EXPIRY_WARNING</code> 메시지가 <code>/topic/room/{roomKey}/messages</code>로 전송됨</li>
-        <li>방이 종료되면 <code>ROOM_EXPIRED</code> 메시지가 <code>/topic/room/{roomKey}/messages</code>로 전송됨</li>
+        <li>
+            방 종료 5분 전 <code>ROOM_EXPIRY_WARNING</code> 메시지가
+            <code>/topic/room/{roomKey}/messages</code>로 전송됨
+        </li>
+        <li>
+            방이 종료되면 <code>ROOM_EXPIRED</code> 메시지가
+            <code>/topic/room/{roomKey}/messages</code>로 전송됨
+        </li>
     </ol>
 </div>
-
 </body>
 </html>
