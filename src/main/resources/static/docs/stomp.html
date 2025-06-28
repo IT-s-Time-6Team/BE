@@ -172,7 +172,8 @@ stompClient.connect({},
     <h4>ENTER 메시지</h4>
     <p>
         사용자가 /topic/room/{roomKey}/messages을 처음 구독을 하면 ENTER
-        메시지가 전원에게 전달됩니다. 현재 접속자는 data를 통해 전달됩니다.
+        메시지가 전원에게 전달됩니다. 현재 접속자 수와 온라인인 사용자들의
+        캐릭터 정보가 data를 통해 전달됩니다.
     </p>
     <pre><code class="language-json">{
   "type": "ENTER",
@@ -199,8 +200,8 @@ stompClient.connect({},
     <h4>REENTER 메시지</h4>
     <p>
         사용자가 /topic/room/{roomKey}/messages을 재구독을 하면 REENTER 메시지가
-        전원에게 전달됩니다. 현재 접속자 수와 재입장 사용자의 키워드 리스트가
-        data를 통해 전달됩니다.
+        전원에게 전달됩니다. 현재 접속자 수, 재입장 사용자의 키워드 리스트,
+        그리고 온라인인 사용자들의 캐릭터 정보가 data를 통해 전달됩니다.
     </p>
     <pre><code class="language-json">{
   "type": "REENTER",
@@ -233,7 +234,7 @@ stompClient.connect({},
     <h4>LEAVE</h4>
     <p>
         사용자가 stomp 연결을 끊으면 LEAVE 메시지가 전원에게 전달됩니다. 현재
-        접속자는 data를 통해 전달됩니다.
+        접속자 수와 온라인인 사용자들의 캐릭터 정보가 data를 통해 전달됩니다.
     </p>
     <pre><code class="language-json">{
     "type": "LEAVE",
@@ -459,6 +460,12 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
 }</code></pre>
 
     <h3>6.1. 메시지 타입</h3>
+    <p class="note">
+        <strong>참고:</strong> ENTER, REENTER, LEAVE 메시지의 data 필드에
+        포함되는 roomMembers는 현재 온라인 상태인 사용자들만 포함됩니다. 실제
+        WebSocket에 연결되어 있는 사용자들의 닉네임, 캐릭터 타입, 방장 여부
+        정보를 제공합니다.
+    </p>
     <table>
         <tr>
             <th>type</th>
