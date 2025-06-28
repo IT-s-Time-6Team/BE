@@ -48,9 +48,8 @@ public class TmiSubmissions {
         Map<String, Integer> incorrectCountByTmi = new HashMap<>();
 
         for (TmiSubmission submission : submissions) {
-            String memberName = submission.getMemberName();
             String tmiContent = submission.getTmiContent();
-            int incorrectVotes = votes.countIncorrectVotesForMember(memberName);
+            int incorrectVotes = votes.countIncorrectVotesForSubmission(submission.getDisplayOrder());
             incorrectCountByTmi.put(tmiContent, incorrectVotes);
         }
 

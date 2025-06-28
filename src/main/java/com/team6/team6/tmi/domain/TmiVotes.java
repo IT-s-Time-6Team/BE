@@ -44,9 +44,9 @@ public class TmiVotes {
                 .count();
     }
 
-    public int countIncorrectVotesForMember(String votedMemberName) {
+    public int countIncorrectVotesForSubmission(int round) {
         return (int) votes.stream()
-                .filter(vote -> vote.getVotedMemberName().equals(votedMemberName))
+                .filter(vote -> vote.getVotingRound().equals(round))
                 .filter(vote -> Boolean.FALSE.equals(vote.getIsCorrect()))
                 .count();
     }
