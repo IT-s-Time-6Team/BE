@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +55,7 @@ public class KeywordWebSocketSubscribeService {
         log.debug("첫 입장 처리 시작: roomKey={}, nickname={}, roomId={}", roomKey, nickname, roomId);
 
         int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
-        List<KeywordChatMessage.RoomMemberInfo> roomMembers = getRoomMemberInfos(roomId);
+        List<KeywordChatMessage.RoomMemberInfo> roomMembers = getRoomMemberInfos(roomKey, roomId);
 
         log.debug("온라인 사용자 수 및 멤버 정보 조회 완료: roomKey={}, onlineUserCount={}, memberCount={}",
                 roomKey, onlineUserCount, roomMembers.size());
@@ -72,7 +73,7 @@ public class KeywordWebSocketSubscribeService {
                 roomKey, nickname, roomId, memberId);
 
         int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
-        List<KeywordChatMessage.RoomMemberInfo> roomMembers = getRoomMemberInfos(roomId);
+        List<KeywordChatMessage.RoomMemberInfo> roomMembers = getRoomMemberInfos(roomKey, roomId);
 
         log.debug("온라인 사용자 수 및 멤버 정보 조회 완료: roomKey={}, onlineUserCount={}, memberCount={}",
                 roomKey, onlineUserCount, roomMembers.size());
@@ -100,14 +101,28 @@ public class KeywordWebSocketSubscribeService {
     }
 
     /**
-     * 방의 모든 멤버 정보를 조회하는 메소드
+     * 방의 온라인 멤버 정보를 조회하는 메소드
      */
-    private List<KeywordChatMessage.RoomMemberInfo> getRoomMemberInfos(Long roomId) {
-        log.debug("방 멤버 정보 조회 시작: roomId={}", roomId);
+    private List<KeywordChatMessage.RoomMemberInfo> getRoomMemberInfos(String roomKey, Long roomId) {
+        log.debug("방 온라인 멤버 정보 조회 시작: roomKey={}, roomId={}", roomKey, roomId);
 
-        List<Member> members = memberRepository.findByRoomId(roomId);
+        // 온라인 멤버 목록 조회 (닉네임 -> 온라인 상태)
+        Map<String, Boolean> onlineMembers = roomMemberStateManager.getRoomMembers(roomKey);
 
-        List<KeywordChatMessage.RoomMemberInfo> roomMemberInfos = members.stream()
+        // 온라인인 멤버들의 닉네임만 추출
+        List<String> onlineNicknames = onlineMembers.entrySet().stream()
+                .filter(Map.Entry::getValue) // 온라인인 멤버만 필터링
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        log.debug("온라인 멤버 닉네임 목록: roomKey={}, onlineNicknames={}", roomKey, onlineNicknames);
+
+        // 방의 모든 멤버 정보 조회
+        List<Member> allMembers = memberRepository.findByRoomId(roomId);
+
+        // 온라인인 멤버만 필터링하여 RoomMemberInfo로 변환
+        List<KeywordChatMessage.RoomMemberInfo> roomMemberInfos = allMembers.stream()
+                .filter(member -> onlineNicknames.contains(member.getNickname()))
                 .map(member -> new KeywordChatMessage.RoomMemberInfo(
                         member.getNickname(),
                         member.getCharacter(),
@@ -115,7 +130,8 @@ public class KeywordWebSocketSubscribeService {
                 ))
                 .collect(Collectors.toList());
 
-        log.debug("방 멤버 정보 조회 완료: roomId={}, memberCount={}", roomId, roomMemberInfos.size());
+        log.debug("방 온라인 멤버 정보 조회 완료: roomKey={}, roomId={}, onlineMemberCount={}",
+                roomKey, roomId, roomMemberInfos.size());
 
         return roomMemberInfos;
     }
@@ -127,7 +143,7 @@ public class KeywordWebSocketSubscribeService {
         log.debug("사용자 연결 해제 처리 시작: roomKey={}, nickname={}, roomId={}", roomKey, nickname, roomId);
 
         int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
-        List<KeywordChatMessage.RoomMemberInfo> roomMembers = getRoomMemberInfos(roomId);
+        List<KeywordChatMessage.RoomMemberInfo> roomMembers = getRoomMemberInfos(roomKey, roomId);
 
         log.debug("온라인 사용자 수 및 멤버 정보 조회 완료: roomKey={}, onlineUserCount={}, memberCount={}",
                 roomKey, onlineUserCount, roomMembers.size());
