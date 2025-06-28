@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -71,6 +72,7 @@ class KeywordWebSocketSubscribeServiceTest {
         // Given
         when(roomMemberStateManager.isFirstConnection(roomKey, nickname)).thenReturn(true);
         when(roomMemberStateManager.getOnlineUserCount(roomKey)).thenReturn(1);
+        when(roomMemberStateManager.getRoomMembers(roomKey)).thenReturn(Map.of(nickname, true));
         when(memberRepository.findByRoomId(roomId)).thenReturn(List.of(testMember));
 
         // When
@@ -79,6 +81,7 @@ class KeywordWebSocketSubscribeServiceTest {
         // Then
         verify(keywordService, never()).getUserKeywords(roomId, memberId);
         verify(memberRepository).findByRoomId(roomId);
+        verify(roomMemberStateManager).getRoomMembers(roomKey);
 
         assertInstanceOf(KeywordChatMessage.UserCountData.class, result.getData());
         KeywordChatMessage.UserCountData userData = (KeywordChatMessage.UserCountData) result.getData();
@@ -100,6 +103,7 @@ class KeywordWebSocketSubscribeServiceTest {
         // Given
         when(roomMemberStateManager.isFirstConnection(roomKey, nickname)).thenReturn(false);
         when(roomMemberStateManager.getOnlineUserCount(roomKey)).thenReturn(2);
+        when(roomMemberStateManager.getRoomMembers(roomKey)).thenReturn(Map.of(nickname, true));
         when(memberRepository.findByRoomId(roomId)).thenReturn(List.of(testMember));
 
         Keyword keyword = Keyword.builder()
@@ -115,6 +119,7 @@ class KeywordWebSocketSubscribeServiceTest {
         // Then
         verify(keywordService).getUserKeywords(roomId, memberId);
         verify(memberRepository).findByRoomId(roomId);
+        verify(roomMemberStateManager).getRoomMembers(roomKey);
 
         assertInstanceOf(KeywordChatMessage.ReenterData.class, result.getData());
         KeywordChatMessage.ReenterData reenterData = (KeywordChatMessage.ReenterData) result.getData();
@@ -138,13 +143,15 @@ class KeywordWebSocketSubscribeServiceTest {
     void 사용자_연결_해제_처리_테스트() {
         // Given
         when(roomMemberStateManager.getOnlineUserCount(roomKey)).thenReturn(0);
-        when(memberRepository.findByRoomId(roomId)).thenReturn(Collections.emptyList());
+        when(roomMemberStateManager.getRoomMembers(roomKey)).thenReturn(Collections.emptyMap());
+        when(memberRepository.findByRoomId(roomId)).thenReturn(List.of(testMember));
 
         // When
         ChatMessage result = keywordWebSocketSubscribeService.handleUserDisconnection(roomKey, nickname, roomId);
 
         // Then
         verify(memberRepository).findByRoomId(roomId);
+        verify(roomMemberStateManager).getRoomMembers(roomKey);
 
         assertInstanceOf(KeywordChatMessage.UserCountData.class, result.getData());
         KeywordChatMessage.UserCountData userData = (KeywordChatMessage.UserCountData) result.getData();
@@ -155,6 +162,37 @@ class KeywordWebSocketSubscribeServiceTest {
             softly.assertThat(userData.userCount()).isEqualTo(0);
             softly.assertThat(userData.roomMembers()).isNotNull();
             softly.assertThat(userData.roomMembers()).isEmpty();
+        });
+    }
+
+    @Test
+    void 온라인_멤버_필터링_테스트() {
+        // Given - 2명의 멤버가 있지만 1명만 온라인인 상황
+        Member offlineMember = Member.builder()
+                .nickname("offline-user")
+                .character(CharacterType.CHICK)
+                .isLeader(false)
+                .room(testRoom)
+                .build();
+
+        when(roomMemberStateManager.isFirstConnection(roomKey, nickname)).thenReturn(true);
+        when(roomMemberStateManager.getOnlineUserCount(roomKey)).thenReturn(1);
+        when(roomMemberStateManager.getRoomMembers(roomKey)).thenReturn(Map.of(
+                nickname, true,           // 온라인
+                "offline-user", false     // 오프라인
+        ));
+        when(memberRepository.findByRoomId(roomId)).thenReturn(List.of(testMember, offlineMember));
+
+        // When
+        ChatMessage result = keywordWebSocketSubscribeService.handleUserSubscription(roomKey, nickname, roomId, memberId);
+
+        // Then
+        assertInstanceOf(KeywordChatMessage.UserCountData.class, result.getData());
+        KeywordChatMessage.UserCountData userData = (KeywordChatMessage.UserCountData) result.getData();
+
+        assertSoftly(softly -> {
+            softly.assertThat(userData.roomMembers()).hasSize(1); // 온라인인 멤버만 1명
+            softly.assertThat(userData.roomMembers().get(0).nickname()).isEqualTo(nickname); // 온라인인 멤버만 포함
         });
     }
 
