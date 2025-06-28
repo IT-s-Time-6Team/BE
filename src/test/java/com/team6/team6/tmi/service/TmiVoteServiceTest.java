@@ -13,7 +13,6 @@ import com.team6.team6.tmi.entity.TmiSubmission;
 import com.team6.team6.tmi.entity.TmiVote;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
@@ -60,6 +58,7 @@ class TmiVoteServiceTest {
         TmiSubmission submission2 = createTmiSubmission(1L, "member2", "TMI2");
         TmiSubmission submission3 = createTmiSubmission(1L, "member3", "TMI3");
         tmiSubmissionRepository.saveAll(List.of(submission1, submission2, submission3));
+        session.startHintTime();
 
         // when
         tmiVoteService.startVotingPhase("room1", 1L);
@@ -78,6 +77,9 @@ class TmiVoteServiceTest {
     void 투표_제출_테스트() {
         // given
         TmiSession session = TmiSession.createInitialSession(1L, 2);
+        session.incrementSubmittedTmiCount();
+        session.incrementSubmittedTmiCount();
+        session.startHintTime();
         session.startVotingPhase();
         tmiSessionRepository.save(session);
 
@@ -101,7 +103,6 @@ class TmiVoteServiceTest {
             softly.assertThat(vote.getVotingRound()).isEqualTo(0);
             softly.assertThat(vote.getIsCorrect()).isTrue();
         });
-
         verify(messagePublisher).notifyTmiVotingProgress(eq("room1"), anyInt());
     }
 
@@ -110,8 +111,11 @@ class TmiVoteServiceTest {
     void 현재_투표_정보_조회_테스트() {
         // given
         TmiSession session = TmiSession.createInitialSession(1L, 2);
-        session.startVotingPhase();
         tmiSessionRepository.save(session);
+        session.incrementSubmittedTmiCount();
+        session.incrementSubmittedTmiCount();
+        session.startHintTime();
+        session.startVotingPhase();
 
         TmiSubmission submission1 = createTmiSubmission(1L, "member1", "TMI1");
         submission1.setDisplayOrder(0);
@@ -134,8 +138,10 @@ class TmiVoteServiceTest {
     void 최신_투표_결과_조회() {
         // given
         TmiSession session = TmiSession.createInitialSession(1L, 2);
+        session.incrementSubmittedTmiCount();
+        session.incrementSubmittedTmiCount();
+        session.startHintTime();
         session.startVotingPhase();
-        session.moveToNextTmi();
         tmiSessionRepository.save(session);
 
         TmiSubmission submission = createTmiSubmission(1L, "member1", "TMI1");
@@ -147,6 +153,8 @@ class TmiVoteServiceTest {
         TmiVote vote2 = TmiVote.create(1L, "member2", "member1", submission.getId(), 0);
         vote2.changeIsCorrect("member1");
         tmiVoteRepository.saveAll(List.of(vote1, vote2));
+        session.processVote();
+        session.processVote();
 
         // when
         TmiVotingPersonalResult result = tmiVoteService.getLatestVotingResult(1L, "member1");

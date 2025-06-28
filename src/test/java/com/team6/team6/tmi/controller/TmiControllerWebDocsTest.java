@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.team6.team6.global.security.AuthUtil;
 import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.member.security.UserPrincipal;
+import com.team6.team6.tmi.dto.TmiSubmitRequest;
 import com.team6.team6.tmi.dto.TmiVoteRequest;
 import com.team6.team6.tmi.dto.TmiVotingPersonalResult;
 import com.team6.team6.tmi.dto.TmiVotingStartResponse;
+import com.team6.team6.tmi.service.TmiSubmitService;
 import com.team6.team6.tmi.service.TmiVoteService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,8 +59,47 @@ class TmiControllerWebDocsTest {
     @MockitoBean
     private TmiVoteService tmiVoteService;
 
+    @MockitoBean
+    private TmiSubmitService tmiSubmitService;
+
     private UserPrincipal createMockUser() {
         return new UserPrincipal(1L, "testUser", 1L, "room123", CharacterType.RABBIT, "TMI");
+    }
+
+    @Test
+    @DisplayName("TMI 제출 API 문서화")
+    void submitTmi() throws Exception {
+        // given
+        TmiSubmitRequest request = new TmiSubmitRequest("나는 어제 3시간만 잤어요");
+        UserPrincipal mockUser = createMockUser();
+
+        try (MockedStatic<AuthUtil> authUtilMock = mockStatic(AuthUtil.class)) {
+            authUtilMock.when(AuthUtil::getCurrentUser).thenReturn(mockUser);
+
+            // when & then
+            mockMvc.perform(post("/tmi/rooms/{roomKey}/submit", "room123")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andDo(document("tmi-submit",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            pathParameters(
+                                    parameterWithName("roomKey").description("방 키")
+                            ),
+                            requestFields(
+                                    fieldWithPath("tmiContent").type(JsonFieldType.STRING).description("TMI 내용")
+                            ),
+                            responseFields(
+                                    fieldWithPath("code").type(JsonFieldType.NUMBER).description("응답 코드"),
+                                    fieldWithPath("status").type(JsonFieldType.STRING).description("HTTP 상태"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+                                    fieldWithPath("data").type(JsonFieldType.STRING).description("성공 메시지")
+                            )
+                    ));
+
+            verify(tmiSubmitService).submitTmi(any());
+        }
     }
 
     @Test
@@ -72,7 +113,7 @@ class TmiControllerWebDocsTest {
             authUtilMock.when(AuthUtil::getCurrentUser).thenReturn(mockUser);
 
             // when & then
-            mockMvc.perform(post("/tmi/rooms/{roomKey}/vote", "room123")
+            mockMvc.perform(post("/tmi/rooms/{roomKey}/votes", "room123")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -110,7 +151,7 @@ class TmiControllerWebDocsTest {
             given(tmiVoteService.getCurrentVotingInfo(1L)).willReturn(response);
 
             // when & then
-            mockMvc.perform(get("/tmi/rooms/{roomKey}/voting/current", "room123"))
+            mockMvc.perform(get("/tmi/rooms/{roomKey}/votes", "room123"))
                     .andExpect(status().isOk())
                     .andDo(document("tmi-voting-current",
                             preprocessRequest(prettyPrint()),
@@ -149,7 +190,7 @@ class TmiControllerWebDocsTest {
             given(tmiVoteService.getLatestVotingResult(1L, "testUser")).willReturn(result);
 
             // when & then
-            mockMvc.perform(get("/tmi/rooms/{roomKey}/voting/result", "room123"))
+            mockMvc.perform(get("/tmi/rooms/{roomKey}/votes/result", "room123"))
                     .andExpect(status().isOk())
                     .andDo(document("tmi-voting-result",
                             preprocessRequest(prettyPrint()),

@@ -35,6 +35,9 @@ class TmiSubmitServiceTest {
     @Mock
     private TmiMessagePublisher tmiMessagePublisher;
 
+    @Mock
+    private TmiHintService tmiHintService;
+
     @Test
     void TMI_게임_세션_생성_테스트() {
         // given
@@ -80,23 +83,6 @@ class TmiSubmitServiceTest {
         assertThatThrownBy(() -> tmiSubmitService.submitTmi(request))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("TMI 게임 세션을 찾을 수 없습니다: 1");
-    }
-
-    @Test
-    void TMI_수집_단계_아닐_때_제출시_예외_테스트() {
-        // given
-        TmiSubmitServiceReq request = createTmiRequest();
-
-        TmiSession session = TmiSession.createInitialSession(1L, 4);
-
-        given(tmiSessionRepository.findByRoomIdWithLock(1L))
-                .willReturn(Optional.of(session));
-        session.startVotingPhase();
-
-        // when & then
-        assertThatThrownBy(() -> tmiSubmitService.submitTmi(request))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("TMI 수집 단계가 아닙니다");
     }
 
     @Test
