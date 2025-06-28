@@ -9,4 +9,6 @@ public interface TmiVoteRepository extends JpaRepository<TmiVote, Long> {
     boolean existsByRoomIdAndVoterNameAndVotingRound(Long roomId, String voterName, int votingRound);
 
     List<TmiVote> findByRoomIdAndVotingRound(Long roomId, int latestCompletedRound);
+
+    List<TmiVote> findAllByRoomId(Long roomId);
 }

@@ -107,4 +107,20 @@ public class TmiController {
 
         return ApiResponse.ok(response);
     }
+
+    @GetMapping("/rooms/{roomKey}/results")
+    public ApiResponse<TmiSessionResultResponse> getSessionResults(@PathVariable String roomKey) {
+        UserPrincipal userPrincipal = AuthUtil.getCurrentUser();
+
+        log.debug("TMI 게임 최종 결과 조회 요청: roomKey={}, memberName={}",
+                roomKey, userPrincipal.getNickname());
+
+        TmiSessionResultResponse response = tmiSessionService.getSessionResults(
+                userPrincipal.getRoomId(), userPrincipal.getNickname());
+
+        log.debug("TMI 게임 최종 결과 조회 완료: roomKey={}, correctCount={}, incorrectCount={}",
+                roomKey, response.correctCount(), response.incorrectCount());
+
+        return ApiResponse.ok(response);
+    }
 }

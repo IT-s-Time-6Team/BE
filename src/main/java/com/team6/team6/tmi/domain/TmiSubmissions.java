@@ -1,9 +1,11 @@
 package com.team6.team6.tmi.domain;
 
+import com.team6.team6.tmi.dto.MostIncorrectTmi;
 import com.team6.team6.tmi.entity.TmiSubmission;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -42,9 +44,27 @@ public class TmiSubmissions {
         return submissions.isEmpty();
     }
 
-    private void validateIndex(int index) {
-        if (index < 0 || index >= submissions.size()) {
-            throw new IllegalArgumentException("잘못된 TMI 인덱스: " + index + " (전체: " + submissions.size() + ")");
+    public List<MostIncorrectTmi> findMostIncorrectTmis(TmiVotes votes) {
+        Map<String, Integer> incorrectCountByTmi = new HashMap<>();
+
+        for (TmiSubmission submission : submissions) {
+            String memberName = submission.getMemberName();
+            String tmiContent = submission.getTmiContent();
+            int incorrectVotes = votes.countIncorrectVotesForMember(memberName);
+            incorrectCountByTmi.put(tmiContent, incorrectVotes);
         }
+
+        if (incorrectCountByTmi.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        int maxIncorrectCount = Collections.max(incorrectCountByTmi.values());
+
+        return incorrectCountByTmi.entrySet().stream()
+                .filter(entry -> entry.getValue() == maxIncorrectCount)
+                .map(entry -> new MostIncorrectTmi(
+                        entry.getKey(), entry.getValue()
+                ))
+                .collect(Collectors.toList());
     }
 }

@@ -1,7 +1,7 @@
 package com.team6.team6.tmi.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
-import com.team6.team6.tmi.domain.VoteResult;
+import com.team6.team6.tmi.domain.VoteStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -122,26 +122,26 @@ public class TmiSession extends BaseEntity {
      *
      * @return VoteResult 투표 후 결과 상태
      */
-    public VoteResult processVote() {
+    public VoteStatus processVote() {
         requireVotingPhase();
         this.currentVotedMemberCount++;
 
         // 현재 라운드 투표가 완료되지 않았으면 진행 중 상태 반환
         if (!isCurrentRoundVotingCompleted()) {
-            return VoteResult.IN_PROGRESS;
+            return VoteStatus.IN_PROGRESS;
         }
 
         // 마지막 TMI에 대한 투표였다면 게임 완료
         if (isLastTmiIndex()) {
             this.currentStep = TmiGameStep.COMPLETED;
             this.closedAt = LocalDateTime.now();
-            return VoteResult.ALL_COMPLETED;
+            return VoteStatus.ALL_COMPLETED;
         }
 
         // 다음 TMI로 이동
         this.currentVotingTmiIndex++;
         this.currentVotedMemberCount = 0;
-        return VoteResult.ROUND_COMPLETED;
+        return VoteStatus.ROUND_COMPLETED;
     }
 
     // ==================== 상태 확인 메서드 ====================
@@ -195,5 +195,11 @@ public class TmiSession extends BaseEntity {
             return currentVotingTmiIndex - 1;
         }
         return -1; // 완료된 투표가 없음
+    }
+
+    public void validateCompleted() {
+        if (this.currentStep != TmiGameStep.COMPLETED) {
+            throw new IllegalStateException("TMI 게임이 아직 완료되지 않았습니다. 현재 단계: " + this.currentStep);
+        }
     }
 }

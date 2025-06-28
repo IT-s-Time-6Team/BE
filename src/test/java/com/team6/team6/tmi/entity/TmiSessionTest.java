@@ -1,6 +1,6 @@
 package com.team6.team6.tmi.entity;
 
-import com.team6.team6.tmi.domain.VoteResult;
+import com.team6.team6.tmi.domain.VoteStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -174,11 +174,11 @@ class TmiSessionTest {
             session.startVotingPhase(); // 투표 단계로 전환
 
             // when
-            VoteResult result = session.processVote(); // 1/3만 투표
+            VoteStatus result = session.processVote(); // 1/3만 투표
 
             // then
             assertSoftly(softly -> {
-                softly.assertThat(result).isEqualTo(VoteResult.IN_PROGRESS);
+                softly.assertThat(result).isEqualTo(VoteStatus.IN_PROGRESS);
                 softly.assertThat(session.getCurrentVotedMemberCount()).isEqualTo(1);
                 softly.assertThat(session.getCurrentVotingTmiIndex()).isZero();
             });
@@ -198,11 +198,11 @@ class TmiSessionTest {
             // when
             session.processVote(); // 1/3 투표
             session.processVote(); // 2/3 투표
-            VoteResult result = session.processVote(); // 3/3 투표 (라운드 완료)
+            VoteStatus result = session.processVote(); // 3/3 투표 (라운드 완료)
 
             // then
             assertSoftly(softly -> {
-                softly.assertThat(result).isEqualTo(VoteResult.ROUND_COMPLETED);
+                softly.assertThat(result).isEqualTo(VoteStatus.ROUND_COMPLETED);
                 softly.assertThat(session.getCurrentVotedMemberCount()).isZero(); // 초기화됨
                 softly.assertThat(session.getCurrentVotingTmiIndex()).isEqualTo(1); // 다음 인덱스로 이동
                 softly.assertThat(session.getCurrentStep()).isEqualTo(TmiGameStep.VOTING); // 여전히 투표 단계
@@ -228,11 +228,11 @@ class TmiSessionTest {
 
             // when
             session.processVote();
-            VoteResult result = session.processVote(); // 마지막 투표 완료
+            VoteStatus result = session.processVote(); // 마지막 투표 완료
 
             // then
             assertSoftly(softly -> {
-                softly.assertThat(result).isEqualTo(VoteResult.ALL_COMPLETED);
+                softly.assertThat(result).isEqualTo(VoteStatus.ALL_COMPLETED);
                 softly.assertThat(session.getCurrentStep()).isEqualTo(TmiGameStep.COMPLETED);
                 softly.assertThat(session.getClosedAt()).isNotNull();
             });

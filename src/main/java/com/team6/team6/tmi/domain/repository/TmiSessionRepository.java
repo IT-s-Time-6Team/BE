@@ -13,4 +13,6 @@ public interface TmiSessionRepository extends JpaRepository<TmiSession, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT ts FROM TmiSession ts WHERE ts.roomId = :roomId")
     Optional<TmiSession> findByRoomIdWithLock(@Param("roomId") Long roomId);
+
+    Optional<TmiSession> findByRoomId(Long roomId);
 }

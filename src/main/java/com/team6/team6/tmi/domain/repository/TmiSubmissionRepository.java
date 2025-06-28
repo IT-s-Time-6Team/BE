@@ -14,4 +14,6 @@ public interface TmiSubmissionRepository extends JpaRepository<TmiSubmission, Lo
     Optional<TmiSubmission> findByRoomIdAndDisplayOrder(Long roomId, int displayOrder);
 
     boolean existsByRoomIdAndMemberName(Long roomId, String memberName);
+
+    List<TmiSubmission> findAllByRoomId(Long id);
 }

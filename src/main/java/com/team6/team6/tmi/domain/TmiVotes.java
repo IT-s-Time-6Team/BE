@@ -1,5 +1,7 @@
 package com.team6.team6.tmi.domain;
 
+import com.team6.team6.tmi.dto.TopVoter;
+import com.team6.team6.tmi.dto.VoteResult;
 import com.team6.team6.tmi.entity.TmiVote;
 
 import java.util.Collections;
@@ -33,5 +35,53 @@ public class TmiVotes {
                         HashMap::new,
                         Collectors.counting()
                 ));
+    }
+
+    public int countCorrectVotesForVoter(String voterName) {
+        return (int) votes.stream()
+                .filter(vote -> vote.getVoterName().equals(voterName))
+                .filter(vote -> vote.getIsCorrect() != null && vote.getIsCorrect())
+                .count();
+    }
+
+    public int countIncorrectVotesForMember(String votedMemberName) {
+        return (int) votes.stream()
+                .filter(vote -> vote.getVotedMemberName().equals(votedMemberName))
+                .filter(vote -> Boolean.FALSE.equals(vote.getIsCorrect()))
+                .count();
+    }
+
+    public VoteResult calculateMemberVoteResult(String memberName) {
+        int correctCount = countCorrectVotesForVoter(memberName);
+        long totalVotes = votes.stream()
+                .filter(vote -> vote.getVoterName().equals(memberName))
+                .count();
+        int incorrectCount = (int) (totalVotes - correctCount);
+        return new VoteResult(correctCount, incorrectCount);
+    }
+
+    public List<TopVoter> getTopVoters() {
+        Map<String, Integer> correctCountByMember = new HashMap<>();
+
+        for (TmiVote vote : votes) {
+            if (vote.getIsCorrect() != null && vote.getIsCorrect()) {
+                String voterName = vote.getVoterName();
+                correctCountByMember.put(voterName,
+                        correctCountByMember.getOrDefault(voterName, 0) + 1);
+            }
+        }
+
+        if (correctCountByMember.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        int maxCorrectCount = Collections.max(correctCountByMember.values());
+
+        return correctCountByMember.entrySet().stream()
+                .filter(entry -> entry.getValue() == maxCorrectCount)
+                .map(entry -> new TopVoter(
+                        entry.getKey(), entry.getValue()
+                ))
+                .collect(Collectors.toList());
     }
 }
