@@ -110,11 +110,14 @@
         margin: 0;
         padding-left: 20px;
       }
+
+    
     </style>
 </head>
 <body>
 <h1>STOMP WebSocket API 명세서</h1>
 <p><a href="stomp-test.html">STOMP 테스트 페이지 바로 가기</a></p>
+
 
 <div class="toc">
   <h3>목차</h3>
@@ -182,6 +185,7 @@
     인증이 없으면 웹소켓 연결이 실패합니다. 또한 로그인한 방이 아닌 다른 방
     구독 및 메시지 전송시, 웹소켓 연결이 끊어집니다.
   </div>
+
 </div>
 
 <div class="section" id="common">
@@ -235,9 +239,11 @@ stompClient.connect({},
 );</code></pre>
   </div>
 
+
   <div id="common-messages">
     <h3>2.3. 공통 에러 메시지</h3>
     <p>모든 모드에서 공통으로 사용되는 에러 메시지입니다.</p>
+
 
     <h4>개인 에러 메시지 구독</h4>
     <table>
@@ -247,11 +253,13 @@ stompClient.connect({},
       </tr>
       <tr>
             <th>설명</th>
+
         <td>요청 처리 중 발생한 에러 메시지 수신</td>
       </tr>
     </table>
 
     <h4>ERROR 메시지</h4>
+
     <pre><code class="language-json">{
   "type": "ERROR",
   "nickname": "@시스템",
@@ -268,6 +276,7 @@ stompClient.subscribe('/user/queue/errors', function(message) {
   </div>
 </div>
 
+
 <div class="section mode-section keyword-mode" id="keyword">
   <h2>3. 키워드 모드 (Keyword Mode)</h2>
 
@@ -275,6 +284,7 @@ stompClient.subscribe('/user/queue/errors', function(message) {
     <h3>3.1. 키워드 모드 구독</h3>
 
     <p>키워드 모드에서는 다음 채널들을 구독해야 합니다:</p>
+
 
     <h4>3.1.1. 채팅방 메시지 구독</h4>
     <table>
@@ -303,7 +313,9 @@ stompClient.subscribe('/user/queue/errors', function(message) {
       </tr>
     </table>
 
+
     <h4>JavaScript 구독 예시</h4>
+
     <pre><code class="language-js">// 1. 채팅방 메시지 구독
 stompClient.subscribe('/topic/room/0671py/messages', function(message) {
   console.log('채팅 메시지:', JSON.parse(message.body));
@@ -339,6 +351,7 @@ stompClient.subscribe('/user/queue/errors', function(message) {
       </tr>
       <tr>
             <th>결과1</th>
+
         <td>
           /user/queue/keyword-confirmation을 통해 해당 유저에게
           KEYWORD_RECEIVED 전달
@@ -350,6 +363,7 @@ stompClient.subscribe('/user/queue/errors', function(message) {
           /topic/room/{roomKey}/messages을 통해 ANALYSIS_RESULT 전부 전달
         </td>
       </tr>
+
     </table>
 
     <pre><code class="language-js">// 키워드 전송
@@ -368,7 +382,9 @@ stompClient.send('/app/room/0671py/keyword', {}, JSON.stringify({ keyword: '예�
       <tr>
             <th>설명</th>
             <td>사용자의 키보드 입력 상태 이벤트 전송 (입력 중/입력 취소)</td>
+
       </tr>
+
     </table>
     <pre><code class="language-js">// 키보드 입력 상태 이벤트 전송
 stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing' }));</code></pre>
@@ -387,6 +403,7 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
   "data": null
 }</code></pre>
 
+
     <h4>ANALYSIS_RESULT 메시지</h4>
     <p>키워드 분석 결과 (전체 메시지)</p>
     <pre><code class="language-json">{
@@ -402,6 +419,7 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
     }
   ]
 }</code></pre>
+
 
     <h4>KEY_EVENT 메시지</h4>
     <p>사용자의 키보드 입력 상태 이벤트가 전원에게 전달됩니다.</p>
@@ -486,11 +504,13 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
       접속자 수와 온라인인 사용자들의 캐릭터 정보가 data를 통해 전달됩니다.
     </p>
     <pre><code class="language-json">{
+
   "type": "LEAVE",
   "nickname": "test2",
   "content": "test2님이 퇴장했습니다.",
   "timestamp": "2025-05-04T19:01:35.882251",
   "data": {
+
     "userCount": 1,
     "roomMembers": [
       {
@@ -499,6 +519,7 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
         "isLeader": true
       }
     ]
+
   }
 }</code></pre>
 
@@ -528,6 +549,7 @@ stompClient.send('/app/room/0671py/key-event', {}, JSON.stringify({ key: 'typing
   "content": "방장이 방을 종료했습니다.",
   "timestamp": "2025-05-16T21:06:24.811844",
   "data": null
+
 }</code></pre>
   </div>
 </div>
@@ -680,6 +702,7 @@ stompClient.subscribe('/user/queue/errors', function(message) {
     <p>TMI 게임은 다음과 같은 단계로 진행됩니다:</p>
 
     <ol>
+
       <li>
         <strong>TMI 수집 단계:</strong>
         <ul>
@@ -711,6 +734,7 @@ stompClient.subscribe('/user/queue/errors', function(message) {
           <li>모든 라운드 완료시 <code>TMI_ALL_COMPLETED</code></li>
         </ul>
       </li>
+
     </ol>
   </div>
 </div>
@@ -727,6 +751,7 @@ stompClient.subscribe('/user/queue/errors', function(message) {
       /user/queue/keyword-confirmation, /user/queue/errors)
     </li>
         <li>키워드 전송 (/app/room/{roomKey}/keyword)</li>
+
     <li>개인 확인 메시지 수신 (KEYWORD_RECEIVED)</li>
     <li>분석 결과 수신 (ANALYSIS_RESULT)</li>
     <li>입장/퇴장 메시지 수신 (ENTER, REENTER, LEAVE)</li>
@@ -859,5 +884,6 @@ stompClient.subscribe('/user/queue/errors', function(message) {
     </tr>
   </table>
 </div>
+
 </body>
 </html>

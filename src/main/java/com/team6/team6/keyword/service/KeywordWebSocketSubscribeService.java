@@ -5,6 +5,8 @@ import com.team6.team6.keyword.domain.RoomKeywordManager;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.dto.KeywordChatMessage;
 import com.team6.team6.keyword.entity.Keyword;
+import com.team6.team6.member.domain.MemberRepository;
+import com.team6.team6.member.entity.Member;
 import com.team6.team6.websocket.domain.RoomMemberStateManager;
 import com.team6.team6.websocket.dto.ChatMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +29,7 @@ public class KeywordWebSocketSubscribeService {
     private final RoomKeywordManager keywordManager;
     private final MessagePublisher messagePublisher;
     private final KeywordService keywordService;
+    private final MemberRepository memberRepository;
 
     public ChatMessage handleUserSubscription(String roomKey, String nickname, Long roomId, Long memberId) {
         log.debug("사용자 구독 처리 시작: roomKey={}, nickname={}, roomId={}, memberId={}",
@@ -38,7 +42,7 @@ public class KeywordWebSocketSubscribeService {
                 roomKey, nickname, isFirstConnection);
 
         ChatMessage result = isFirstConnection
-                ? handleEnter(roomKey, nickname)
+                ? handleEnter(roomKey, nickname, roomId)
                 : handleReenter(roomKey, nickname, roomId, memberId);
 
         log.debug("사용자 구독 처리 완료: roomKey={}, nickname={}, messageType={}",
@@ -47,17 +51,19 @@ public class KeywordWebSocketSubscribeService {
         return result;
     }
 
-    private ChatMessage handleEnter(String roomKey, String nickname) {
-        log.debug("첫 입장 처리 시작: roomKey={}, nickname={}", roomKey, nickname);
+    private ChatMessage handleEnter(String roomKey, String nickname, Long roomId) {
+        log.debug("첫 입장 처리 시작: roomKey={}, nickname={}, roomId={}", roomKey, nickname, roomId);
 
         int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
+        List<KeywordChatMessage.RoomMemberInfo> roomMembers = getRoomMemberInfos(roomKey, roomId);
 
-        log.debug("온라인 사용자 수 조회 완료: roomKey={}, onlineUserCount={}", roomKey, onlineUserCount);
+        log.debug("온라인 사용자 수 및 멤버 정보 조회 완료: roomKey={}, onlineUserCount={}, memberCount={}",
+                roomKey, onlineUserCount, roomMembers.size());
 
-        ChatMessage enterMessage = KeywordChatMessage.enter(nickname, onlineUserCount);
+        ChatMessage enterMessage = KeywordChatMessage.enter(nickname, onlineUserCount, roomMembers);
 
-        log.debug("입장 메시지 생성 완료: nickname={}, type={}, content={}",
-                nickname, enterMessage.getType(), enterMessage.getContent());
+        log.debug("입장 메시지 생성 완료: nickname={}, type={}, content={}, memberCount={}",
+                nickname, enterMessage.getType(), enterMessage.getContent(), roomMembers.size());
 
         return enterMessage;
     }
@@ -67,8 +73,10 @@ public class KeywordWebSocketSubscribeService {
                 roomKey, nickname, roomId, memberId);
 
         int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
+        List<KeywordChatMessage.RoomMemberInfo> roomMembers = getRoomMemberInfos(roomKey, roomId);
 
-        log.debug("온라인 사용자 수 조회 완료: roomKey={}, onlineUserCount={}", roomKey, onlineUserCount);
+        log.debug("온라인 사용자 수 및 멤버 정보 조회 완료: roomKey={}, onlineUserCount={}, memberCount={}",
+                roomKey, onlineUserCount, roomMembers.size());
 
         List<Keyword> keywords = keywordService.getUserKeywords(roomId, memberId);
 
@@ -83,13 +91,69 @@ public class KeywordWebSocketSubscribeService {
         log.debug("고유 키워드 목록 생성: roomId={}, memberId={}, uniqueKeywordCount={}, keywords={}",
                 roomId, memberId, uniqueKeywords.size(), uniqueKeywords);
 
-        ChatMessage reenterMessage = KeywordChatMessage.reenter(nickname, onlineUserCount, uniqueKeywords);
+        ChatMessage reenterMessage = KeywordChatMessage.reenter(nickname, onlineUserCount, uniqueKeywords, roomMembers);
 
-        log.debug("재입장 메시지 생성 완료: nickname={}, type={}, content={}, userCount={}, keywordCount={}",
+        log.debug("재입장 메시지 생성 완료: nickname={}, type={}, content={}, userCount={}, keywordCount={}, memberCount={}",
                 nickname, reenterMessage.getType(), reenterMessage.getContent(),
-                onlineUserCount, uniqueKeywords.size());
+                onlineUserCount, uniqueKeywords.size(), roomMembers.size());
 
         return reenterMessage;
+    }
+
+    /**
+     * 방의 온라인 멤버 정보를 조회하는 메소드
+     */
+    private List<KeywordChatMessage.RoomMemberInfo> getRoomMemberInfos(String roomKey, Long roomId) {
+        log.debug("방 온라인 멤버 정보 조회 시작: roomKey={}, roomId={}", roomKey, roomId);
+
+        // 온라인 멤버 목록 조회 (닉네임 -> 온라인 상태)
+        Map<String, Boolean> onlineMembers = roomMemberStateManager.getRoomMembers(roomKey);
+
+        // 온라인인 멤버들의 닉네임만 추출
+        List<String> onlineNicknames = onlineMembers.entrySet().stream()
+                .filter(Map.Entry::getValue) // 온라인인 멤버만 필터링
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        log.debug("온라인 멤버 닉네임 목록: roomKey={}, onlineNicknames={}", roomKey, onlineNicknames);
+
+        // 방의 모든 멤버 정보 조회
+        List<Member> allMembers = memberRepository.findByRoomId(roomId);
+
+        // 온라인인 멤버만 필터링하여 RoomMemberInfo로 변환
+        List<KeywordChatMessage.RoomMemberInfo> roomMemberInfos = allMembers.stream()
+                .filter(member -> onlineNicknames.contains(member.getNickname()))
+                .map(member -> new KeywordChatMessage.RoomMemberInfo(
+                        member.getNickname(),
+                        member.getCharacter(),
+                        member.isLeader()
+                ))
+                .collect(Collectors.toList());
+
+        log.debug("방 온라인 멤버 정보 조회 완료: roomKey={}, roomId={}, onlineMemberCount={}",
+                roomKey, roomId, roomMemberInfos.size());
+
+        return roomMemberInfos;
+    }
+
+    /**
+     * 사용자 연결 해제 처리
+     */
+    public ChatMessage handleUserDisconnection(String roomKey, String nickname, Long roomId) {
+        log.debug("사용자 연결 해제 처리 시작: roomKey={}, nickname={}, roomId={}", roomKey, nickname, roomId);
+
+        int onlineUserCount = roomMemberStateManager.getOnlineUserCount(roomKey);
+        List<KeywordChatMessage.RoomMemberInfo> roomMembers = getRoomMemberInfos(roomKey, roomId);
+
+        log.debug("온라인 사용자 수 및 멤버 정보 조회 완료: roomKey={}, onlineUserCount={}, memberCount={}",
+                roomKey, onlineUserCount, roomMembers.size());
+
+        ChatMessage leaveMessage = KeywordChatMessage.leave(nickname, onlineUserCount, roomMembers);
+
+        log.debug("연결 해제 메시지 생성 완료: nickname={}, type={}, content={}, memberCount={}",
+                nickname, leaveMessage.getType(), leaveMessage.getContent(), roomMembers.size());
+
+        return leaveMessage;
     }
 
     /**
