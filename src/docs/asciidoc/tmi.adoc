@@ -60,7 +60,7 @@ include::{snippetsDir}/tmi-voting-current/response-fields.adoc[]
 == 최신 투표 결과 조회 API
 
 ====
-가장 최근에 진행된 투표의 결과를 조회하는 API입니다.
+각 tmi 투표가 모두 끝날 때마다 호출하는 가장 최근에 진행된 투표의 결과를 조회하는 API입니다.
 ====
 
 === 요청 형식 (HTTP)
@@ -78,7 +78,7 @@ include::{snippetsDir}/tmi-voting-result/response-fields.adoc[]
 == TMI 게임 상태 조회 API
 
 ====
-현재 TMI 게임의 상태를 조회하는 API입니다.
+현재 TMI 게임의 상태를 조회하는 API입니다. 이탈한 이후 다시 접속한 사용자가 현재 게임 상태를 확인할 수 있습니다.
 ====
 
 === 요청 형식 (HTTP)
