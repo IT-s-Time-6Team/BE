@@ -1,13 +1,15 @@
 package com.team6.team6.room.service;
 
 import com.team6.team6.global.error.exception.NotFoundException;
-import com.team6.team6.keyword.domain.AnalysisResultStore;
 import com.team6.team6.room.domain.RoomExpiryManager;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
+import com.team6.team6.room.entity.GameMode;
 import com.team6.team6.room.entity.Room;
 import com.team6.team6.room.repository.RoomRepository;
 import com.team6.team6.room.util.RoomKeyGenerator;
+import com.team6.team6.tmi.service.TmiSessionService;
+import com.team6.team6.tmi.service.TmiSubmitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Recover;
@@ -23,13 +25,11 @@ import java.time.Duration;
 @Service
 public class RoomService {
 
-    private static final String ANONYMOUS_MEMBER = "anonymous";
-
     private final RoomRepository roomRepository;
     private final RoomKeyGenerator roomKeyGenerator;
     private final RoomExpiryManager roomExpiryManager;
-    private final AnalysisResultStore analysisResultStore;
     private final RoomNotificationService roomNotificationService;
+    private final TmiSessionService tmiSessionService;
 
     @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
     @Transactional
@@ -37,6 +37,11 @@ public class RoomService {
         String roomKey = roomKeyGenerator.generateRoomKey();
         Room room = Room.create(roomKey, request);
         Room savedRoom = roomRepository.save(room);
+
+        // TMI 모드인 경우 게임 세션 생성
+        if (request.gameMode() == GameMode.TMI) {
+            tmiSessionService.createTmiGameSession(savedRoom.getId(), request.maxMember());
+        }
 
         // 방 만료 타이머 설정
         int durationMinutes = request.durationMinutes();

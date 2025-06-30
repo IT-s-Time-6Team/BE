@@ -1,0 +1,132 @@
+= TMI 모드 API
+:snippetsDir: ../../../build/generated-snippets
+
+== TMI 제출 API
+
+====
+사용자의 TMI를 제출하는 API입니다.
+====
+
+=== 요청 형식 (HTTP)
+
+include::{snippetsDir}/tmi-submit/http-request.adoc[]
+include::{snippetsDir}/tmi-submit/path-parameters.adoc[]
+include::{snippetsDir}/tmi-submit/request-fields.adoc[]
+
+=== 응답 형식 (HTTP)
+
+include::{snippetsDir}/tmi-submit/http-response.adoc[]
+include::{snippetsDir}/tmi-submit/response-fields.adoc[]
+
+'''
+
+== TMI 투표 제출 API
+
+====
+TMI에 대한 투표를 제출하는 API입니다.
+====
+
+=== 요청 형식 (HTTP)
+
+include::{snippetsDir}/tmi-vote-submit/http-request.adoc[]
+include::{snippetsDir}/tmi-vote-submit/path-parameters.adoc[]
+include::{snippetsDir}/tmi-vote-submit/request-fields.adoc[]
+
+=== 응답 형식 (HTTP)
+
+include::{snippetsDir}/tmi-vote-submit/http-response.adoc[]
+include::{snippetsDir}/tmi-vote-submit/response-fields.adoc[]
+
+'''
+
+== 현재 투표 정보 조회 API
+
+====
+현재 진행 중인 투표의 정보를 조회하는 API입니다.
+====
+
+=== 요청 형식 (HTTP)
+
+include::{snippetsDir}/tmi-voting-current/http-request.adoc[]
+include::{snippetsDir}/tmi-voting-current/path-parameters.adoc[]
+
+=== 응답 형식 (HTTP)
+
+include::{snippetsDir}/tmi-voting-current/http-response.adoc[]
+include::{snippetsDir}/tmi-voting-current/response-fields.adoc[]
+
+'''
+
+== 최신 투표 결과 조회 API
+
+====
+각 tmi 투표가 모두 끝날 때마다 호출하는 가장 최근에 진행된 투표의 결과를 조회하는 API입니다.
+====
+
+=== 요청 형식 (HTTP)
+
+include::{snippetsDir}/tmi-voting-result/http-request.adoc[]
+include::{snippetsDir}/tmi-voting-result/path-parameters.adoc[]
+
+=== 응답 형식 (HTTP)
+
+include::{snippetsDir}/tmi-voting-result/http-response.adoc[]
+include::{snippetsDir}/tmi-voting-result/response-fields.adoc[]
+
+'''
+
+== TMI 게임 상태 조회 API
+
+====
+현재 TMI 게임의 상태를 조회하는 API입니다. 이탈한 이후 다시 접속한 사용자가 현재 게임 상태를 확인할 수 있습니다.
+====
+
+=== 요청 형식 (HTTP)
+
+include::{snippetsDir}/tmi-game-status/http-request.adoc[]
+include::{snippetsDir}/tmi-game-status/path-parameters.adoc[]
+
+=== 응답 형식 (HTTP)
+
+include::{snippetsDir}/tmi-game-status/http-response.adoc[]
+include::{snippetsDir}/tmi-game-status/response-fields.adoc[]
+
+=== TmiGameStep 열거형 값
+
+현재 게임 단계(currentStep)에 사용되는 가능한 값들:
+
+[cols="1,3"]
+|===
+|값 |설명
+
+|COLLECTING_TMI
+|TMI 수집 단계
+
+|HINT
+|힌트 제공 단계
+
+|VOTING
+|투표 진행 단계
+
+|COMPLETED
+|모든 투표 종료 단계
+|===
+
+== TMI 게임 최종 결과 조회 API
+
+====
+TMI 게임이 종료된 후 최종 결과를 조회하는 API입니다.
+결과에는 맞춘/틀린 TMI 개수, 가장 많이 맞춘 사람들, 가장 많은 사람들이 틀린 TMI가 포함됩니다.
+====
+
+=== 요청 형식 (HTTP)
+
+include::{snippetsDir}/tmi-game-results/http-request.adoc[]
+include::{snippetsDir}/tmi-game-results/path-parameters.adoc[]
+
+=== 응답 형식 (HTTP)
+
+include::{snippetsDir}/tmi-game-results/http-response.adoc[]
+include::{snippetsDir}/tmi-game-results/response-fields.adoc[]
+
+'''
