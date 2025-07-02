@@ -47,7 +47,7 @@ class TmiSessionServiceTest {
         String memberName = "testUser";
         TmiSession session = TmiSession.createInitialSession(roomId, 5);
 
-        when(tmiSessionRepository.findByRoomIdWithLock(roomId)).thenReturn(Optional.of(session));
+        when(tmiSessionRepository.findByRoomId(roomId)).thenReturn(Optional.of(session));
         when(tmiSubmissionRepository.existsByRoomIdAndMemberName(roomId, memberName)).thenReturn(true);
 
         // when
@@ -68,7 +68,7 @@ class TmiSessionServiceTest {
         String memberName = "testUser";
         TmiSession session = TmiSession.createInitialSession(roomId, 5);
 
-        when(tmiSessionRepository.findByRoomIdWithLock(roomId)).thenReturn(Optional.of(session));
+        when(tmiSessionRepository.findByRoomId(roomId)).thenReturn(Optional.of(session));
         when(tmiSubmissionRepository.existsByRoomIdAndMemberName(roomId, memberName)).thenReturn(false);
 
         // when
@@ -95,7 +95,7 @@ class TmiSessionServiceTest {
         session.startHintTime();
         session.startVotingPhase();
 
-        when(tmiSessionRepository.findByRoomIdWithLock(roomId)).thenReturn(Optional.of(session));
+        when(tmiSessionRepository.findByRoomId(roomId)).thenReturn(Optional.of(session));
         when(tmiVoteRepository.existsByRoomIdAndVoterNameAndVotingRound(roomId, memberName, 0)).thenReturn(false);
 
         // when
@@ -121,7 +121,7 @@ class TmiSessionServiceTest {
         session.startHintTime();
         session.startVotingPhase();
 
-        when(tmiSessionRepository.findByRoomIdWithLock(roomId)).thenReturn(Optional.of(session));
+        when(tmiSessionRepository.findByRoomId(roomId)).thenReturn(Optional.of(session));
         when(tmiVoteRepository.existsByRoomIdAndVoterNameAndVotingRound(roomId, memberName, 0)).thenReturn(true);
 
         // when
@@ -146,7 +146,7 @@ class TmiSessionServiceTest {
         session.startVotingPhase();
         session.processVote();
 
-        when(tmiSessionRepository.findByRoomIdWithLock(roomId)).thenReturn(Optional.of(session));
+        when(tmiSessionRepository.findByRoomId(roomId)).thenReturn(Optional.of(session));
 
         // when
         TmiSessionStatusResponse response = tmiSessionService.getSessionStatus(roomId, memberName);

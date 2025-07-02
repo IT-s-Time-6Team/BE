@@ -1,7 +1,6 @@
 package com.team6.team6.tmi.service;
 
 import com.team6.team6.tmi.domain.TmiMessagePublisher;
-import com.team6.team6.tmi.domain.repository.TmiSessionRepository;
 import com.team6.team6.tmi.entity.TmiSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,7 @@ public class TmiHintService {
 
     @Transactional
     public void startHintTime(String roomKey, Long roomId) {
-        TmiSession session = tmiSessionService.findTmiSession(roomId);
+        TmiSession session = tmiSessionService.findSessionByRoomIdWithLock(roomId);
 
         // 상태 검증
         session.validateCanStartHint();

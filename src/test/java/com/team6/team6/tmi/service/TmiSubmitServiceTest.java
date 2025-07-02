@@ -1,7 +1,6 @@
 package com.team6.team6.tmi.service;
 
 import com.team6.team6.tmi.domain.TmiMessagePublisher;
-import com.team6.team6.tmi.domain.repository.TmiSessionRepository;
 import com.team6.team6.tmi.domain.repository.TmiSubmissionRepository;
 import com.team6.team6.tmi.dto.TmiSubmitServiceReq;
 import com.team6.team6.tmi.entity.TmiSession;
@@ -11,8 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -45,7 +42,7 @@ class TmiSubmitServiceTest {
 
         TmiSession session = TmiSession.createInitialSession(1L, 4);
 
-        given(tmiSessionService.findTmiSession(1L))
+        given(tmiSessionService.findSessionByRoomIdWithLock(1L))
                 .willReturn(session);
         given(tmiSubmissionRepository.existsByRoomIdAndMemberId(1L, 1L))
                 .willReturn(false);
@@ -65,7 +62,7 @@ class TmiSubmitServiceTest {
 
         TmiSession session = TmiSession.createInitialSession(1L, 4);
 
-        given(tmiSessionService.findTmiSession(1L))
+        given(tmiSessionService.findSessionByRoomIdWithLock(1L))
                 .willReturn(session);
         given(tmiSubmissionRepository.existsByRoomIdAndMemberId(1L, 1L))
                 .willReturn(true);
@@ -83,7 +80,7 @@ class TmiSubmitServiceTest {
 
         TmiSession session = TmiSession.createInitialSession(1L, 1); // 총 1명
 
-        given(tmiSessionService.findTmiSession(1L))
+        given(tmiSessionService.findSessionByRoomIdWithLock(1L))
                 .willReturn(session);
         given(tmiSubmissionRepository.existsByRoomIdAndMemberId(1L, 1L))
                 .willReturn(false);

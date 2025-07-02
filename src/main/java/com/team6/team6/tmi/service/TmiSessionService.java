@@ -28,7 +28,7 @@ public class TmiSessionService {
     private final TmiSessionRepository tmiSessionRepository;
 
     public TmiSessionStatusResponse getSessionStatus(Long roomId, String memberName) {
-        TmiSession session = findTmiSession(roomId);
+        TmiSession session = findSessionByRoomId(roomId);
         TmiGameStep currentStep = session.getCurrentStep();
         boolean hasUserSubmitted = false;
         int progress = 100;
@@ -71,15 +71,19 @@ public class TmiSessionService {
         log.info("TMI 게임 세션 생성: roomId={}, totalMembers={}", roomId, totalMembers);
     }
 
-    public TmiSession findTmiSession(Long roomId) {
+    public TmiSession findSessionByRoomIdWithLock(Long roomId) {
         return tmiSessionRepository.findByRoomIdWithLock(roomId)
+                .orElseThrow(() -> new IllegalStateException("TMI 게임 세션을 찾을 수 없습니다: " + roomId));
+    }
+
+    public TmiSession findSessionByRoomId(Long roomId) {
+        return tmiSessionRepository.findByRoomId(roomId)
                 .orElseThrow(() -> new IllegalStateException("TMI 게임 세션을 찾을 수 없습니다: " + roomId));
     }
 
     public TmiSessionResultResponse getSessionResults(Long roomId, String memberName) {
         // 1. 세션 가져오기 및 완료 상태 검증
-        TmiSession session = tmiSessionRepository.findByRoomId(roomId)
-                .orElseThrow(() -> new IllegalStateException("TMI 게임 세션을 찾을 수 없습니다: " + roomId));
+        TmiSession session = findSessionByRoomId(roomId);
         session.validateCompleted();
 
         // 2. 모든 제출과 투표 가져오기

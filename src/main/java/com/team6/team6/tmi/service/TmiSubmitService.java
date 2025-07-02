@@ -22,7 +22,7 @@ public class TmiSubmitService {
 
     @Transactional
     public void submitTmi(TmiSubmitServiceReq req) {
-        TmiSession session = tmiSessionService.findTmiSession(req.roomId());
+        TmiSession session = tmiSessionService.findSessionByRoomIdWithLock(req.roomId());
 
         // 상태 검증
         session.requireCollectingTmiPhase();
