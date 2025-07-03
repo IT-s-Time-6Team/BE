@@ -26,14 +26,14 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class TmiVoteService {
 
-    private final TmiSessionRepository tmiSessionRepository;
+    private final TmiSessionService tmiSessionService;
     private final TmiSubmissionRepository tmiSubmissionRepository;
     private final TmiVoteRepository tmiVoteRepository;
     private final TmiMessagePublisher messagePublisher;
 
     @Transactional
     public void startVotingPhase(String roomKey, Long roomId) {
-        TmiSession session = findTmiSession(roomId);
+        TmiSession session = tmiSessionService.findSessionByRoomIdWithLock(roomId);
 
         // 상태 검증
         session.validateCanStartVoting();
@@ -54,7 +54,7 @@ public class TmiVoteService {
 
     @Transactional
     public void submitVote(TmiVoteServiceReq req) {
-        TmiSession session = findTmiSession(req.roomId());
+        TmiSession session = tmiSessionService.findSessionByRoomId(req.roomId());
 
         // 상태 검증
         session.requireVotingPhase();
@@ -99,7 +99,7 @@ public class TmiVoteService {
     }
 
     public TmiVotingStartResponse getCurrentVotingInfo(Long roomId) {
-        TmiSession session = findTmiSession(roomId);
+        TmiSession session = tmiSessionService.findSessionByRoomId((roomId));
 
         // 상태 검증
         session.requireVotingPhase();
@@ -115,7 +115,7 @@ public class TmiVoteService {
     }
 
     public TmiVotingPersonalResult getLatestVotingResult(Long roomId, String memberName) {
-        TmiSession session = findTmiSession(roomId);
+        TmiSession session = tmiSessionService.findSessionByRoomId(roomId);
 
         // 가장 마지막에 끝난 투표 라운드 찾기
         int latestCompletedRound = session.getLatestCompletedRound();
@@ -146,11 +146,6 @@ public class TmiVoteService {
         return tmiSubmissionRepository.findByRoomId(roomId).stream()
                 .map(TmiSubmission::getMemberName)
                 .toList();
-    }
-
-    private TmiSession findTmiSession(Long roomId) {
-        return tmiSessionRepository.findByRoomIdWithLock(roomId)
-                .orElseThrow(() -> new IllegalStateException("TMI 게임 세션을 찾을 수 없습니다: " + roomId));
     }
 
     private void validateDuplicateVote(Long roomId, String voterName, int votingRound) {
