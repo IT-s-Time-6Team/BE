@@ -5,6 +5,7 @@ import com.team6.team6.tmi.entity.TmiSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,9 @@ import java.util.concurrent.TimeUnit;
 public class TmiHintService {
 
     private static final String HINT_TIMER_KEY = "tmi:hint:timer:";
-    private static final long DEFAULT_HINT_SECONDS = 300; // 5분
+
+    @Value("${tmi.hint.time.seconds}")
+    private long hintTimeSeconds;
 
     private final StringRedisTemplate redisTemplate;
     private final TmiMessagePublisher messagePublisher;
@@ -44,10 +47,10 @@ public class TmiHintService {
 
     private void startHintTimer(String roomKey, Long roomId) {
         String timerKey = HINT_TIMER_KEY + roomKey;
-        redisTemplate.opsForValue().set(timerKey, String.valueOf(DEFAULT_HINT_SECONDS));
+        redisTemplate.opsForValue().set(timerKey, String.valueOf(hintTimeSeconds));
 
         // 타이머 시작 알림
-        String formattedTime = formatTime(DEFAULT_HINT_SECONDS);
+        String formattedTime = formatTime(hintTimeSeconds);
         messagePublisher.notifyTmiHintStarted(roomKey, formattedTime);
 
         // 스케줄러 생성 및 실행
