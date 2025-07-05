@@ -21,7 +21,7 @@ public class TmiHintService {
 
     private static final String HINT_TIMER_KEY = "tmi:hint:timer:";
 
-    @Value("${tmi.hint.time.seconds}")
+    @Value("${tmi.hint.time.seconds:300}")
     private long hintTimeSeconds;
 
     private final StringRedisTemplate redisTemplate;
