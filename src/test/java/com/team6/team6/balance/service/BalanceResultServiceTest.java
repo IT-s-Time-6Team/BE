@@ -176,7 +176,7 @@ class BalanceResultServiceTest {
         BalanceMemberScoreInfo memberScore = BalanceMemberScoreInfo.builder()
                 .memberName(memberName)
                 .currentScore(2)
-                .rank(1)
+                .rank(2)
                 .build();
         
         BalanceMemberScoreInfo winnerScore = BalanceMemberScoreInfo.builder()
@@ -197,8 +197,131 @@ class BalanceResultServiceTest {
         assertSoftly(softly -> {
             softly.assertThat(result.memberName()).isEqualTo(memberName);
             softly.assertThat(result.finalScore()).isEqualTo(2);
+            softly.assertThat(result.finalRank()).isEqualTo(2);
+            softly.assertThat(result.winnerNicknames()).hasSize(1).contains("winner");
+            softly.assertThat(result.mostBalancedQuestions()).isNotNull().isInstanceOf(List.class);
+            softly.assertThat(result.mostUnanimousQuestions()).isNotNull().isInstanceOf(List.class);
+        });
+    }
+
+    @Test
+    @DisplayName("세션 최종 결과 조회 - 공동 우승자 케이스")
+    void getSessionResults_CoWinners_Test() {
+        // given
+        Long roomId = 1L;
+        String memberName = "testUser";
+        
+        BalanceSession session = BalanceSession.createInitialSession(roomId, 4, 2);
+        session.startQuestionRevealPhase();
+        session.startDiscussionPhase();
+        session.startVotingPhase();
+        
+        // 모든 멤버가 투표 완료
+        session.processVote(); // 1명
+        session.processVote(); // 2명
+        session.processVote(); // 3명
+        session.processVote(); // 4명 (모든 멤버 투표 완료)
+        
+        session.startResultViewPhase();
+        session.completeGame(); // 게임 완료
+        
+        // 공동 1위 (같은 점수 3점)
+        BalanceMemberScoreInfo memberScore = BalanceMemberScoreInfo.builder()
+                .memberName(memberName)
+                .currentScore(3)
+                .rank(1)
+                .build();
+        
+        BalanceMemberScoreInfo coWinner1 = BalanceMemberScoreInfo.builder()
+                .memberName("coWinner1")
+                .currentScore(3)
+                .rank(1)
+                .build();
+        
+        BalanceMemberScoreInfo coWinner2 = BalanceMemberScoreInfo.builder()
+                .memberName("coWinner2")
+                .currentScore(3)
+                .rank(1)
+                .build();
+        
+        BalanceMemberScoreInfo otherPlayer = BalanceMemberScoreInfo.builder()
+                .memberName("otherPlayer")
+                .currentScore(1)
+                .rank(4)
+                .build();
+        
+        List<BalanceMemberScoreInfo> allScores = List.of(coWinner1, coWinner2, memberScore, otherPlayer);
+
+        when(balanceSessionService.findSessionByRoomId(roomId)).thenReturn(session);
+        when(balanceScoreService.getAllMemberScores(roomId)).thenReturn(allScores);
+
+        // when
+        BalanceFinalResultResponse result = balanceResultService.getSessionResults(roomId, memberName);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(result.memberName()).isEqualTo(memberName);
+            softly.assertThat(result.finalScore()).isEqualTo(3);
             softly.assertThat(result.finalRank()).isEqualTo(1);
-            softly.assertThat(result.winnerNickname()).isEqualTo("winner");
+            softly.assertThat(result.winnerNicknames()).hasSize(3)
+                    .containsExactlyInAnyOrder("coWinner1", "coWinner2", "testUser");
+            softly.assertThat(result.mostBalancedQuestions()).isNotNull().isInstanceOf(List.class);
+            softly.assertThat(result.mostUnanimousQuestions()).isNotNull().isInstanceOf(List.class);
+        });
+    }
+
+    @Test
+    @DisplayName("세션 최종 결과 조회 - 단독 우승자 케이스")
+    void getSessionResults_SingleWinner_Test() {
+        // given
+        Long roomId = 1L;
+        String memberName = "testUser";
+        
+        BalanceSession session = BalanceSession.createInitialSession(roomId, 3, 2);
+        session.startQuestionRevealPhase();
+        session.startDiscussionPhase();
+        session.startVotingPhase();
+        
+        // 모든 멤버가 투표 완료
+        session.processVote(); // 1명
+        session.processVote(); // 2명
+        session.processVote(); // 3명 (모든 멤버 투표 완료)
+        
+        session.startResultViewPhase();
+        session.completeGame(); // 게임 완료
+        
+        BalanceMemberScoreInfo memberScore = BalanceMemberScoreInfo.builder()
+                .memberName(memberName)
+                .currentScore(2)
+                .rank(2)
+                .build();
+        
+        BalanceMemberScoreInfo winnerScore = BalanceMemberScoreInfo.builder()
+                .memberName("singleWinner")
+                .currentScore(5)
+                .rank(1)
+                .build();
+        
+        BalanceMemberScoreInfo thirdPlace = BalanceMemberScoreInfo.builder()
+                .memberName("thirdPlace")
+                .currentScore(1)
+                .rank(3)
+                .build();
+        
+        List<BalanceMemberScoreInfo> allScores = List.of(winnerScore, memberScore, thirdPlace);
+
+        when(balanceSessionService.findSessionByRoomId(roomId)).thenReturn(session);
+        when(balanceScoreService.getAllMemberScores(roomId)).thenReturn(allScores);
+
+        // when
+        BalanceFinalResultResponse result = balanceResultService.getSessionResults(roomId, memberName);
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(result.memberName()).isEqualTo(memberName);
+            softly.assertThat(result.finalScore()).isEqualTo(2);
+            softly.assertThat(result.finalRank()).isEqualTo(2);
+            softly.assertThat(result.winnerNicknames()).hasSize(1).contains("singleWinner");
             softly.assertThat(result.mostBalancedQuestions()).isNotNull().isInstanceOf(List.class);
             softly.assertThat(result.mostUnanimousQuestions()).isNotNull().isInstanceOf(List.class);
         });

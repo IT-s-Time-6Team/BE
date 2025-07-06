@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -354,7 +355,7 @@ class BalanceControllerTest {
                 .memberName("testUser")
                 .finalScore(5)
                 .finalRank(1)
-                .winnerNickname("winner")
+                .winnerNicknames(List.of("testUser", "coWinner"))
                 .mostBalancedQuestions(List.of(balancedQuestion))
                 .mostUnanimousQuestions(List.of(unanimousQuestion))
                 .build();
@@ -374,7 +375,10 @@ class BalanceControllerTest {
                     .andExpect(jsonPath("$.data.memberName").value("testUser"))
                     .andExpect(jsonPath("$.data.finalScore").value(5))
                     .andExpect(jsonPath("$.data.finalRank").value(1))
-                    .andExpect(jsonPath("$.data.winnerNickname").value("winner"))
+                    .andExpect(jsonPath("$.data.winnerNicknames").isArray())
+                    .andExpect(jsonPath("$.data.winnerNicknames.length()").value(2))
+                    .andExpect(jsonPath("$.data.winnerNicknames[0]").value("testUser"))
+                    .andExpect(jsonPath("$.data.winnerNicknames[1]").value("coWinner"))
                     .andExpect(jsonPath("$.data.mostBalancedQuestions").isArray())
                     .andExpect(jsonPath("$.data.mostBalancedQuestions[0].round").value(1))
                     .andExpect(jsonPath("$.data.mostBalancedQuestions[0].questionA").value("치킨"))
@@ -399,12 +403,12 @@ class BalanceControllerTest {
                                     fieldWithPath("data.memberName").type(JsonFieldType.STRING).description("멤버 이름"),
                                     fieldWithPath("data.finalScore").type(JsonFieldType.NUMBER).description("최종 점수"),
                                     fieldWithPath("data.finalRank").type(JsonFieldType.NUMBER).description("최종 순위"),
-                                    fieldWithPath("data.winnerNickname").type(JsonFieldType.STRING).description("우승자 닉네임"),
+                                    fieldWithPath("data.winnerNicknames").type(JsonFieldType.ARRAY).description("우승자 닉네임들 (공동 우승 가능)"),
                                     fieldWithPath("data.mostBalancedQuestions[]").type(JsonFieldType.ARRAY).description("가장 균형잡힌 문제들"),
                                     fieldWithPath("data.mostBalancedQuestions[].round").type(JsonFieldType.NUMBER).description("라운드 번호"),
                                     fieldWithPath("data.mostBalancedQuestions[].questionA").type(JsonFieldType.STRING).description("선택지 A"),
                                     fieldWithPath("data.mostBalancedQuestions[].questionB").type(JsonFieldType.STRING).description("선택지 B"),
-                                    fieldWithPath("data.mostUnanimousQuestions[]").type(JsonFieldType.ARRAY).description("가장 일치한 문제들"),
+                                    fieldWithPath("data.mostUnanimousQuestions[]").type(JsonFieldType.ARRAY).description("가장 만장일치에 가까운 문제들"),
                                     fieldWithPath("data.mostUnanimousQuestions[].round").type(JsonFieldType.NUMBER).description("라운드 번호"),
                                     fieldWithPath("data.mostUnanimousQuestions[].questionA").type(JsonFieldType.STRING).description("선택지 A"),
                                     fieldWithPath("data.mostUnanimousQuestions[].questionB").type(JsonFieldType.STRING).description("선택지 B")

@@ -112,14 +112,23 @@ public class BalanceResultService {
         // 최종 점수 순위 조회
         List<BalanceMemberScoreInfo> finalScores = balanceScoreService.getAllMemberScores(roomId);
 
+        // 점수 데이터가 없는 경우 예외 처리
+        if (finalScores.isEmpty()) {
+            throw new IllegalStateException("최종 점수가 존재하지 않습니다: roomId=" + roomId);
+        }
+
         // 해당 멤버의 최종 정보 조회
         BalanceMemberScoreInfo memberScore = finalScores.stream()
                 .filter(score -> score.memberName().equals(memberName))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("멤버를 찾을 수 없습니다: " + memberName));
 
-        // 우승자 결정 (최고 점수를 가진 첫 번째 멤버)
-        String winnerNickname = finalScores.isEmpty() ? memberName : finalScores.get(0).memberName();
+        // 우승자 결정 (최고 점수를 가진 모든 멤버들)
+        int highestScore = finalScores.get(0).currentScore();
+        List<String> winnerNicknames = finalScores.stream()
+                .filter(score -> score.currentScore() == highestScore)
+                .map(BalanceMemberScoreInfo::memberName)
+                .toList();
 
         // 각 라운드별 결과 요약 생성
         List<BalanceRoundResultResponse> roundResults = generateRoundResultsSummary(roomId, session.getTotalQuestions());
@@ -134,7 +143,7 @@ public class BalanceResultService {
                 .memberName(memberScore.memberName())
                 .finalScore(memberScore.currentScore())
                 .finalRank(memberScore.rank())
-                .winnerNickname(winnerNickname)
+                .winnerNicknames(winnerNicknames)
                 .mostBalancedQuestions(mostBalancedQuestions)
                 .mostUnanimousQuestions(mostUnanimousQuestions)
                 .build();
