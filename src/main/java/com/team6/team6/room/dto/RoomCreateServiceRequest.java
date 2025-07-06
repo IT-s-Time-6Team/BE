@@ -7,7 +7,8 @@ public record RoomCreateServiceRequest(
         Integer requiredAgreements,
         Integer maxMember,
         Integer durationMinutes,
-        GameMode gameMode
+        GameMode gameMode,
+        Integer balanceQuestionCount
 ) {
     @Builder
     public RoomCreateServiceRequest {
