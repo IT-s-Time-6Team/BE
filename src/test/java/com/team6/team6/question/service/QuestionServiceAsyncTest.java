@@ -38,6 +38,8 @@ class QuestionServiceAsyncTest {
     @MockitoSpyBean
     private QuestionRepository questionRepository;
     @Autowired
+    private QuestionGenerationFacade generationFacade;
+    @Autowired
     private QuestionService questionService;
 
     @Test
@@ -48,7 +50,7 @@ class QuestionServiceAsyncTest {
 
         // when
         long startTime = System.currentTimeMillis();
-        questionService.generateQuestions(keyword, null);
+        generationFacade.generateQuestions(keyword, null);
         long elapsed = System.currentTimeMillis() - startTime;
 
         // then
@@ -73,7 +75,7 @@ class QuestionServiceAsyncTest {
             try {
                 ready.countDown();
                 start.await();
-                questionService.generateQuestions(keyword, mockGroup);  // mock 전달
+                generationFacade.generateQuestions(keyword, mockGroup);  // mock 전달
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
