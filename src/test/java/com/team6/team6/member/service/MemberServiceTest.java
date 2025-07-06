@@ -48,7 +48,7 @@ class MemberServiceTest {
     void 신규_멤버_가입_성공() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -82,7 +82,7 @@ class MemberServiceTest {
     void 기존_멤버_로그인_성공() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -114,7 +114,7 @@ class MemberServiceTest {
     void 로그인_비밀번호_불일치시_예외발생() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -158,7 +158,7 @@ class MemberServiceTest {
     void 방_최대인원_초과시_가입_실패() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 2, 30, GameMode.NORMAL // 최대 인원 2명으로 설정
+                3, 2, 30, GameMode.NORMAL, null // 최대 인원 2명으로 설정
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -193,7 +193,7 @@ class MemberServiceTest {
     void 두번째_이후_멤버는_리더가_아님() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 3, 30, GameMode.NORMAL
+                3, 3, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -225,7 +225,7 @@ class MemberServiceTest {
     void 닉네임_중복_확인() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -255,7 +255,7 @@ class MemberServiceTest {
     void 인증_컨텍스트_검증() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -298,7 +298,7 @@ class MemberServiceTest {
     void 로그인_시_보안_컨텍스트_갱신() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -341,7 +341,7 @@ class MemberServiceTest {
     void 보안_컨텍스트_초기화_후_로그인() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -376,7 +376,7 @@ class MemberServiceTest {
     void 첫번째_멤버는_리더_권한_가짐() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
@@ -410,7 +410,7 @@ class MemberServiceTest {
     void 두번째_멤버는_일반_권한만_가짐() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();

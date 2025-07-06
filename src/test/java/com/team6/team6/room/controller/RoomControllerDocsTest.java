@@ -54,7 +54,7 @@ public class RoomControllerDocsTest extends RestDocsSupport {
 
         given(roomService.createRoom(any())).willReturn(mockResponse);
 
-        RoomCreateRequest request = new RoomCreateRequest(3, 6, 30, GameMode.NORMAL);
+        RoomCreateRequest request = new RoomCreateRequest(3, 6, 30, GameMode.NORMAL, null);
 
         mockMvc.perform(post("/rooms")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,7 +71,10 @@ public class RoomControllerDocsTest extends RestDocsSupport {
                                         .optional()
                                         .description("시간 제한(분), 미입력 시 기본 30분 (최소 5분, 최대 360분), TMI 모드에서는 자동으로 24시간 설정"),
                                 fieldWithPath("gameMode").type(JsonFieldType.STRING)
-                                        .description("게임 모드 (필수, NORMAL 또는 TMI)")
+                                        .description("게임 모드 (필수, NORMAL 또는 TMI)"),
+                                fieldWithPath("balanceQuestionCount").type(JsonFieldType.NUMBER)
+                                        .optional()
+                                        .description("밸런스 모드 문제 개수 (Balance 모드에서만 사용, 1-7개)")
                         ),
                         responseFields(
                                 fieldWithPath("code").type(JsonFieldType.NUMBER)

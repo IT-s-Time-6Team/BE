@@ -1,12 +1,14 @@
 package com.team6.team6.room.service;
 
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
+import com.team6.team6.room.dto.RoomCreateRequest;
 import com.team6.team6.room.dto.RoomResponse;
 import com.team6.team6.room.entity.GameMode;
 import com.team6.team6.room.entity.Room;
 import com.team6.team6.room.repository.RoomRepository;
 import com.team6.team6.room.util.RoomKeyGenerator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -35,9 +37,8 @@ class RoomServiceRetryTest {
     @Test
     void 룸키_중복시_자동_재시도_성공() {
         // given
-        RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
-        );
+        RoomCreateRequest createRequest = new RoomCreateRequest(3, 6, 30, GameMode.NORMAL, null);
+        RoomCreateServiceRequest request = createRequest.toServiceRequest();
 
         // 테스트를 위한 중복 키 상황 시뮬레이션
         String duplicateKey = "duplicate-key";
@@ -66,9 +67,8 @@ class RoomServiceRetryTest {
     @Test
     void 룸키_중복_3번_연속_발생시_최종_실패() {
         // given
-        RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
-        );
+        RoomCreateRequest createRequest = new RoomCreateRequest(3, 6, 30, GameMode.NORMAL, null);
+        RoomCreateServiceRequest request = createRequest.toServiceRequest();
 
         // 테스트를 위한 중복 키 설정
         String duplicateKey = "duplicate-key";
