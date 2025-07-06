@@ -4,15 +4,15 @@ import com.team6.team6.global.ApiResponse;
 import com.team6.team6.global.security.AuthUtil;
 import com.team6.team6.member.security.UserPrincipal;
 import com.team6.team6.tmi.dto.*;
+import com.team6.team6.tmi.service.TmiHintService;
 import com.team6.team6.tmi.service.TmiSessionService;
 import com.team6.team6.tmi.service.TmiSubmitService;
 import com.team6.team6.tmi.service.TmiVoteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/tmi")
@@ -23,6 +23,7 @@ public class TmiController {
     private final TmiVoteService tmiVoteService;
     private final TmiSubmitService tmiSubmitService;
     private final TmiSessionService tmiSessionService;
+    private final TmiHintService tmiHintService;
 
     @PostMapping("/rooms/{roomKey}/submit")
     public ApiResponse<String> submitTmi(
@@ -122,5 +123,20 @@ public class TmiController {
                 roomKey, response.correctCount(), response.incorrectCount());
 
         return ApiResponse.ok(response);
+    }
+
+    @PostMapping("/rooms/{roomKey}/hint/skip")
+    public ApiResponse<String> skipHintTime(@PathVariable String roomKey) {
+        UserPrincipal userPrincipal = AuthUtil.getCurrentUser();
+
+        log.debug("힌트 타임 건너뛰기 요청: roomKey={}, memberName={}",
+                roomKey, userPrincipal.getNickname());
+
+        tmiHintService.skipHintTime(roomKey, userPrincipal.getRoomId(), userPrincipal.getNickname());
+
+        log.debug("힌트 타임 건너뛰기 완료: roomKey={}, memberName={}",
+                roomKey, userPrincipal.getNickname());
+
+        return ApiResponse.of(HttpStatus.OK, "힌트 타임이 건너뛰어졌습니다.");
     }
 }

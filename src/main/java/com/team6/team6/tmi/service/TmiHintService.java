@@ -5,6 +5,8 @@ import com.team6.team6.common.timer.event.TimerEndEvent;
 import com.team6.team6.common.timer.event.TimerStartEvent;
 import com.team6.team6.common.timer.event.TimerTickEvent;
 import com.team6.team6.common.timer.service.GameTimerService;
+import com.team6.team6.member.domain.MemberRepository;
+import com.team6.team6.member.entity.Member;
 import com.team6.team6.tmi.domain.TmiMessagePublisher;
 import com.team6.team6.tmi.entity.TmiSession;
 import jakarta.transaction.Transactional;
@@ -29,6 +31,7 @@ public class TmiHintService {
     private final TmiMessagePublisher messagePublisher;
     private final TmiVoteService tmiVoteService;
     private final TmiSessionService tmiSessionService;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public void startHintTime(String roomKey, Long roomId) {
@@ -105,5 +108,37 @@ public class TmiHintService {
         String timerKey = HINT_TIMER_KEY_PREFIX + roomKey;
         gameTimerService.stopTimer(timerKey);
         log.debug("TMI 힌트 타이머 강제 중지: roomKey={}", roomKey);
+    }
+
+    /**
+     * 힌트 타이머 건너뛰기 (방장 전용)
+     */
+    @Transactional
+    public void skipHintTime(String roomKey, Long roomId, String memberName) {
+        // 방장 권한 확인
+        validateLeaderPermission(roomId, memberName);
+
+        // 타이머 중지
+        stopHintTimer(roomKey);
+
+        log.debug("TMI 힌트 타임 건너뛰기: roomKey={}, leader={}", roomKey, memberName);
+
+        // 건너뛰기 메시지 발행
+        messagePublisher.notifyTmiHintSkipped(roomKey);
+
+        // 투표 단계 시작
+        tmiVoteService.startVotingPhase(roomKey, roomId);
+    }
+
+    /**
+     * 방장 권한 확인
+     */
+    private void validateLeaderPermission(Long roomId, String memberName) {
+        Member member = memberRepository.findByNicknameAndRoomId(memberName, roomId)
+                .orElseThrow(() -> new IllegalArgumentException("멤버를 찾을 수 없습니다: " + memberName));
+
+        if (!member.isLeader()) {
+            throw new IllegalStateException("방장만 힌트 타임을 건너뛸 수 있습니다");
+        }
     }
 }
