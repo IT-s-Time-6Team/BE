@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -37,7 +38,7 @@ class RoomServiceCloseTest {
     void 정상_방_종료시_타이머_취소() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         Room room = Room.create("roomKey1", request);
         roomRepository.save(room);
@@ -61,7 +62,7 @@ class RoomServiceCloseTest {
     void 이미_종료된_방_종료시_예외() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         Room room = Room.create("roomKey2", request);
         room.closeRoom();
@@ -73,12 +74,11 @@ class RoomServiceCloseTest {
         verify(roomExpiryManager, never()).cancelAllTimers(anyString());
     }
 
-
     @Test
     void 방_종료시_알림_전송_확인() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         Room room = Room.create("roomKey3", request);
         roomRepository.save(room);

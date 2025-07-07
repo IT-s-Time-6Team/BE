@@ -130,3 +130,19 @@ include::{snippetsDir}/tmi-game-results/http-response.adoc[]
 include::{snippetsDir}/tmi-game-results/response-fields.adoc[]
 
 '''
+
+== 힌트 타임 건너뛰기 API
+
+====
+방장이 현재 힌트 타임을 즉시 종료하고 투표 단계로 넘어가도록 하는 API입니다.
+====
+
+=== 요청 형식 (HTTP)
+
+include::{snippetsDir}/tmi-skip-hint/http-request.adoc[]
+include::{snippetsDir}/tmi-skip-hint/path-parameters.adoc[]
+
+=== 응답 형식 (HTTP)
+
+include::{snippetsDir}/tmi-skip-hint/http-response.adoc[]
+include::{snippetsDir}/tmi-skip-hint/response-fields.adoc[]

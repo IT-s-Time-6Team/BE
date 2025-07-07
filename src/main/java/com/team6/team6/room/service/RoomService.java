@@ -10,6 +10,9 @@ import com.team6.team6.room.repository.RoomRepository;
 import com.team6.team6.room.util.RoomKeyGenerator;
 import com.team6.team6.tmi.service.TmiSessionService;
 import com.team6.team6.tmi.service.TmiSubmitService;
+import com.team6.team6.balance.service.BalanceSessionService;
+import com.team6.team6.balance.service.BalanceQuestionService;
+import com.team6.team6.balance.service.BalanceScoreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Recover;
@@ -30,6 +33,9 @@ public class RoomService {
     private final RoomExpiryManager roomExpiryManager;
     private final RoomNotificationService roomNotificationService;
     private final TmiSessionService tmiSessionService;
+    private final BalanceSessionService balanceSessionService;
+    private final BalanceQuestionService balanceQuestionService;
+    private final BalanceScoreService balanceScoreService;
 
     @Retryable(maxAttempts = 3, retryFor = DataIntegrityViolationException.class)
     @Transactional
@@ -41,6 +47,15 @@ public class RoomService {
         // TMI 모드인 경우 게임 세션 생성
         if (request.gameMode() == GameMode.TMI) {
             tmiSessionService.createTmiGameSession(savedRoom.getId(), request.maxMember());
+        }
+
+        // Balance 모드인 경우 게임 세션 및 문제 생성
+        if (request.gameMode() == GameMode.BALANCE) {
+            // Balance 게임 세션 생성
+            balanceSessionService.createBalanceGameSession(savedRoom.getId(), request.maxMember(), request.balanceQuestionCount());
+            
+            // 랜덤 문제 선택 및 게임용 문제 생성
+            balanceQuestionService.selectRandomQuestionsForRoom(savedRoom.getId(), request.balanceQuestionCount());
         }
 
         // 방 만료 타이머 설정

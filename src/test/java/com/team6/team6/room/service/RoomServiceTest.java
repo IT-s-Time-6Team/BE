@@ -32,7 +32,7 @@ class RoomServiceTest {
     void 방_생성_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
 
         // when
@@ -53,7 +53,7 @@ class RoomServiceTest {
     void TMI_모드_방_생성_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                null, 6, TMI_DURATION_MINUTES, GameMode.TMI  // requiredAgreements는 null, durationMinutes는 24시간
+                null, 6, TMI_DURATION_MINUTES, GameMode.TMI, null  // requiredAgreements는 null, durationMinutes는 24시간
         );
 
         // when
@@ -75,7 +75,7 @@ class RoomServiceTest {
     void TMI_모드_방_조회_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                null, 6, TMI_DURATION_MINUTES, GameMode.TMI
+                null, 6, TMI_DURATION_MINUTES, GameMode.TMI, null
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -96,7 +96,7 @@ class RoomServiceTest {
     void 존재하는_방_조회_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -127,7 +127,7 @@ class RoomServiceTest {
     void 종료된_방_조회시_예외발생() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -145,7 +145,7 @@ class RoomServiceTest {
     void 방_종료_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -173,7 +173,7 @@ class RoomServiceTest {
     void 이미_종료된_방_다시_종료시_예외발생() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();

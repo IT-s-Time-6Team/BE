@@ -6,6 +6,7 @@ import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.member.security.UserPrincipal;
 import com.team6.team6.tmi.dto.*;
 import com.team6.team6.tmi.entity.TmiGameStep;
+import com.team6.team6.tmi.service.TmiHintService;
 import com.team6.team6.tmi.service.TmiSessionService;
 import com.team6.team6.tmi.service.TmiSubmitService;
 import com.team6.team6.tmi.service.TmiVoteService;
@@ -63,6 +64,9 @@ class TmiControllerWebDocsTest {
 
     @MockitoBean
     private TmiSessionService tmiSessionService;
+
+    @MockitoBean
+    private TmiHintService tmiHintService;
 
     private UserPrincipal createMockUser() {
         return new UserPrincipal(1L, "testUser", 1L, "room123", CharacterType.RABBIT, "TMI");
@@ -299,6 +303,35 @@ class TmiControllerWebDocsTest {
                     ));
 
             verify(tmiSessionService).getSessionResults(1L, "testUser");
+        }
+    }
+
+    @Test
+    @DisplayName("힌트 타임 건너뛰기 API 문서화")
+    void skipHintTime() throws Exception {
+        // given
+        UserPrincipal mockUser = createMockUser();
+
+        try (MockedStatic<AuthUtil> authUtilMock = mockStatic(AuthUtil.class)) {
+            authUtilMock.when(AuthUtil::getCurrentUser).thenReturn(mockUser);
+            doNothing().when(tmiHintService).skipHintTime(anyString(), anyLong(), anyString());
+
+            // when & then
+            mockMvc.perform(post("/tmi/rooms/{roomKey}/hint/skip", "room123"))
+                    .andExpect(status().isOk())
+                    .andDo(document("tmi-skip-hint",
+                            preprocessRequest(prettyPrint()),
+                            preprocessResponse(prettyPrint()),
+                            pathParameters(
+                                    parameterWithName("roomKey").description("방 키")
+                            ),
+                            responseFields(
+                                    fieldWithPath("code").type(JsonFieldType.NUMBER).description("응답 코드"),
+                                    fieldWithPath("status").type(JsonFieldType.STRING).description("HTTP 상태"),
+                                    fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
+                                    fieldWithPath("data").type(JsonFieldType.STRING).description("성공 메시지")
+                            )
+                    ));
         }
     }
 

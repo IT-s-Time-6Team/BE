@@ -18,4 +18,7 @@ public interface TmiMessagePublisher {
     void notifyTmiHintTimeRemaining(String roomKey, String remainingTime);
 
     void notifyTmiHintEnded(String roomKey);
+
+    // 힌트 타임 건너뛰기 알림
+    void notifyTmiHintSkipped(String roomKey);
 }

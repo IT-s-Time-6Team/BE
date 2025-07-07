@@ -105,4 +105,14 @@ public class StompTmiMessagePublisher implements TmiMessagePublisher {
 
         log.debug("TMI 힌트 종료 브로드캐스트 완료: destination={}", destination);
     }
+
+    @Override
+    public void notifyTmiHintSkipped(String roomKey) {
+        log.debug("TMI 힌트 건너뛰기 브로드캐스트: roomKey={}", roomKey);
+
+        String destination = "/topic/room/" + roomKey + "/messages";
+        messagingTemplate.convertAndSend(destination, TmiChatMessage.tmiHintEnded());
+
+        log.debug("TMI 힌트 건너뛰기 브로드캐스트 완료: destination={}", destination);
+    }
 }
