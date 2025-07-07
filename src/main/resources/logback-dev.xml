@@ -15,7 +15,7 @@
         <format>
             <label>
                 <pattern>
-                    app=team6,environment=dev,requestId=%X{requestId:-unknown},nickname=%X{nickname:-anonymous},type=%marker:-general
+                    app=team6,environment=dev,requestId=%X{requestId:-unknown},nickname=%X{nickname:-anonymous}
                 </pattern>
             </label>
             <message>
@@ -25,6 +25,7 @@
                     <includeMdc>true</includeMdc>
                     <fieldNames>
                         <message>data</message>
+                        <marker>type</marker>
                     </fieldNames>
                 </encoder>
             </message>
