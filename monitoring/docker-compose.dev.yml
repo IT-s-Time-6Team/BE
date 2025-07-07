@@ -22,8 +22,21 @@ services:
     environment:
       - REDIS_ADDR=host.docker.internal:6379
 
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki_dev
+    ports:
+      - "3101:3101"
+    volumes:
+      - ./loki/loki_dev.yaml:/etc/loki/local-config.yaml
+      - loki-storage-dev:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+
 volumes:
   grafana-storage-dev:
     name: monitoring_grafana-storage-dev
   prometheus-storage-dev:
     name: monitoring_prometheus-storage-dev
+  loki-storage-dev:
+    name: monitoring_loki-storage-dev
