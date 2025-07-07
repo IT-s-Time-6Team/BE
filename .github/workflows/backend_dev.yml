@@ -52,7 +52,9 @@ jobs:
           --name team6_server_dev \
           -e SPRING_PROFILES_ACTIVE=dev \
           -e spring.config.location=/app/application-dev.properties \
+          -e logging.config=/app/logback-dev.xml \
           -v /Users/scienceyds/team6/application-dev.properties:/app/application-dev.properties \
           -v /Users/scienceyds/team6/logs:/logs \
+          -v /Users/scienceyds/team6/logback-dev.xml:/app/logback-dev.xml \
           macmini/team6_server_dev:latest
 
