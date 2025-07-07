@@ -1,5 +1,6 @@
 package com.team6.team6.global.config;
 
+import com.team6.team6.global.log.AuthInfoLoggingFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Arrays;
@@ -50,7 +52,8 @@ public class SecurityConfig {
                         .requireExplicitSave(false) // 세션 자동 저장 활성화
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable);
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .addFilterAfter(new AuthInfoLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
