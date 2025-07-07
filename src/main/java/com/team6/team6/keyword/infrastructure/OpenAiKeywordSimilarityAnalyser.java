@@ -1,9 +1,11 @@
 package com.team6.team6.keyword.infrastructure;
 
 import com.team6.team6.global.error.exception.ExternalApiException;
+import com.team6.team6.global.log.LogMarker;
 import com.team6.team6.keyword.domain.KeywordSimilarityAnalyser;
 import com.team6.team6.keyword.dto.KeywordGroupResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
@@ -11,10 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.team6.team6.global.log.LogUtil.infoLog;
-
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyser {
 
     private final ChatClient chatClient;
@@ -22,11 +23,12 @@ public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyse
     @Override
     public List<List<String>> analyse(List<String> keywords) {
         if (keywords == null || keywords.isEmpty()) {
-            infoLog("키워드 유사성 분석 요청이 비어있어 빈 결과 반환");
+            log.info(LogMarker.KEYWORD_ANALYSIS.getMarker(), "키워드 유사성 분석 요청이 비어있어 빈 결과 반환");
             return List.of();
         }
 
-        infoLog(String.format("분석 요청 키워드 목록: %s", String.join(", ", keywords)));
+        log.info(LogMarker.KEYWORD_ANALYSIS.getMarker(),
+                "분석 요청 키워드 목록: {}", String.join(", ", keywords));
 
         String formattedKeywords = keywords.stream()
                 .map(k -> "- " + k)
@@ -49,18 +51,22 @@ public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyse
         Prompt prompt = new Prompt(promptText);
 
         try {
-            infoLog(String.format("OpenAI API 호출 시작 - 키워드 개수: %d", keywords.size()));
+            log.info(LogMarker.KEYWORD_ANALYSIS.getMarker(),
+                    "OpenAI API 호출 시작 - 키워드 개수: {}", keywords.size());
+
             KeywordGroupResponse response = chatClient
                     .prompt(prompt)
                     .call()
                     .entity(KeywordGroupResponse.class);
             List<List<String>> groups = response.groups();
 
-            infoLog(String.format("OpenAI로부터 키워드 유사성 분석 완료 - 그룹 수: %d, 입력 키워드 수: %d",
-                    groups.size(), keywords.size()));
+            log.info(LogMarker.KEYWORD_ANALYSIS.getMarker(),
+                    "OpenAI로부터 키워드 유사성 분석 완료 - 그룹 수: {}, 입력 키워드 수: {}",
+                    groups.size(), keywords.size());
 
             return groups;
         } catch (RuntimeException e) {
+            log.error(LogMarker.KEYWORD_ANALYSIS.getMarker(), "OpenAI 키워드 유사성 분석 실패", e);
             throw new ExternalApiException("OpenAI 키워드 유사성 분석 실패", e);
         }
     }

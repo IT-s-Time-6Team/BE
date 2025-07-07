@@ -7,6 +7,30 @@
         </encoder>
     </appender>
 
+    <!-- Loki Appender -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>http://loki:3101/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>
+                    app=team6,environment=dev,requestId=%X{requestId:-unknown},nickname=%X{nickname:-anonymous},type=%marker:-general
+                </pattern>
+            </label>
+            <message>
+                <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                    <jsonGeneratorDecorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
+                    <includeContext>true</includeContext>
+                    <includeMdc>true</includeMdc>
+                    <fieldNames>
+                        <message>data</message>
+                    </fieldNames>
+                </encoder>
+            </message>
+        </format>
+    </appender>
+
     <!-- 개발 환경 파일 로그 설정 -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/dev-application.log</file>
@@ -50,5 +74,6 @@
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="ERROR_FILE"/>
+        <appender-ref ref="LOKI"/>
     </root>
 </included>

@@ -5,6 +5,7 @@ import com.team6.team6.global.error.exception.ExternalApiException;
 import com.team6.team6.global.error.exception.NotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,15 +19,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.team6.team6.global.log.LogUtil.errorLog;
-
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
     public ApiResponse<Object> handleNotFoundException(NotFoundException e) {
-        errorLog("리소스를 찾을 수 없습니다", e);
+        log.error("리소스를 찾을 수 없습니다", e);
         return ApiResponse.of(
                 HttpStatus.NOT_FOUND,
                 e.getMessage(),
@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        errorLog("잘못된 파라미터 바인딩", e);
+        log.error("잘못된 파라미터 바인딩", e);
 
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        errorLog("유효성 검증 실패", e);
+        log.error("유효성 검증 실패", e);
 
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({IllegalStateException.class, IllegalArgumentException.class})
     public ApiResponse<Object> handleIllegalStateException(Exception e) {
-        errorLog("잘못된 요청", e);
+        log.error("잘못된 요청", e);
 
         List<String> errorMessages = List.of(e.getMessage());
 
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ApiResponse<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        errorLog("요청 본문을 읽을 수 없습니다", e);
+        log.error("요청 본문을 읽을 수 없습니다", e);
 
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     @ExceptionHandler(ExternalApiException.class)
     public ApiResponse<Object> handleExternalApiException(ExternalApiException e) {
-        errorLog("외부 API 호출 실패", e);
+        log.error("외부 API 호출 실패", e);
 
         return ApiResponse.of(
                 HttpStatus.SERVICE_UNAVAILABLE,
@@ -111,7 +111,7 @@ public class GlobalExceptionHandler {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.toList());
 
-        errorLog("요청 파라미터 검증 실패", e);
+        log.error("요청 파라미터 검증 실패", e);
 
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
@@ -123,7 +123,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ApiResponse<Object> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
-        errorLog("필수 파라미터 누락", e);
+        log.error("필수 파라미터 누락", e);
 
         return ApiResponse.of(
                 HttpStatus.BAD_REQUEST,
