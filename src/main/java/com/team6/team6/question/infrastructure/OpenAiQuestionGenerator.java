@@ -46,7 +46,7 @@ public class OpenAiQuestionGenerator implements QuestionGenerator {
         Prompt prompt = new Prompt(promptText);
 
         try {
-            log.info(LogMarker.QUESTION_GENERATION.getMarker(),
+            log.info(LogMarker.OPEN_AI.getMarker(),
                     "OpenAI API 호출 시작 - 키워드: {}", keyword);
 
             QuestionsResponse response = chatClient.prompt(prompt)
@@ -55,13 +55,13 @@ public class OpenAiQuestionGenerator implements QuestionGenerator {
 
             List<String> parsedQuestions = parseQuestions(response.questions());
 
-            log.info(LogMarker.QUESTION_GENERATION.getMarker(),
+            log.info(LogMarker.OPEN_AI.getMarker(),
                     "OpenAI로부터 질문 생성 완료 - 키워드: {}, 생성된 질문 개수: {}",
                     keyword, parsedQuestions.size());
 
             return parsedQuestions;
         } catch (Exception e) {
-            log.error(LogMarker.QUESTION_GENERATION.getMarker(),
+            log.error(LogMarker.OPEN_AI.getMarker(),
                     "OpenAI 질문 생성 실패 - 키워드: {}", keyword, e);
             throw new ExternalApiException("OpenAI 질문 생성 실패", e);
         }

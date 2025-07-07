@@ -23,11 +23,11 @@ public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyse
     @Override
     public List<List<String>> analyse(List<String> keywords) {
         if (keywords == null || keywords.isEmpty()) {
-            log.info(LogMarker.KEYWORD_ANALYSIS.getMarker(), "키워드 유사성 분석 요청이 비어있어 빈 결과 반환");
+            log.info(LogMarker.OPEN_AI.getMarker(), "키워드 유사성 분석 요청이 비어있어 빈 결과 반환");
             return List.of();
         }
 
-        log.info(LogMarker.KEYWORD_ANALYSIS.getMarker(),
+        log.info(LogMarker.OPEN_AI.getMarker(),
                 "분석 요청 키워드 목록: {}", String.join(", ", keywords));
 
         String formattedKeywords = keywords.stream()
@@ -51,7 +51,7 @@ public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyse
         Prompt prompt = new Prompt(promptText);
 
         try {
-            log.info(LogMarker.KEYWORD_ANALYSIS.getMarker(),
+            log.info(LogMarker.OPEN_AI.getMarker(),
                     "OpenAI API 호출 시작 - 키워드 개수: {}", keywords.size());
 
             KeywordGroupResponse response = chatClient
@@ -60,13 +60,13 @@ public class OpenAiKeywordSimilarityAnalyser implements KeywordSimilarityAnalyse
                     .entity(KeywordGroupResponse.class);
             List<List<String>> groups = response.groups();
 
-            log.info(LogMarker.KEYWORD_ANALYSIS.getMarker(),
+            log.info(LogMarker.OPEN_AI.getMarker(),
                     "OpenAI로부터 키워드 유사성 분석 완료 - 그룹 수: {}, 입력 키워드 수: {}",
                     groups.size(), keywords.size());
 
             return groups;
         } catch (RuntimeException e) {
-            log.error(LogMarker.KEYWORD_ANALYSIS.getMarker(), "OpenAI 키워드 유사성 분석 실패", e);
+            log.error(LogMarker.OPEN_AI.getMarker(), "OpenAI 키워드 유사성 분석 실패", e);
             throw new ExternalApiException("OpenAI 키워드 유사성 분석 실패", e);
         }
     }

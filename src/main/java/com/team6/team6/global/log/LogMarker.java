@@ -1,27 +1,18 @@
 package com.team6.team6.global.log;
 
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
+import com.github.loki4j.slf4j.marker.StructuredMetadataMarker;
 
 public enum LogMarker {
     REQUEST("REQUEST"),
-    OPEN_AI("OPEN_AI"),
+    OPEN_AI("OPEN_AI");
 
-    KEYWORD_ANALYSIS("KEYWORD_ANALYSIS", OPEN_AI),
-    QUESTION_GENERATION("QUESTION_GENERATION", OPEN_AI);
-
-    private final Marker marker;
+    private final StructuredMetadataMarker marker;
 
     LogMarker(String name) {
-        this.marker = MarkerFactory.getMarker(name);
+        this.marker = StructuredMetadataMarker.of("type", () -> name);
     }
 
-    LogMarker(String name, LogMarker parent) {
-        this.marker = MarkerFactory.getMarker(name);
-        this.marker.add(parent.getMarker());
-    }
-
-    public Marker getMarker() {
+    public StructuredMetadataMarker getMarker() {
         return marker;
     }
 }
