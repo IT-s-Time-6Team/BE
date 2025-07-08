@@ -184,7 +184,9 @@ class TmiControllerWebDocsTest {
         TmiVotingPersonalResult result = new TmiVotingPersonalResult(
                 "누가 가장 늦게 잠들까요?",
                 "member1",
+                CharacterType.BEAR,
                 "testUser",
+                CharacterType.CHICK,
                 true,
                 Map.of("member1", 2L, "member2", 1L),
                 0
@@ -209,8 +211,10 @@ class TmiControllerWebDocsTest {
                                     fieldWithPath("status").type(JsonFieldType.STRING).description("HTTP 상태"),
                                     fieldWithPath("message").type(JsonFieldType.STRING).description("응답 메시지"),
                                     fieldWithPath("data.tmiContent").type(JsonFieldType.STRING).description("TMI 내용"),
-                                    fieldWithPath("data.correctAnswer").type(JsonFieldType.STRING).description("정답"),
+                                    fieldWithPath("data.correctAnswer").type(JsonFieldType.STRING).description("정답 멤버 이름"),
+                                    fieldWithPath("data.answerMemberCharacterType").type(JsonFieldType.STRING).description("정답 멤버 캐릭터"),
                                     fieldWithPath("data.myVote").type(JsonFieldType.STRING).description("내 투표"),
+                                    fieldWithPath("data.myCharacterType").type(JsonFieldType.STRING).description("내 투표 캐릭터"),
                                     fieldWithPath("data.isCorrect").type(JsonFieldType.BOOLEAN).description("정답 여부"),
                                     fieldWithPath("data.votingResults").type(JsonFieldType.OBJECT).description("투표 결과"),
                                     fieldWithPath("data.votingResults.*").type(JsonFieldType.NUMBER).description("각 멤버별 득표 수"),
