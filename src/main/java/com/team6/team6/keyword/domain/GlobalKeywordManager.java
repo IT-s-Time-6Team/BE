@@ -5,6 +5,7 @@ import com.team6.team6.keyword.domain.repository.KeywordGroupRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.entity.GlobalKeyword;
 import com.team6.team6.keyword.entity.KeywordGroup;
+import com.team6.team6.question.service.QuestionGenerationFacade;
 import com.team6.team6.question.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ public class GlobalKeywordManager {
     private final KeywordPreprocessor keywordPreprocessor;
     private final GlobalKeywordRepository globalKeywordRepository;
     private final KeywordGroupRepository keywordGroupRepository;
-    private final QuestionService questionService;
+    private final QuestionGenerationFacade questionGenerationFacade;
 
     // 키워드 정규화: 분석 결과의 키워드를 전처리하여 일관된 형식으로 저장
     @Transactional
@@ -83,7 +84,7 @@ public class GlobalKeywordManager {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                questionService.generateQuestions(preprocessedNewKeyword, newGroup);
+                questionGenerationFacade.generateQuestions(preprocessedNewKeyword, newGroup);
             }
         });
     }

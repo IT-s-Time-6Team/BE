@@ -5,7 +5,7 @@ import com.team6.team6.keyword.domain.repository.KeywordGroupRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
 import com.team6.team6.keyword.entity.GlobalKeyword;
 import com.team6.team6.keyword.entity.KeywordGroup;
-import com.team6.team6.question.service.QuestionService;
+import com.team6.team6.question.service.QuestionGenerationFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +34,7 @@ class GlobalKeywordManagerTest {
     private KeywordGroupRepository keywordGroupRepository;
 
     @Mock
-    private QuestionService questionService;
+    private QuestionGenerationFacade generationFacade;
 
     private GlobalKeywordManager globalKeywordManager;
 
@@ -51,7 +51,7 @@ class GlobalKeywordManagerTest {
                 keywordPreprocessor,
                 globalKeywordRepository,
                 keywordGroupRepository,
-                questionService
+                generationFacade
         );
     }
 
@@ -66,7 +66,7 @@ class GlobalKeywordManagerTest {
 
         // then
         verify(globalKeywordRepository, never()).findByKeyword(anyString());
-        verify(questionService, never()).generateQuestions(anyString(), any(KeywordGroup.class));
+        verify(generationFacade, never()).generateQuestions(anyString(), any(KeywordGroup.class));
     }
 
     @Test
@@ -95,7 +95,7 @@ class GlobalKeywordManagerTest {
             softly.assertThat(savedKeyword.getKeyword()).isEqualTo("java");
             softly.assertThat(savedKeyword.getKeywordGroup()).isEqualTo(frameworkGroup);
         });
-        verify(questionService, never()).generateQuestions(anyString(), any(KeywordGroup.class));
+        verify(generationFacade, never()).generateQuestions(anyString(), any(KeywordGroup.class));
     }
 
     @Test
@@ -124,7 +124,7 @@ class GlobalKeywordManagerTest {
         verify(globalKeywordRepository, never()).bulkUpdateKeywordGroups(any(), anyCollection());
         // 키워드 저장도 발생하지 않음
         verify(globalKeywordRepository, never()).save(any(GlobalKeyword.class));
-        verify(questionService, never()).generateQuestions(anyString(), any(KeywordGroup.class));
+        verify(generationFacade, never()).generateQuestions(anyString(), any(KeywordGroup.class));
     }
 
     @Test
@@ -149,6 +149,6 @@ class GlobalKeywordManagerTest {
 
         // then
         verify(globalKeywordRepository).bulkUpdateKeywordGroups(javaGroup, Set.of(springGroup));
-        verify(questionService, never()).generateQuestions(anyString(), any(KeywordGroup.class));
+        verify(generationFacade, never()).generateQuestions(anyString(), any(KeywordGroup.class));
     }
 }
