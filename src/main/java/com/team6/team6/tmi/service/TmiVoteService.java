@@ -139,7 +139,9 @@ public class TmiVoteService {
         return TmiVotingPersonalResult.of(
                 tmi.getTmiContent(),
                 tmi.getMemberName(),
+                tmi.getCharacterType(),
                 myVote.getVotedMemberName(),
+                myVote.getVoterCharacterType(),
                 myVote.getIsCorrect(),
                 votes.getVotingResults(),
                 latestCompletedRound
