@@ -1,5 +1,6 @@
 package com.team6.team6.tmi.service;
 
+import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.tmi.domain.TmiMessagePublisher;
 import com.team6.team6.tmi.domain.repository.TmiSessionRepository;
 import com.team6.team6.tmi.domain.repository.TmiSubmissionRepository;
@@ -90,7 +91,7 @@ class TmiVoteServiceTest {
         submission.setDisplayOrder(0);
         tmiSubmissionRepository.save(submission);
 
-        TmiVoteServiceReq request = new TmiVoteServiceReq("room1", 1L, "voter1", "member1");
+        TmiVoteServiceReq request = new TmiVoteServiceReq("room1", 1L, "voter1", 1L, CharacterType.BEAR, "member1");
 
         // when
         tmiVoteService.submitVote(request);
@@ -147,15 +148,17 @@ class TmiVoteServiceTest {
         session.startVotingPhase();
         tmiSessionRepository.save(session);
 
-        TmiSubmission submission = createTmiSubmission(1L, "member1", "TMI1");
+        TmiSubmission submission = createTmiSubmission(1L, "member2", "TMI1");
         submission.setDisplayOrder(0);
         tmiSubmissionRepository.save(submission);
 
-        TmiVote vote1 = TmiVote.create(1L, "member1", "member1", submission.getId(), 0);
-        vote1.changeIsCorrect("member1");
-        TmiVote vote2 = TmiVote.create(1L, "member2", "member1", submission.getId(), 0);
+        TmiVote vote1 = TmiVote.create(1L, "member1", 1L, CharacterType.BEAR, "member2", 2L, CharacterType.BEAR, submission.getId(), 0);
+        vote1.changeIsCorrect("member2");
+
+        TmiVote vote2 = TmiVote.create(1L, "member2", 2L, CharacterType.RABBIT, "member1", 1L, CharacterType.BEAR, submission.getId(), 0);
         vote2.changeIsCorrect("member1");
         tmiVoteRepository.saveAll(List.of(vote1, vote2));
+
         session.processVote();
         session.processVote();
 
@@ -165,10 +168,10 @@ class TmiVoteServiceTest {
         // then
         assertSoftly(softly -> {
             softly.assertThat(result.tmiContent()).isEqualTo("TMI1");
-            softly.assertThat(result.correctAnswer()).isEqualTo("member1");
-            softly.assertThat(result.myVote()).isEqualTo("member1");
+            softly.assertThat(result.correctAnswer()).isEqualTo("member2");
+            softly.assertThat(result.myVote()).isEqualTo("member2");
             softly.assertThat(result.isCorrect()).isTrue();
-            softly.assertThat(result.votingResults().get("member1")).isEqualTo(2L);
+            softly.assertThat(result.votingResults().get("member1")).isEqualTo(1L);
         });
     }
 

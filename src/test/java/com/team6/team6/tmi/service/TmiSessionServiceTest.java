@@ -1,5 +1,6 @@
 package com.team6.team6.tmi.service;
 
+import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.tmi.domain.repository.TmiSessionRepository;
 import com.team6.team6.tmi.domain.repository.TmiSubmissionRepository;
 import com.team6.team6.tmi.domain.repository.TmiVoteRepository;
@@ -187,16 +188,20 @@ class TmiSessionServiceTest {
         when(tmiSubmissionRepository.findAllByRoomId(1L))
                 .thenReturn(List.of(submission1, submission2, submission3));
 
-        // 투표 데이터 생성
-        TmiVote vote1 = TmiVote.create(1L, "member1", "member2", submission2.getId(), 1);
-        vote1.changeIsCorrect("member2"); // 맞춤
-        TmiVote vote2 = TmiVote.create(1L, "member2", "member1", submission1.getId(), 0);
-        vote2.changeIsCorrect("member1"); // 맞춤
-        TmiVote vote3 = TmiVote.create(1L, "member3", "member1", submission1.getId(), 0);
-        vote3.changeIsCorrect("member1"); // 맞춤
-        TmiVote vote4 = TmiVote.create(1L, "member1", "member1", submission3.getId(), 2);
-        vote4.changeIsCorrect("member3"); // 틀림 (member3의 TMI를 틀림)
-        TmiVote vote5 = TmiVote.create(1L, "member2", "member1", submission3.getId(), 2);
+        TmiVote vote1 = TmiVote.create(1L, "member1", 1L, CharacterType.BEAR, "member2", 2L, CharacterType.BEAR, submission2.getId(), 1);
+        vote1.changeIsCorrect("member2");
+
+        TmiVote vote2 = TmiVote.create(1L, "member2", 2L, CharacterType.RABBIT, "member1", 1L, CharacterType.BEAR, submission1.getId(), 0);
+        vote2.changeIsCorrect("member1");
+
+        TmiVote vote3 = TmiVote.create(1L, "member3", 3L, CharacterType.FOX, "member1", 1L, CharacterType.BEAR, submission1.getId(), 0);
+        vote3.changeIsCorrect("member1");
+
+        TmiVote vote4 = TmiVote.create(1L, "member1", 1L, CharacterType.CHICK, "member1", 3L, CharacterType.BEAR, submission3.getId(), 2);
+        vote4.changeIsCorrect("member3");
+
+        TmiVote vote5 = TmiVote.create(1L, "member2", 2L, CharacterType.PANDA, "member1", 3L, CharacterType.BEAR, submission3.getId(), 2);
+        vote5.changeIsCorrect("member3");
         vote5.changeIsCorrect("member3"); // 틀림 (member3의 TMI를 틀림)
         when(tmiVoteRepository.findAllByRoomId(1L))
                 .thenReturn(List.of(vote1, vote2, vote3, vote4, vote5));
