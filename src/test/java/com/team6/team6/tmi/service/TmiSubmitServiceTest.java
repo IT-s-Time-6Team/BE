@@ -1,5 +1,6 @@
 package com.team6.team6.tmi.service;
 
+import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.tmi.domain.TmiMessagePublisher;
 import com.team6.team6.tmi.domain.repository.TmiSubmissionRepository;
 import com.team6.team6.tmi.dto.TmiSubmitServiceReq;
@@ -96,7 +97,7 @@ class TmiSubmitServiceTest {
 
     private TmiSubmitServiceReq createTmiRequest() {
         return new TmiSubmitServiceReq(
-                "저는 고양이를 키워요", "test-room", 1L, 1L, "test-member"
+                "저는 고양이를 키워요", "test-room", 1L, 1L, "test-member", CharacterType.BEAR
         );
     }
 }

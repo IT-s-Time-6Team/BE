@@ -9,6 +9,6 @@ public record TmiSubmitRequest(
 ) {
     public TmiSubmitServiceReq toServiceRequest(UserPrincipal userPrincipal) {
         return TmiSubmitServiceReq.of(tmiContent, userPrincipal.getRoomKey(),
-                userPrincipal.getRoomId(), userPrincipal.getId(), userPrincipal.getNickname());
+                userPrincipal.getRoomId(), userPrincipal.getId(), userPrincipal.getNickname(), userPrincipal.getCharacter());
     }
 }

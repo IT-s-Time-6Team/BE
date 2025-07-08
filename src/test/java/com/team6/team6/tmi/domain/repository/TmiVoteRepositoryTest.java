@@ -1,5 +1,6 @@
 package com.team6.team6.tmi.domain.repository;
 
+import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.tmi.entity.TmiVote;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ class TmiVoteRepositoryTest {
     @Test
     void 투표자_중복_투표_테스트() {
         // given
-        TmiVote vote = TmiVote.create(1L, "voter1", "member1", 1L, 0);
+        TmiVote vote = TmiVote.create(1L, "voter1", 1L, CharacterType.CHICK, "member1", 1L, CharacterType.BEAR, 1L, 0);
         entityManager.persistAndFlush(vote);
 
         // when & then
@@ -39,10 +40,10 @@ class TmiVoteRepositoryTest {
     @Test
     void 방의_모든_라운드_투표_조회_테스트() {
         // given
-        TmiVote vote1 = TmiVote.create(1L, "voter1", "member1", 1L, 0);
-        TmiVote vote2 = TmiVote.create(1L, "voter2", "member2", 1L, 0);
-        TmiVote vote3 = TmiVote.create(1L, "voter3", "member1", 1L, 1);
-        TmiVote vote4 = TmiVote.create(2L, "voter4", "member1", 1L, 0);
+        TmiVote vote1 = TmiVote.create(1L, "voter1", 1L, CharacterType.CHICK, "member1", 1L, CharacterType.BEAR, 1L, 0);
+        TmiVote vote2 = TmiVote.create(1L, "voter2", 2L, CharacterType.RABBIT, "member2", 1L, CharacterType.BEAR, 1L, 0);
+        TmiVote vote3 = TmiVote.create(1L, "voter3", 3L, CharacterType.PANDA, "member1", 1L, CharacterType.BEAR, 1L, 0);
+        TmiVote vote4 = TmiVote.create(2L, "voter4", 4L, CharacterType.PIG, "member1", 1L, CharacterType.BEAR, 1L, 0);
 
         entityManager.persistAndFlush(vote1);
         entityManager.persistAndFlush(vote2);
@@ -54,9 +55,9 @@ class TmiVoteRepositoryTest {
 
         // then
         assertSoftly(softly -> {
-            softly.assertThat(votes).hasSize(2);
+            softly.assertThat(votes).hasSize(3);
             softly.assertThat(votes).extracting(TmiVote::getVoterName)
-                    .containsExactlyInAnyOrder("voter1", "voter2");
+                    .containsExactlyInAnyOrder("voter1", "voter2", "voter3");
         });
     }
 }

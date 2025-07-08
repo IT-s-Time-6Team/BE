@@ -67,7 +67,11 @@ public class TmiVoteService {
         TmiVote vote = TmiVote.create(
                 req.roomId(),
                 req.voterName(),
+                req.voterId(),
+                req.voterCharacterType(),
                 req.votedMemberName(),
+                currentTmi.getMemberId(),
+                currentTmi.getCharacterType(),
                 currentTmi.getId(),
                 session.getCurrentVotingTmiIndex()
         );
@@ -135,7 +139,9 @@ public class TmiVoteService {
         return TmiVotingPersonalResult.of(
                 tmi.getTmiContent(),
                 tmi.getMemberName(),
+                tmi.getCharacterType(),
                 myVote.getVotedMemberName(),
+                myVote.getVoterCharacterType(),
                 myVote.getIsCorrect(),
                 votes.getVotingResults(),
                 latestCompletedRound

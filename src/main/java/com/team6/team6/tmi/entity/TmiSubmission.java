@@ -1,6 +1,7 @@
 package com.team6.team6.tmi.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
+import com.team6.team6.member.entity.CharacterType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,25 +22,28 @@ public class TmiSubmission extends BaseEntity {
     private Long roomId;
     private Long memberId;
     private String memberName;
+    private CharacterType characterType;
     private String tmiContent;
     @Setter
     private Integer displayOrder;  // 랜덤 순서로 배정
 
     @Builder
-    private TmiSubmission(Long roomId, Long memberId, String memberName, String tmiContent, Integer displayOrder) {
+    private TmiSubmission(Long roomId, Long memberId, String memberName, String tmiContent, Integer displayOrder, CharacterType characterType) {
         this.roomId = roomId;
         this.memberId = memberId;
         this.memberName = memberName;
         this.tmiContent = tmiContent;
         this.displayOrder = displayOrder;
+        this.characterType = characterType;
     }
 
-    public static TmiSubmission create(Long roomId, Long memberId, String memberName, String tmiContent) {
+    public static TmiSubmission create(Long roomId, Long memberId, String memberName, String tmiContent, CharacterType characterType) {
         return TmiSubmission.builder()
                 .roomId(roomId)
                 .memberId(memberId)
                 .memberName(memberName)
                 .tmiContent(tmiContent)
+                .characterType(characterType)
                 .displayOrder(null)
                 .build();
     }

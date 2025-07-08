@@ -1,5 +1,6 @@
 package com.team6.team6.tmi.domain;
 
+import com.team6.team6.member.entity.CharacterType;
 import com.team6.team6.tmi.entity.TmiVote;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ class TmiVotesTest {
         TmiVote myVote = tmiVotes.findVoteByName("voter2");
 
         // then
-        assertSoftly(softly->{
+        assertSoftly(softly -> {
             softly.assertThat(myVote.getVoterName()).isEqualTo("voter2");
             softly.assertThat(myVote.getVotedMemberName()).isEqualTo("member2");
         });
@@ -61,7 +62,7 @@ class TmiVotesTest {
         Map<String, Long> results = tmiVotes.getVotingResults();
 
         // then
-        assertSoftly(softly->{
+        assertSoftly(softly -> {
             softly.assertThat(results).hasSize(2);
             softly.assertThat(results.get("member1")).isEqualTo(3L);
             softly.assertThat(results.get("member2")).isEqualTo(1L);
@@ -69,6 +70,6 @@ class TmiVotesTest {
     }
 
     private TmiVote createTmiVote(String voterName, String votedMemberName) {
-        return TmiVote.create(1L, voterName, votedMemberName, 1L, 0);
+        return TmiVote.create(1L, voterName, 1L, CharacterType.PIG, votedMemberName, 1L, CharacterType.BEAR, 1L, 0);
     }
 }
