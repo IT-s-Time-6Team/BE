@@ -67,7 +67,11 @@ public class TmiVoteService {
         TmiVote vote = TmiVote.create(
                 req.roomId(),
                 req.voterName(),
+                req.voterId(),
+                req.voterCharacterType(),
                 req.votedMemberName(),
+                currentTmi.getMemberId(),
+                currentTmi.getCharacterType(),
                 currentTmi.getId(),
                 session.getCurrentVotingTmiIndex()
         );

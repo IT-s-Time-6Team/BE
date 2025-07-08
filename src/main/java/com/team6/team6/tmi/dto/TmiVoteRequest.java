@@ -12,6 +12,8 @@ public record TmiVoteRequest(
                 roomKey,
                 userPrincipal.getRoomId(),
                 userPrincipal.getNickname(),
+                userPrincipal.getId(),
+                userPrincipal.getCharacter(),
                 this.votedMemberName
         );
     }

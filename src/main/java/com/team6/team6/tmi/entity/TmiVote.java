@@ -1,6 +1,7 @@
 package com.team6.team6.tmi.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
+import com.team6.team6.member.entity.CharacterType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,31 +22,45 @@ public class TmiVote extends BaseEntity {
 
     private Long roomId;
     private String voterName;              // 투표자
+    private Long voterId;
+    private CharacterType voterCharacterType;
     private String votedMemberName;        // 투표 받은 멤버
+    private Long votedMemberId;
+    private CharacterType votedCharacterType;
     private Boolean isCorrect;          // 투표가 맞았는지 여부
     private Long tmiSubmissionId;          // 투표한 TMI
     private Integer votingRound;               // 몇 번째 TMI에 대한 투표인지
 
     @Builder
-    private TmiVote(Long roomId, String voterName, String votedMemberName,
-                    Boolean isCorrect, Long tmiSubmissionId, Integer votingRound) {
+    private TmiVote(Long roomId, String voterName, Long voterId, CharacterType voterCharacterType,
+                    String votedMemberName, Long votedMemberId, CharacterType votedCharacterType,
+                    Long tmiSubmissionId, Integer votingRound, Boolean isCorrect) {
         this.roomId = roomId;
         this.voterName = voterName;
+        this.voterId = voterId;
+        this.voterCharacterType = voterCharacterType;
         this.votedMemberName = votedMemberName;
-        this.isCorrect = isCorrect;
+        this.votedMemberId = votedMemberId;
+        this.votedCharacterType = votedCharacterType;
         this.tmiSubmissionId = tmiSubmissionId;
         this.votingRound = votingRound;
+        this.isCorrect = isCorrect;
     }
 
-    public static TmiVote create(Long roomId, String voterName, String votedMemberName,
+    public static TmiVote create(Long roomId, String voterName, Long voterId, CharacterType voterCharacterType,
+                                 String votedMemberName, Long votedMemberId, CharacterType votedCharacterType,
                                  Long tmiSubmissionId, int votingRound) {
         return TmiVote.builder()
                 .roomId(roomId)
                 .voterName(voterName)
+                .voterId(voterId)
+                .voterCharacterType(voterCharacterType)
                 .votedMemberName(votedMemberName)
-                .isCorrect(null)
+                .votedMemberId(votedMemberId)
+                .votedCharacterType(votedCharacterType)
                 .tmiSubmissionId(tmiSubmissionId)
                 .votingRound(votingRound)
+                .isCorrect(null)
                 .build();
     }
 
