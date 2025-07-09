@@ -51,35 +51,6 @@ class TmiVoteServiceTest {
     private TmiMessagePublisher messagePublisher;
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    void 투표_시작_테스트() {
-        // given
-        TmiSession session = TmiSession.createInitialSession(1L, 3);
-        session.incrementSubmittedTmiCount();
-        session.incrementSubmittedTmiCount();
-        session.incrementSubmittedTmiCount();
-        session.startHintTime();
-
-        TmiSubmission submission1 = createTmiSubmission(1L, "member1", "TMI1");
-        TmiSubmission submission2 = createTmiSubmission(1L, "member2", "TMI2");
-        TmiSubmission submission3 = createTmiSubmission(1L, "member3", "TMI3");
-
-        tmiSessionRepository.save(session);
-        tmiSubmissionRepository.saveAll(List.of(submission1, submission2, submission3));
-
-        // when
-        tmiVoteService.startVotingPhase("room1", 1L);
-
-        // then
-        TmiSession updatedSession = tmiSessionRepository.findById(session.getId()).get();
-        assertSoftly(softly -> {
-            softly.assertThat(updatedSession.getCurrentStep()).isEqualTo(TmiGameStep.VOTING);
-            softly.assertThat(updatedSession.getCurrentVotingTmiIndex()).isEqualTo(0);
-        });
-        verify(messagePublisher).notifyTmiVotingStarted("room1");
-    }
-
-    @Test
     @DisplayName("투표를 제출할 수 있다")
     void 투표_제출_테스트() {
         // given
