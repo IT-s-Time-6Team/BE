@@ -16,6 +16,7 @@ import com.team6.team6.tmi.entity.TmiVote;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class TmiVoteService {
     private final TmiVoteRepository tmiVoteRepository;
     private final TmiMessagePublisher messagePublisher;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void startVotingPhase(String roomKey, Long roomId) {
         TmiSession session = tmiSessionService.findSessionByRoomIdWithLock(roomId);
 
