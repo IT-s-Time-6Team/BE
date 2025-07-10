@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @Slf4j
@@ -86,7 +87,7 @@ public class TmiHintService {
     /**
      * 힌트 타이머 종료 이벤트 처리
      */
-    @EventListener
+    @TransactionalEventListener
     public void onTimerEnd(TimerEndEvent event) {
         if (!HINT_TIMER_TYPE.equals(event.getTimerType())) {
             return;

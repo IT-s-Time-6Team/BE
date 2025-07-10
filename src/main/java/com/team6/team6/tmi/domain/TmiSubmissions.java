@@ -18,13 +18,16 @@ public class TmiSubmissions {
     }
 
     public static TmiSubmissions from(List<TmiSubmission> submissions) {
+        log.debug("TmiSubmissions 생성 시작");
         if (submissions == null || submissions.isEmpty()) {
             throw new IllegalArgumentException("TMI 제출 목록이 비어있습니다");
         }
+        log.debug("TmiSubmissions 생성 성공");
         return new TmiSubmissions(submissions);
     }
 
     public TmiSubmissions shuffleForVoting() {
+        log.debug("TmiSubmissions 랜덤 배치 시작");
         List<TmiSubmission> shuffled = new ArrayList<>(submissions);
         Collections.shuffle(shuffled, random);
 

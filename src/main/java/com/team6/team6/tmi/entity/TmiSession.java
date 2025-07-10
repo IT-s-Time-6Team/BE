@@ -12,12 +12,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
 public class TmiSession extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -90,12 +92,14 @@ public class TmiSession extends BaseEntity {
     }
 
     public void validateCanStartVoting() {
+        log.debug("투표 단계 유효성 검사 시작");
         if (this.currentStep != TmiGameStep.HINT) {
             throw new IllegalStateException("투표를 시작할 수 없는 상태입니다");
         }
         if (!isAllTmiCollected()) {
             throw new IllegalStateException("모든 TMI가 수집되지 않았습니다");
         }
+        log.debug("투표 단계 유효성 검사 성공");
     }
 
     // ==================== 상태 전환 메서드 ====================

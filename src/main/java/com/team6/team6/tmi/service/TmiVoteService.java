@@ -41,6 +41,7 @@ public class TmiVoteService {
 
         // TMI 목록을 일급 컬렉션으로 관리하고 랜덤 배치
         List<TmiSubmission> submissions = tmiSubmissionRepository.findByRoomId(roomId);
+        log.debug("투표 제출 목록 크기: {}", submissions);
         TmiSubmissions submissionList = TmiSubmissions.from(submissions);
         TmiSubmissions shuffledList = submissionList.shuffleForVoting();
 
