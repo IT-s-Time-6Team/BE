@@ -87,7 +87,7 @@ public class TmiHintService {
     /**
      * 힌트 타이머 종료 이벤트 처리
      */
-    @TransactionalEventListener
+    @EventListener
     public void onTimerEnd(TimerEndEvent event) {
         if (!HINT_TIMER_TYPE.equals(event.getTimerType())) {
             return;
