@@ -2,10 +2,7 @@ package com.team6.team6.tmi.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
 import com.team6.team6.member.entity.CharacterType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +19,9 @@ public class TmiSubmission extends BaseEntity {
     private Long roomId;
     private Long memberId;
     private String memberName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "character_type")
     private CharacterType characterType;
     private String tmiContent;
     @Setter

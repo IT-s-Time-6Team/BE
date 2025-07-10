@@ -2,10 +2,7 @@ package com.team6.team6.tmi.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
 import com.team6.team6.member.entity.CharacterType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,9 +20,15 @@ public class TmiVote extends BaseEntity {
     private Long roomId;
     private String voterName;              // 투표자
     private Long voterId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "voter_character_type")
     private CharacterType voterCharacterType;
     private String votedMemberName;        // 투표 받은 멤버
     private Long votedMemberId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "voted_character_type")
     private CharacterType votedCharacterType;
     private Boolean isCorrect;          // 투표가 맞았는지 여부
     private Long tmiSubmissionId;          // 투표한 TMI
