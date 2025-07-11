@@ -48,15 +48,15 @@ class MemberServiceTest {
     void 신규_멤버_가입_성공() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
 
-        MemberCreateOrLoginServiceRequest memberRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest memberRequest = new MemberCreateOrLoginServiceRequest(
+                "테스트유저",
+                "test123!"
+        );
 
         // when
         MemberResponse response = memberService.joinOrLogin(roomKey, memberRequest);
@@ -82,15 +82,15 @@ class MemberServiceTest {
     void 기존_멤버_로그인_성공() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
-        
-        MemberCreateOrLoginServiceRequest memberRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저")
-                .password("test123!")
-                .build();
+
+        MemberCreateOrLoginServiceRequest memberRequest = new MemberCreateOrLoginServiceRequest(
+                "테스트유저",
+                "test123!"
+        );
                 
         // 먼저 회원가입
         memberService.joinOrLogin(roomKey, memberRequest);
@@ -114,23 +114,23 @@ class MemberServiceTest {
     void 로그인_비밀번호_불일치시_예외발생() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
         
         // 먼저 회원가입
-        MemberCreateOrLoginServiceRequest joinRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest joinRequest = new MemberCreateOrLoginServiceRequest(
+                "테스트유저",
+                "test123!"
+        );
         memberService.joinOrLogin(roomKey, joinRequest);
         
         // 잘못된 비밀번호로 로그인 시도
-        MemberCreateOrLoginServiceRequest loginRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저")
-                .password("wrong123!")
-                .build();
+        MemberCreateOrLoginServiceRequest loginRequest = new MemberCreateOrLoginServiceRequest(
+                "테스트유저",
+                "wrong123!"
+        );
         
         // when & then
         assertThatThrownBy(() -> memberService.joinOrLogin(roomKey, loginRequest))
@@ -142,11 +142,11 @@ class MemberServiceTest {
     void 존재하지_않는_방_멤버_가입시_예외발생() {
         // given
         String nonExistentRoomKey = "non-existent-key";
-        
-        MemberCreateOrLoginServiceRequest memberRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저")
-                .password("test123!")
-                .build();
+
+        MemberCreateOrLoginServiceRequest memberRequest = new MemberCreateOrLoginServiceRequest(
+                "테스트유저",
+                "test123!"
+        );
         
         // when & then
         assertThatThrownBy(() -> memberService.joinOrLogin(nonExistentRoomKey, memberRequest))
@@ -158,30 +158,30 @@ class MemberServiceTest {
     void 방_최대인원_초과시_가입_실패() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 2, 30, GameMode.NORMAL // 최대 인원 2명으로 설정
+                3, 2, 30, GameMode.NORMAL, null // 최대 인원 2명으로 설정
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
         
         // 첫 번째 멤버 가입
-        MemberCreateOrLoginServiceRequest member1Request = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저1")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest member1Request = new MemberCreateOrLoginServiceRequest(
+                "테스트유저1",
+                "test123!"
+        );
         memberService.joinOrLogin(roomKey, member1Request);
         
         // 두 번째 멤버 가입
-        MemberCreateOrLoginServiceRequest member2Request = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저2")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest member2Request = new MemberCreateOrLoginServiceRequest(
+                "테스트유저2",
+                "test123!"
+        );
         memberService.joinOrLogin(roomKey, member2Request);
         
         // 세 번째 멤버 가입 시도 (최대 인원 초과)
-        MemberCreateOrLoginServiceRequest member3Request = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저3")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest member3Request = new MemberCreateOrLoginServiceRequest(
+                "테스트유저3",
+                "test123!"
+        );
         
         // when & then
         assertThatThrownBy(() -> memberService.joinOrLogin(roomKey, member3Request))
@@ -193,23 +193,23 @@ class MemberServiceTest {
     void 두번째_이후_멤버는_리더가_아님() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 3, 30, GameMode.NORMAL
+                3, 3, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
         
         // 첫 번째 멤버 가입
-        MemberCreateOrLoginServiceRequest member1Request = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저1")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest member1Request = new MemberCreateOrLoginServiceRequest(
+                "테스트유저1",
+                "test123!"
+        );
         MemberResponse response1 = memberService.joinOrLogin(roomKey, member1Request);
         
         // 두 번째 멤버 가입
-        MemberCreateOrLoginServiceRequest member2Request = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저2")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest member2Request = new MemberCreateOrLoginServiceRequest(
+                "테스트유저2",
+                "test123!"
+        );
         
         // when
         MemberResponse response2 = memberService.joinOrLogin(roomKey, member2Request);
@@ -225,25 +225,25 @@ class MemberServiceTest {
     void 닉네임_중복_확인() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
         
         // 첫 번째 멤버 가입
-        MemberCreateOrLoginServiceRequest memberRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("중복닉네임")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest memberRequest = new MemberCreateOrLoginServiceRequest(
+                "중복닉네임",
+                "test123!"
+        );
         
         memberService.joinOrLogin(roomKey, memberRequest);
         
         
         // 다른 비밀번호로 동일 닉네임 가입시도
-        MemberCreateOrLoginServiceRequest duplicateRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("중복닉네임")
-                .password("different!")
-                .build();
+        MemberCreateOrLoginServiceRequest duplicateRequest = new MemberCreateOrLoginServiceRequest(
+                "중복닉네임",
+                "different!"
+        );
         
         // when & then
         assertThatThrownBy(() -> memberService.joinOrLogin(roomKey, duplicateRequest))
@@ -255,15 +255,15 @@ class MemberServiceTest {
     void 인증_컨텍스트_검증() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
 
-        MemberCreateOrLoginServiceRequest memberRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest memberRequest = new MemberCreateOrLoginServiceRequest(
+                "테스트유저",
+                "test123!"
+        );
 
         // when
         memberService.joinOrLogin(roomKey, memberRequest);
@@ -281,6 +281,7 @@ class MemberServiceTest {
             var principal = (UserPrincipal) authentication.getPrincipal();
             softly.assertThat(principal.getNickname()).isEqualTo("테스트유저");
             softly.assertThat(principal.getRoomKey()).isEqualTo(roomKey);
+            softly.assertThat(principal.getGameMode()).isEqualTo("NORMAL");
 
             // 권한(Authorities) 확인 - 첫 번째 멤버는 ROLE_USER와 ROLE_LEADER 모두 가짐
             softly.assertThat(authentication.getAuthorities()).hasSize(2);
@@ -297,16 +298,16 @@ class MemberServiceTest {
     void 로그인_시_보안_컨텍스트_갱신() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
         
         // 첫 번째 멤버 가입
-        MemberCreateOrLoginServiceRequest member1Request = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("유저1")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest member1Request = new MemberCreateOrLoginServiceRequest(
+                "유저1",
+                "test123!"
+        );
         memberService.joinOrLogin(roomKey, member1Request);
         
         // 명시적으로 SecurityContext 초기화
@@ -314,10 +315,10 @@ class MemberServiceTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         
         // 두 번째 멤버 가입
-        MemberCreateOrLoginServiceRequest member2Request = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("유저2")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest member2Request = new MemberCreateOrLoginServiceRequest(
+                "유저2",
+                "test123!"
+        );
         
         // when
         memberService.joinOrLogin(roomKey, member2Request);
@@ -329,6 +330,7 @@ class MemberServiceTest {
             
             var principal = (UserPrincipal) authentication.getPrincipal();
             softly.assertThat(principal.getNickname()).isEqualTo("유저2");
+            softly.assertThat(principal.getGameMode()).isEqualTo("NORMAL");
             
             // 이전 사용자가 아닌 현재 사용자 정보가 들어있는지 확인
             softly.assertThat(principal.getNickname()).isNotEqualTo("유저1");
@@ -339,15 +341,15 @@ class MemberServiceTest {
     void 보안_컨텍스트_초기화_후_로그인() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
-        
-        MemberCreateOrLoginServiceRequest memberRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("테스트유저")
-                .password("test123!")
-                .build();
+
+        MemberCreateOrLoginServiceRequest memberRequest = new MemberCreateOrLoginServiceRequest(
+                "테스트유저",
+                "test123!"
+        );
         
         // 첫 번째 로그인
         memberService.joinOrLogin(roomKey, memberRequest);
@@ -366,6 +368,7 @@ class MemberServiceTest {
             
             var principal = (UserPrincipal) authentication.getPrincipal();
             softly.assertThat(principal.getNickname()).isEqualTo("테스트유저");
+            softly.assertThat(principal.getGameMode()).isEqualTo("NORMAL");
         });
     }
     
@@ -373,15 +376,15 @@ class MemberServiceTest {
     void 첫번째_멤버는_리더_권한_가짐() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
-        
-        MemberCreateOrLoginServiceRequest leaderRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("방장")
-                .password("test123!")
-                .build();
+
+        MemberCreateOrLoginServiceRequest leaderRequest = new MemberCreateOrLoginServiceRequest(
+                "방장",
+                "test123!"
+        );
                 
         // when
         memberService.joinOrLogin(roomKey, leaderRequest);
@@ -407,26 +410,26 @@ class MemberServiceTest {
     void 두번째_멤버는_일반_권한만_가짐() {
         // given
         RoomCreateServiceRequest roomRequest = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse roomResponse = roomService.createRoom(roomRequest);
         String roomKey = roomResponse.roomKey();
         
         // 첫 번째 멤버 가입(리더)
-        MemberCreateOrLoginServiceRequest leaderRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("방장")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest leaderRequest = new MemberCreateOrLoginServiceRequest(
+                "방장",
+                "test123!"
+        );
         memberService.joinOrLogin(roomKey, leaderRequest);
         
         // SecurityContext 초기화
         SecurityContextHolder.clearContext();
         
         // 두 번째 멤버 가입(일반 멤버)
-        MemberCreateOrLoginServiceRequest memberRequest = MemberCreateOrLoginServiceRequest.builder()
-                .nickname("일반멤버")
-                .password("test123!")
-                .build();
+        MemberCreateOrLoginServiceRequest memberRequest = new MemberCreateOrLoginServiceRequest(
+                "일반멤버",
+                "test123!"
+        );
         
         // when
         memberService.joinOrLogin(roomKey, memberRequest);

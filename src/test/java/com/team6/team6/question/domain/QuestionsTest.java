@@ -15,8 +15,8 @@ class QuestionsTest {
     void getRandomSubset_요청_수보다_작거나_같으면_전체_반환() {
         // given
         List<Question> list = List.of(
-                Question.of("test", "Q1"),
-                Question.of("test", "Q2")
+                Question.of("test", "Q1", null),
+                Question.of("test", "Q2", null)
         );
         Questions questions = Questions.of(list);
 
@@ -32,7 +32,7 @@ class QuestionsTest {
         // given
         List<Question> list = new ArrayList<>();
         for (int i = 1; i <= 20; i++) {
-            list.add(Question.of("test", "Q" + i));
+            list.add(Question.of("test", "Q" + i, null));
         }
         Questions questions = Questions.of(list);
 

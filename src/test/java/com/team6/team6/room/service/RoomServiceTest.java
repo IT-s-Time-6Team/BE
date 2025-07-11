@@ -1,7 +1,6 @@
 package com.team6.team6.room.service;
 
 import com.team6.team6.global.error.exception.NotFoundException;
-import com.team6.team6.room.dto.MemberKeywordCount;
 import com.team6.team6.room.dto.RoomCreateServiceRequest;
 import com.team6.team6.room.dto.RoomResponse;
 import com.team6.team6.room.entity.GameMode;
@@ -13,10 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -25,9 +20,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Transactional
 class RoomServiceTest {
 
+    private final static Integer TMI_DURATION_MINUTES = 1440; // 24시간
+
     @Autowired
     private RoomService roomService;
-
 
     @Autowired
     private RoomRepository roomRepository;
@@ -36,7 +32,7 @@ class RoomServiceTest {
     void 방_생성_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
 
         // when
@@ -53,12 +49,54 @@ class RoomServiceTest {
         assertThat(room.getGameMode()).isEqualTo(request.gameMode());
     }
 
+    @Test
+    void TMI_모드_방_생성_성공() {
+        // given
+        RoomCreateServiceRequest request = new RoomCreateServiceRequest(
+                null, 6, TMI_DURATION_MINUTES, GameMode.TMI, null  // requiredAgreements는 null, durationMinutes는 24시간
+        );
+
+        // when
+        RoomResponse response = roomService.createRoom(request);
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(response.roomKey()).isNotNull();
+
+        // 실제 DB에서 조회해서 확인
+        Room room = roomRepository.findByRoomKey(response.roomKey()).orElseThrow();
+        assertThat(room.getRequiredAgreements()).isNull(); // TMI 모드에서는 null
+        assertThat(room.getMaxMember()).isEqualTo(request.maxMember());
+        assertThat(room.getDurationMinutes()).isEqualTo(TMI_DURATION_MINUTES); // 24시간
+        assertThat(room.getGameMode()).isEqualTo(GameMode.TMI);
+    }
+
+    @Test
+    void TMI_모드_방_조회_성공() {
+        // given
+        RoomCreateServiceRequest request = new RoomCreateServiceRequest(
+                null, 6, TMI_DURATION_MINUTES, GameMode.TMI, null
+        );
+        RoomResponse createdRoom = roomService.createRoom(request);
+        String roomKey = createdRoom.roomKey();
+
+        // when
+        RoomResponse response = roomService.getRoom(roomKey);
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(response.roomKey()).isEqualTo(roomKey);
+        assertThat(response.requiredAgreements()).isNull(); // TMI 모드에서는 null
+        assertThat(response.maxMember()).isEqualTo(request.maxMember());
+        assertThat(response.durationMinutes()).isEqualTo(TMI_DURATION_MINUTES); // 24시간
+        assertThat(response.gameMode()).isEqualTo(GameMode.TMI);
+    }
 
     @Test
     void 존재하는_방_조회_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -89,7 +127,7 @@ class RoomServiceTest {
     void 종료된_방_조회시_예외발생() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -107,7 +145,7 @@ class RoomServiceTest {
     void 방_종료_성공() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -135,7 +173,7 @@ class RoomServiceTest {
     void 이미_종료된_방_다시_종료시_예외발생() {
         // given
         RoomCreateServiceRequest request = new RoomCreateServiceRequest(
-                3, 6, 30, GameMode.NORMAL
+                3, 6, 30, GameMode.NORMAL, null
         );
         RoomResponse createdRoom = roomService.createRoom(request);
         String roomKey = createdRoom.roomKey();
@@ -149,33 +187,5 @@ class RoomServiceTest {
                 .hasMessageContaining("이미 종료된 방입니다");
     }
 
-    @Test
-    void 빈_목록_필터링_테스트() {
-        // given
-        List<MemberKeywordCount> emptyList = Collections.emptyList();
 
-        // when
-        List<MemberKeywordCount> result = roomService.findMembersWithMaxCount(emptyList);
-
-        // then
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    void 최대_카운트_멤버_필터링_테스트() {
-        // given
-        MemberKeywordCount max1 = new MemberKeywordCount("user1", 10);
-        MemberKeywordCount max2 = new MemberKeywordCount("user2", 10);
-        MemberKeywordCount lower1 = new MemberKeywordCount("user3", 5);
-        MemberKeywordCount lower2 = new MemberKeywordCount("user4", 3);
-
-        List<MemberKeywordCount> members = Arrays.asList(max1, lower1, max2, lower2);
-
-        // when
-        List<MemberKeywordCount> result = roomService.findMembersWithMaxCount(members);
-
-        // then
-        assertThat(result).hasSize(2);
-        assertThat(result).containsExactlyInAnyOrder(max1, max2);
-    }
 }

@@ -1,10 +1,8 @@
 package com.team6.team6.question.entity;
 
 import com.team6.team6.global.entity.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.team6.team6.keyword.entity.KeywordGroup;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,16 +19,22 @@ public class Question extends BaseEntity {
     private String keyword;
     private String question;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private KeywordGroup keywordGroup;
+
     @Builder
-    private Question(String keyword, String question) {
+    private Question(String keyword, String question, KeywordGroup keywordGroup) {
         this.question = question;
         this.keyword = keyword;
+        this.keywordGroup = keywordGroup;
     }
 
-    public static Question of(String keyword, String question) {
+    public static Question of(String keyword, String question, KeywordGroup keywordGroup) {
         return Question.builder()
                 .keyword(keyword)
                 .question(question)
+                .keywordGroup(keywordGroup)
                 .build();
     }
 }

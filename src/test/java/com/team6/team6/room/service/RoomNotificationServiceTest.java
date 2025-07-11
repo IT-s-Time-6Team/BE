@@ -1,6 +1,6 @@
 package com.team6.team6.room.service;
 
-import com.team6.team6.keyword.dto.ChatMessage;
+import com.team6.team6.websocket.dto.ChatMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,9 +32,9 @@ class RoomNotificationServiceTest {
         verify(messagingTemplate).convertAndSend(
                 eq("/topic/room/" + roomKey + "/messages"),
                 argThat((ChatMessage m) ->
-                        m.type() == ChatMessage.MessageType.ROOM_EXPIRED &&
-                                m.nickname().equals("@시스템") &&
-                                m.content().equals("방이 종료되었습니다.")
+                        "ROOM_EXPIRED".equals(m.getType()) &&
+                                "@시스템".equals(m.getNickname()) &&
+                                "방이 종료되었습니다.".equals(m.getContent())
                 )
         );
     }
@@ -51,9 +51,9 @@ class RoomNotificationServiceTest {
         verify(messagingTemplate).convertAndSend(
                 eq("/topic/room/" + roomKey + "/messages"),
                 argThat((ChatMessage m) ->
-                        m.type() == ChatMessage.MessageType.ROOM_EXPIRY_WARNING &&
-                                m.nickname().equals("@시스템") &&
-                                m.content().equals("방 종료까지 5분 남았습니다.")
+                        "ROOM_EXPIRY_WARNING".equals(m.getType()) &&
+                                "@시스템".equals(m.getNickname()) &&
+                                "방 종료까지 5분 남았습니다.".equals(m.getContent())
                 )
         );
     }

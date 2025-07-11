@@ -1,8 +1,12 @@
 package com.team6.team6.keyword.dto;
 
 import com.team6.team6.member.security.UserPrincipal;
+import jakarta.validation.constraints.NotNull;
 
-public record KeywordAddRequest(String keyword) {
+public record KeywordAddRequest(
+        @NotNull(message = "키워드를 입력해주세요")
+        String keyword
+) {
     public static KeywordAddRequest of(String keyword) {
         return new KeywordAddRequest(keyword);
     }

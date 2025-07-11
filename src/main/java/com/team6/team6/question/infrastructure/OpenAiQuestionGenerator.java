@@ -1,9 +1,11 @@
 package com.team6.team6.question.infrastructure;
 
 import com.team6.team6.global.error.exception.ExternalApiException;
+import com.team6.team6.global.log.LogMarker;
 import com.team6.team6.question.domain.QuestionGenerator;
 import com.team6.team6.question.dto.QuestionsResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.stereotype.Component;
@@ -11,10 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.team6.team6.global.log.LogUtil.infoLog;
-
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OpenAiQuestionGenerator implements QuestionGenerator {
 
     private final ChatClient chatClient;
@@ -45,17 +46,23 @@ public class OpenAiQuestionGenerator implements QuestionGenerator {
         Prompt prompt = new Prompt(promptText);
 
         try {
-            infoLog(String.format("OpenAI API 호출 시작 - 키워드: %s", keyword));
+            log.info(LogMarker.OPEN_AI.getMarker(),
+                    "OpenAI API 호출 시작 - 키워드: {}", keyword);
+
             QuestionsResponse response = chatClient.prompt(prompt)
                     .call()
                     .entity(QuestionsResponse.class);
 
             List<String> parsedQuestions = parseQuestions(response.questions());
-            infoLog(String.format("OpenAI로부터 질문 생성 완료 - 키워드: %s, 생성된 질문 개수: %d",
-                    keyword, parsedQuestions.size()));
+
+            log.info(LogMarker.OPEN_AI.getMarker(),
+                    "OpenAI로부터 질문 생성 완료 - 키워드: {}, 생성된 질문 개수: {}",
+                    keyword, parsedQuestions.size());
 
             return parsedQuestions;
         } catch (Exception e) {
+            log.error(LogMarker.OPEN_AI.getMarker(),
+                    "OpenAI 질문 생성 실패 - 키워드: {}", keyword, e);
             throw new ExternalApiException("OpenAI 질문 생성 실패", e);
         }
     }

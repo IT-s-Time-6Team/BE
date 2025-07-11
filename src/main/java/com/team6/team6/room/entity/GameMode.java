@@ -6,8 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum GameMode {
-    NORMAL("일반");
+    NORMAL("일반"),
+    TMI("TMI"),
+    BALANCE("밸런스");
 
     private final String description;
-
 }

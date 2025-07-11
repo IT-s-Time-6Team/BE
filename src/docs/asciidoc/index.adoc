@@ -1,4 +1,3 @@
-
 = API 문서
 :toc: left
 :sectnums:
@@ -17,3 +16,5 @@ include::room.adoc[]
 include::member.adoc[]
 include::stomp.adoc[]
 include::questions.adoc[]
+include::tmi.adoc[]
+include::balance.adoc[]
