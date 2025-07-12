@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/rooms/*/member").permitAll() // 회원가입/로그인은 허용
                         .requestMatchers(HttpMethod.POST, "/rooms").permitAll() // 방 생성은 허용
                         .requestMatchers(HttpMethod.GET, "/rooms/*").authenticated() // 방 조회는 인증 필요
-                        .requestMatchers(HttpMethod.PATCH, "/rooms/*/close").authenticated() // 방 종료는 인증 필요
+                        .requestMatchers(HttpMethod.GET, "/rooms/*").permitAll()  // 방 조회는 임시로 허용                        .requestMatchers(HttpMethod.PATCH, "/rooms/*/close").authenticated() // 방 종료는 인증 필요
                         .requestMatchers("/docs/**").permitAll() // API 문서 접근 허용
                         .requestMatchers("/actuator/**").permitAll() // actuator 접근 허용
                         .anyRequest().authenticated()
