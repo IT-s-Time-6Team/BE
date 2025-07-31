@@ -1,14 +1,18 @@
 package com.team6.team6.keyword.domain;
 
+import com.team6.team6.keyword.domain.repository.GlobalKeywordRepository;
 import com.team6.team6.keyword.domain.repository.KeywordRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
+import com.team6.team6.keyword.entity.GlobalKeyword;
 import com.team6.team6.keyword.entity.Keyword;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -18,12 +22,32 @@ public class RoomKeywordManager {
     private final KeywordRepository keywordRepository;
     private final KeywordSimilarityAnalyser keywordSimilarityAnalyser;
     private final AnalysisResultStore analysisResultStore;
+    private final GlobalKeywordRepository globalKeywordRepository;
+    private final KeywordPreprocessor keywordPreprocessor;
 
     public List<AnalysisResult> addKeyword(Long roomId, String keyword) {
-        // 추가된 키워드 저장
         log.info("방 {}에 키워드 '{}' 추가 시작", roomId, keyword);
 
-        // 키워드 추가 시에는 항상 새로 분석
+        List<String> referenceNames = analysisResultStore.findReferenceNamesByRoomId(roomId, 1);
+
+        if (!referenceNames.isEmpty()) {
+            // 전처리된 키워드들로 검색
+            List<String> preprocessedReferenceNames = referenceNames.stream()
+                    .map(keywordPreprocessor::preprocess)
+                    .toList();
+            String preprocessedKeyword = keywordPreprocessor.preprocess(keyword);
+
+            Optional<GlobalKeyword> existingGroupKeyword = globalKeywordRepository
+                    .findByKeywordInAndSameGroupAs(preprocessedReferenceNames, preprocessedKeyword);
+
+            if (existingGroupKeyword.isPresent()) {
+                log.info("키워드 '{}'가 기존 그룹에 추가됨 - 분석 생략", keyword);
+                return updateAnalysisResultWithNewKeyword(roomId, keyword, existingGroupKeyword.get().getKeyword());
+            }
+        }
+
+        // 기존 그룹에 추가되지 않은 경우 새로 분석
+        log.info("키워드 '{}'가 새롭게 추가되어 그룹화 실행", keyword);
         List<AnalysisResult> results = analyzeAndSave(roomId);
         log.info("방 {}에 키워드 추가 및 분석 완료: 분석 결과 그룹 수={}", roomId, results.size());
 
@@ -52,8 +76,18 @@ public class RoomKeywordManager {
         List<String> keywordsInStore = findKeywordsByRoomId(roomId);
         log.debug("분석 대상 키워드 수: {}", keywordsInStore.size());
 
-        List<List<String>> groupedResult = keywordSimilarityAnalyser.analyse(keywordsInStore);
-        List<AnalysisResult> results = convertToAnalysisResult(groupedResult, keywordsInStore);
+        List<AnalysisResult> results;
+        if (keywordsInStore.size() <= 1) {
+            // 키워드가 1개 이하면 그룹화 생략
+            results = keywordsInStore.stream()
+                    .map(keyword -> AnalysisResult.of(keyword, List.of(keyword)))
+                    .toList();
+            log.debug("키워드 수가 1개 이하로 그룹화 생략");
+        } else {
+            // 키워드가 2개 이상일 때만 그룹화 수행
+            List<List<String>> groupedResult = keywordSimilarityAnalyser.analyse(keywordsInStore);
+            results = convertToAnalysisResult(groupedResult, keywordsInStore);
+        }
         // 분석 결과 저장
         analysisResultStore.save(roomId, results);
         log.debug("방 {} 분석 결과 저장 완료: 그룹 수={}", roomId, results.size());
@@ -72,6 +106,32 @@ public class RoomKeywordManager {
                     return AnalysisResult.of(referenceName, group);
                 })
                 .toList();
+    }
+
+
+
+    private List<AnalysisResult> updateAnalysisResultWithNewKeyword(Long roomId, String newKeyword, String matchingPreprocessedKeyword) {
+        log.debug("기존 분석 결과에 키워드 '{}' 추가", newKeyword);
+
+        List<AnalysisResult> existingResults = analysisResultStore.findByRoomId(roomId);
+
+        List<AnalysisResult> updatedResults = existingResults.stream()
+                .map(result -> {
+                    if (keywordPreprocessor.preprocess(result.referenceName()).equals(matchingPreprocessedKeyword)) {
+                        List<String> updatedVariations = new ArrayList<>(result.variations());
+                        updatedVariations.add(newKeyword);
+                        return new AnalysisResult(result.referenceName(),
+                                result.count() + 1,
+                                updatedVariations);
+                    }
+                    return result;
+                })
+                .toList();
+
+        analysisResultStore.save(roomId, updatedResults);
+        log.debug("기존 분석 결과 업데이트 완료");
+
+        return updatedResults;
     }
 
     private List<String> findKeywordsByRoomId(Long roomId) {
