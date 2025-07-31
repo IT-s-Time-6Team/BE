@@ -1,6 +1,8 @@
 package com.team6.team6.keyword.domain;
 
+import com.team6.team6.keyword.domain.repository.KeywordRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
+import com.team6.team6.keyword.entity.Keyword;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,14 +15,13 @@ import java.util.List;
 @Slf4j
 public class RoomKeywordManager {
 
-    private final KeywordStore keywordStore;
+    private final KeywordRepository keywordRepository;
     private final KeywordSimilarityAnalyser keywordSimilarityAnalyser;
     private final AnalysisResultStore analysisResultStore;
 
     public List<AnalysisResult> addKeyword(Long roomId, String keyword) {
         // 추가된 키워드 저장
         log.info("방 {}에 키워드 '{}' 추가 시작", roomId, keyword);
-        keywordStore.saveKeyword(roomId, keyword);
 
         // 키워드 추가 시에는 항상 새로 분석
         List<AnalysisResult> results = analyzeAndSave(roomId);
@@ -48,7 +49,7 @@ public class RoomKeywordManager {
 
     private List<AnalysisResult> analyzeAndSave(Long roomId) {
         log.debug("방 {} 키워드 분석 및 저장 시작", roomId);
-        List<String> keywordsInStore = keywordStore.getKeywords(roomId);
+        List<String> keywordsInStore = findKeywordsByRoomId(roomId);
         log.debug("분석 대상 키워드 수: {}", keywordsInStore.size());
 
         List<List<String>> groupedResult = keywordSimilarityAnalyser.analyse(keywordsInStore);
@@ -70,6 +71,13 @@ public class RoomKeywordManager {
                             .get();
                     return AnalysisResult.of(referenceName, group);
                 })
+                .toList();
+    }
+
+    private List<String> findKeywordsByRoomId(Long roomId) {
+        return keywordRepository.findByRoomId(roomId)
+                .stream()
+                .map(Keyword::getKeyword)
                 .toList();
     }
 }

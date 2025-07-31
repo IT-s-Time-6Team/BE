@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface KeywordRepository extends JpaRepository<Keyword, Long> {
     List<Keyword> findByRoomIdAndMemberId(Long loomId, Long memberId);
+
+    List<Keyword> findByRoomId(Long roomId);
+
 }
