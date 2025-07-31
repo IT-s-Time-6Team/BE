@@ -23,4 +23,9 @@ public interface GlobalKeywordRepository extends JpaRepository<GlobalKeyword, Lo
     @Query("UPDATE GlobalKeyword g SET g.keywordGroup = :targetGroup WHERE g.keywordGroup IN :oldGroups")
     int bulkUpdateKeywordGroups(@Param("targetGroup") KeywordGroup targetGroup,
                                  @Param("oldGroups") Collection<KeywordGroup> oldGroups);
+
+    @Query("SELECT g FROM GlobalKeyword g WHERE g.keyword IN :keywords AND g.keywordGroup.id = " +
+            "(SELECT gk.keywordGroup.id FROM GlobalKeyword gk WHERE gk.keyword = :newKeyword)")
+    Optional<GlobalKeyword> findByKeywordInAndSameGroupAs(@Param("keywords") Collection<String> keywords,
+                                                          @Param("newKeyword") String newKeyword);
 }

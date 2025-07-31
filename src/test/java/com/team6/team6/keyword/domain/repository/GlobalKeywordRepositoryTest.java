@@ -87,4 +87,51 @@ class GlobalKeywordRepositoryTest {
                     assertThat(keyword.getKeywordGroup().getRepresentativeKeyword()).isEqualTo(targetGroup.getRepresentativeKeyword()));
         });
     }
+
+    @Test
+    void 같은_그룹_키워드_조회_테스트() {
+        // given
+        KeywordGroup group1 = KeywordGroup.create("프로그래밍");
+        KeywordGroup group2 = KeywordGroup.create("데이터베이스");
+        keywordGroupRepository.saveAll(Arrays.asList(group1, group2));
+
+        GlobalKeyword java = GlobalKeyword.create("자바", group1);
+        GlobalKeyword spring = GlobalKeyword.create("스프링", group1);
+        GlobalKeyword mysql = GlobalKeyword.create("MySQL", group2);
+        GlobalKeyword jpa = GlobalKeyword.create("JPA", group2);
+        globalKeywordRepository.saveAll(Arrays.asList(java, spring, mysql, jpa));
+
+        List<String> targetKeywords = Arrays.asList("자바", "MySQL");
+
+        // when
+        Optional<GlobalKeyword> result = globalKeywordRepository.findByKeywordInAndSameGroupAs(
+                targetKeywords, "스프링");
+
+        // then
+        assertSoftly(softly -> {
+            softly.assertThat(result).isPresent();
+            softly.assertThat(result.get().getKeyword()).isEqualTo("자바");
+            softly.assertThat(result.get().getKeywordGroup().getRepresentativeKeyword())
+                    .isEqualTo("프로그래밍");
+        });
+    }
+
+    @Test
+    void 존재하지_않는_newKeyword로_조회시_빈_Optional_반환_테스트() {
+        // given
+        KeywordGroup group = KeywordGroup.create("프로그래밍");
+        keywordGroupRepository.save(group);
+
+        GlobalKeyword java = GlobalKeyword.create("자바", group);
+        globalKeywordRepository.save(java);
+
+        List<String> targetKeywords = Arrays.asList("자바");
+
+        // when
+        Optional<GlobalKeyword> result = globalKeywordRepository.findByKeywordInAndSameGroupAs(
+                targetKeywords, "존재하지않는키워드");
+
+        // then
+        assertThat(result).isEmpty();
+    }
 }
