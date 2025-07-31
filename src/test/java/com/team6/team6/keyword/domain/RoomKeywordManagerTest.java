@@ -1,6 +1,8 @@
 package com.team6.team6.keyword.domain;
 
+import com.team6.team6.keyword.domain.repository.KeywordRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
+import com.team6.team6.keyword.entity.Keyword;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +18,7 @@ import static org.mockito.Mockito.*;
 class RoomKeywordManagerTest {
 
     @Mock
-    private KeywordStore keywordStore;
+    private KeywordRepository keywordRepository;
 
     @Mock
     private KeywordSimilarityAnalyser analyser;
@@ -33,19 +35,21 @@ class RoomKeywordManagerTest {
         Long roomId = 1L;
         String keyword = "AI";
 
+        List<Keyword> keywords = List.of(
+                createKeyword("AI"),
+                createKeyword("Deep Learning")
+        );
         List<String> keywordsInStore = List.of("AI", "Deep Learning");
         List<List<String>> expectedResult = List.of(keywordsInStore);
 
-        doNothing().when(keywordStore).saveKeyword(roomId, keyword);
-        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(keywordRepository.findByRoomId(roomId)).thenReturn(keywords);
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
         roomKeywordManager.addKeyword(roomId, keyword);
 
         // then
-        verify(keywordStore).saveKeyword(roomId, keyword);
-        verify(keywordStore).getKeywords(roomId);
+        verify(keywordRepository).findByRoomId(roomId);
         verify(analyser).analyse(keywordsInStore);
     }
 
@@ -55,11 +59,14 @@ class RoomKeywordManagerTest {
         Long roomId = 1L;
         String keyword = "AI";
 
+        List<Keyword> keywords = List.of(
+                createKeyword("AI"),
+                createKeyword("Deep Learning")
+        );
         List<String> keywordsInStore = List.of("AI", "Deep Learning");
         List<List<String>> expectedResult = List.of(keywordsInStore);
 
-        doNothing().when(keywordStore).saveKeyword(roomId, keyword);
-        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(keywordRepository.findByRoomId(roomId)).thenReturn(keywords);
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
@@ -80,11 +87,14 @@ class RoomKeywordManagerTest {
         Long roomId = 1L;
         String keyword = "AI";
 
+        List<Keyword> keywords = List.of(
+                createKeyword("AI"),
+                createKeyword("Deep Learning")
+        );
         List<String> keywordsInStore = List.of("AI", "Deep Learning");
         List<List<String>> expectedResult = List.of(List.of());
 
-        doNothing().when(keywordStore).saveKeyword(roomId, keyword);
-        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(keywordRepository.findByRoomId(roomId)).thenReturn(keywords);
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
@@ -100,10 +110,14 @@ class RoomKeywordManagerTest {
     void 키워드_추가_없이_분석_테스트() {
         // given
         Long roomId = 1L;
+        List<Keyword> keywords = List.of(
+                createKeyword("AI"),
+                createKeyword("Deep Learning")
+        );
         List<String> keywordsInStore = List.of("AI", "Deep Learning");
         List<List<String>> expectedResult = List.of(List.copyOf(keywordsInStore));
 
-        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(keywordRepository.findByRoomId(roomId)).thenReturn(keywords);
         when(analysisResultStore.findByRoomId(roomId)).thenReturn(List.of());
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
@@ -118,7 +132,7 @@ class RoomKeywordManagerTest {
             softly.assertThat(results.get(0).variations()).containsExactly("AI", "Deep Learning");
         });
 
-        verify(keywordStore).getKeywords(roomId);
+        verify(keywordRepository).findByRoomId(roomId);
         verify(analysisResultStore).findByRoomId(roomId);
         verify(analyser).analyse(keywordsInStore);
     }
@@ -127,10 +141,11 @@ class RoomKeywordManagerTest {
     void 키워드_추가_없이_분석_빈_그룹_테스트() {
         // given
         Long roomId = 1L;
+        List<Keyword> keywords = List.of();
         List<String> keywordsInStore = List.of();
         List<List<String>> expectedResult = List.of();
 
-        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(keywordRepository.findByRoomId(roomId)).thenReturn(keywords);
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
@@ -146,10 +161,15 @@ class RoomKeywordManagerTest {
     void analyzeAndSave_정상_동작_테스트() {
         // given
         Long roomId = 1L;
+        List<Keyword> keywords = List.of(
+                createKeyword("AI"),
+                createKeyword("Deep Learning")
+        );
         List<String> keywordsInStore = List.of("AI", "Deep Learning");
         List<List<String>> expectedResult = List.of(List.copyOf(keywordsInStore));
 
-        when(keywordStore.getKeywords(roomId)).thenReturn(keywordsInStore);
+        when(keywordRepository.findByRoomId(roomId)).thenReturn(keywords);
+        when(analysisResultStore.findByRoomId(roomId)).thenReturn(List.of());
         when(analyser.analyse(keywordsInStore)).thenReturn(expectedResult);
 
         // when
@@ -163,7 +183,7 @@ class RoomKeywordManagerTest {
             softly.assertThat(results.get(0).variations()).containsExactly("AI", "Deep Learning");
         });
 
-        verify(keywordStore).getKeywords(roomId);
+        verify(keywordRepository).findByRoomId(roomId);
         verify(analyser).analyse(keywordsInStore);
         verify(analysisResultStore).save(roomId, results);
     }
@@ -187,7 +207,7 @@ class RoomKeywordManagerTest {
         });
 
         verify(analysisResultStore).findByRoomId(roomId);
-        verifyNoInteractions(keywordStore, analyser);
+        verifyNoInteractions(keywordRepository, analyser);
     }
 
     @Test
@@ -213,7 +233,7 @@ class RoomKeywordManagerTest {
         });
 
         verify(analysisResultStore).findByRoomId(roomId);
-        verifyNoInteractions(keywordStore, analyser);
+        verifyNoInteractions(keywordRepository, analyser);
     }
 
     @Test
@@ -233,6 +253,12 @@ class RoomKeywordManagerTest {
         });
 
         verify(analysisResultStore).findByRoomId(roomId);
-        verifyNoInteractions(keywordStore, analyser);
+        verifyNoInteractions(keywordRepository, analyser);
+    }
+
+    private Keyword createKeyword(String keywordValue) {
+        return Keyword.builder()
+                .keyword(keywordValue)
+                .build();
     }
 }
