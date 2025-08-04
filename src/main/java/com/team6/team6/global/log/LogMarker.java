@@ -4,6 +4,7 @@ import com.github.loki4j.slf4j.marker.LabelMarker;
 
 public enum LogMarker {
     REQUEST("REQUEST"),
+    MERGE("MERGE"),
     OPEN_AI("OPEN_AI");
 
     private final LabelMarker marker;

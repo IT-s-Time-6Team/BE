@@ -1,5 +1,6 @@
 package com.team6.team6.keyword.domain;
 
+import com.team6.team6.global.log.LogMarker;
 import com.team6.team6.keyword.domain.repository.GlobalKeywordRepository;
 import com.team6.team6.keyword.domain.repository.KeywordGroupRepository;
 import com.team6.team6.keyword.dto.AnalysisResult;
@@ -18,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.team6.team6.global.log.LogMarker.MERGE;
 
 @Component
 @RequiredArgsConstructor
@@ -105,7 +108,7 @@ public class GlobalKeywordManager {
 
         // 충돌이 발생한 경우, 그룹 병합
         int updateKeywordCounts = globalKeywordRepository.bulkUpdateKeywordGroups(newKeywordGroup, otherGroups);
-        log.info("키워드 그룹 병합 완료: {} 그룹의 키워드 {} 개가 {} 그룹으로 이동되었습니다.", otherGroups, updateKeywordCounts, newKeywordGroup.getId());
+        log.info(MERGE.getMarker(), "키워드 그룹 병합 완료: {} 그룹의 키워드 {} 개가 {} 그룹으로 이동되었습니다.", otherGroups, updateKeywordCounts, newKeywordGroup.getId());
     }
 
     private boolean alreadyProcessed(List<String> preprocessedKeywords, String preprocessedNewKeyword) {
