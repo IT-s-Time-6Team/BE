@@ -20,7 +20,7 @@ public class Question extends BaseEntity {
     private String question;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "keyword_group_id")
     private KeywordGroup keywordGroup;
 
     @Builder
